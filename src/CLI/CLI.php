@@ -73,7 +73,7 @@ class CLI {
             throw new Exception('CLI tasks can only work from the command line');
         }
 
-        $this->args = $this->parse((isset($_SERVER['argv'])) ? $_SERVER['argv'] : $args);
+        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args: $_SERVER['argv']);
 
         $this->error = function (Exception $error) {
             Console::error($error->getMessage());
