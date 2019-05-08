@@ -2,7 +2,7 @@
 /**
  * Utopia PHP Framework
  *
- * @package Abuse
+ * @package CLI
  * @subpackage Tests
  *
  * @link https://github.com/utopia-php/framework
