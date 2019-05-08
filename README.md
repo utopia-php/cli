@@ -12,7 +12,7 @@ Although this library is part of the [Utopia Framework](https://github.com/utopi
 
 Install using composer:
 ```bash
-composer require utopia-php/abuse
+composer require utopia-php/cli
 ```
 
 script.php
