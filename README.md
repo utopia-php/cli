@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/utopia-php/cli.svg?branch=master)](https://travis-ci.org/utopia-php/cli)
 ![Total Downloads](https://img.shields.io/packagist/dt/utopia-php/cli.svg)
-![License](https://img.shields.io/github/license/utopia-php/cli.svg)
+[![Chat With Us](https://img.shields.io/gitter/room/utopia-php/community.svg)](https://gitter.im/utopia-php/community?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
 
 Utopia framework CLI library is simple and lite library for extending Utopia PHP Framework to be able to code command line applications. This library is aiming to be as simple and easy to learn and use.
 
