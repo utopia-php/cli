@@ -66,4 +66,23 @@ class Console
     static public function warning(string $message) {
         return fwrite(STDERR, "\033[1;33m" . $message . "\033[0m\n");
     }
+
+    /**
+     * Warning
+     *
+     * Log warning messages to console
+     *
+     * @param string $message
+     * @return bool|int
+     */
+    static public function confirm(string $question) {
+        self::log($question);
+
+        $handle = fopen('php://stdin', 'r');
+        $line   = trim(fgets($handle));
+
+        fclose($handle);
+        
+        return $line;
+    }
 }

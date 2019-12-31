@@ -34,5 +34,6 @@ class ConsoleTest extends TestCase
         $this->assertEquals(15, Console::error('error'));
         $this->assertEquals(14, Console::info('info'));
         $this->assertEquals(19, Console::warning('warning'));
+        $this->assertEquals('this is an answer', Console::confirm('this is a question'));
     }
 }
