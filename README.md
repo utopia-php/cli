@@ -68,6 +68,10 @@ Console::error('Red log message'); // stderr
 
 ### Execute Commands
 
+Function returns exit code (0 - OK, >0 - error) and writes stdout, stderr to reference variables. The timeout variable allows you to limit the number of seconds the command can run.
+
+
+
 ```php
 $stdout = '';
 $stderr = '';
