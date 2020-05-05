@@ -73,18 +73,6 @@ class ConsoleTest extends TestCase
         $this->assertEquals(0, $code);
     }
 
-    public function testExecuteSyntaxError()
-    {
-        $stdout = '';
-        $stderr = '';
-        $stdin = '';
-        $code = Console::execute('php -r "echo \'hello world\'"', $stdin, $stdout, $stderr, 10);
-
-        $this->assertEquals('', $stderr);
-        $this->assertEquals("\nParse error: syntax error, unexpected end of file, expecting ',' or ';' in Command line code on line 1\n", $stdout);
-        $this->assertEquals(254, $code);
-    }
-
     public function testExecuteExitCode()
     {
         $stdout = '';
