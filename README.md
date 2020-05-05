@@ -44,6 +44,54 @@ And than, run from command line:
 php script.php command-name --email=me@example.com
 ```
 
+### Log Messages
+
+```php
+Console::log('Plain Log'); // stdout
+```
+
+```php
+Console::success('Green log message'); // stdout
+```
+
+```php
+Console::info('Blue log message'); // stdout
+```
+
+```php
+Console::warning('Yellow log message'); // stderr
+```
+
+```php
+Console::error('Red log message'); // stderr
+```
+
+### Execute Commands
+
+```php
+$stdout = '';
+$stderr = '';
+$stdin = '';
+$timeout = 3; // seconds
+$code = Console::execute('>&1 echo "success"', $stdin, $stdout, $stderr, $timeout);
+
+echo $code; // 0
+echo $stdout; // 'success'
+echo $stderr; // ''
+```
+
+```php
+$stdout = '';
+$stderr = '';
+$stdin = '';
+$timeout = 3; // seconds
+$code = Console::execute('>&2 echo "error"', $stdin, $stdout, $stderr, $timeout);
+
+echo $code; // 0
+echo $stdout; // ''
+echo $stderr; // 'error'
+```
+
 ## System Requirements
 
 Utopia Framework requires PHP 7.1 or later. We recommend using the latest PHP version whenever possible.
