@@ -15,7 +15,7 @@
     },
     "require": {
         "php": ">=7.1",
-        "utopia-php/framework": "0.3.*"
+        "utopia-php/framework": "0.*.*"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.0"
