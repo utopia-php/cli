@@ -69,7 +69,7 @@ class CLI {
      */
     public function __construct(array $args = [])
     {
-        if (php_sapi_name() !== "cli") {
+        if (\php_sapi_name() !== "cli") {
             throw new Exception('CLI tasks can only work from the command line');
         }
 
@@ -79,7 +79,7 @@ class CLI {
             Console::error($error->getMessage());
         };
 
-        @cli_set_process_title($this->command);
+        @\cli_set_process_title($this->command);
     }
 
     /**
@@ -143,10 +143,10 @@ class CLI {
      */
     public function parse(array $args)
     {
-        array_shift($args); // Remove script path from args
+        \array_shift($args); // Remove script path from args
 
         if(isset($args[0])) {
-            $this->command = array_shift($args);
+            $this->command = \array_shift($args);
         }
         else {
             throw new Exception('Missing command');
@@ -155,8 +155,8 @@ class CLI {
         $output = [];
 
         foreach ($args as $arg) {
-            if(substr($arg, 0, 2) === '--') {
-                $arg = explode('=', substr($arg, 2));
+            if(\substr($arg, 0, 2) === '--') {
+                $arg = \explode('=', \substr($arg, 2));
 
                 $output[$arg[0]] = (isset($arg[1])) ? $arg[1] : true;
             }
@@ -175,7 +175,7 @@ class CLI {
         try {
             if($command) {
                 foreach($this->init as $init) {
-                    call_user_func_array($init, array());
+                    \call_user_func_array($init, array());
                 }
 
                 $params = [];
@@ -190,10 +190,10 @@ class CLI {
                 }
 
                 // Call the callback with the matched positions as params
-                call_user_func_array($command->getAction(), $params);
+                \call_user_func_array($command->getAction(), $params);
 
                 foreach($this->shutdown as $shutdown) {
-                    call_user_func_array($shutdown, array());
+                    \call_user_func_array($shutdown, array());
                 }
             }
             else {
@@ -201,7 +201,7 @@ class CLI {
             }
         }
         catch (Exception $e) {
-            call_user_func_array($this->error, array($e));
+            \call_user_func_array($this->error, array($e));
         }
 
         return $this;
@@ -223,7 +223,7 @@ class CLI {
             // checking whether the class exists
             $validator = $param['validator'];
 
-            if(is_callable($validator)) {
+            if(\is_callable($validator)) {
                 $validator = $validator();
             }
 
