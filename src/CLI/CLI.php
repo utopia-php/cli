@@ -154,13 +154,13 @@ class CLI {
 
         $output = [];
 
-        foreach ($args as $arg) {
+        foreach ($args as &$arg) {
             if(\substr($arg, 0, 2) === '--') {
-                $arg = \explode('=', \substr($arg, 2));
-
-                $output[$arg[0]] = (isset($arg[1])) ? $arg[1] : true;
+                $arg = \substr($arg, 2);
             }
         }
+
+        parse_str(implode('&', $args), $output); // Parse like PHP query string to support PHP arrays
 
         return $output;
     }
