@@ -51,7 +51,8 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function info(string $message) {
+    static public function info(string $message)
+    {
         return \fwrite(STDOUT, "\033[34m" . $message . "\033[0m\n");
     }
 
@@ -63,7 +64,8 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function warning(string $message) {
+    static public function warning(string $message)
+    {
         return \fwrite(STDERR, "\033[1;33m" . $message . "\033[0m\n");
     }
 
@@ -75,7 +77,8 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function confirm(string $question) {
+    static public function confirm(string $question)
+    {
         self::log($question);
 
         $handle = \fopen('php://stdin', 'r');
@@ -84,6 +87,19 @@ class Console
         \fclose($handle);
         
         return $line;
+    }
+
+    /**
+     * Exit
+     *
+     * Log warning messages to console
+     *
+     * @param string $message
+     * @return bool|int
+     */
+    static public function exit(int $status = 0)
+    {
+        exit($status);
     }
 
     /**
