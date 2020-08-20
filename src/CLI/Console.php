@@ -5,6 +5,19 @@ namespace Utopia\CLI;
 class Console
 {
     /**
+     * Title
+     *
+     * Sets the process title visible in tools such as top and ps. 
+     *
+     * @param string $title
+     * @return bool
+     */
+    static public function title(string $title)
+    {
+        return @\cli_set_process_title($title);
+    }
+
+    /**
      * Log
      *
      * Log messages to console
