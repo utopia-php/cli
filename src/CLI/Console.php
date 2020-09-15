@@ -108,9 +108,9 @@ class Console
      * Log warning messages to console
      *
      * @param string $message
-     * @return bool|int
+     * @return void
      */
-    static public function exit(int $status = 0)
+    static public function exit(int $status = 0): void
     {
         exit($status);
     }
@@ -120,7 +120,7 @@ class Console
      * 
      * This function was inspired by: https://stackoverflow.com/a/13287902/2299554
      */
-    static public function execute(string $cmd, string $stdin = null, string &$stdout, string &$stderr, int $timeout = -1):int
+    static public function execute(string $cmd, string $stdin = null, string &$stdout, string &$stderr, int $timeout = -1): int
     {
         $pipes = [];
         $process = \proc_open(
@@ -166,5 +166,10 @@ class Console
         }
 
         return 1;
+    }
+
+    public function isInteractive(): bool
+    {
+        return ('cli' === PHP_SAPI && ! defined('STDOUT'));
     }
 }
