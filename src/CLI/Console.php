@@ -92,6 +92,10 @@ class Console
      */
     static public function confirm(string $question)
     {
+        if(!self::isInteractive()) {
+            return null;
+        }
+        
         self::log($question);
 
         $handle = \fopen('php://stdin', 'r');
@@ -168,7 +172,12 @@ class Console
         return 1;
     }
 
-    public function isInteractive(): bool
+    /**
+     * Is Interactive Mode?
+     * 
+     * @return bool
+     */
+    static public function isInteractive(): bool
     {
         return ('cli' === PHP_SAPI && ! defined('STDOUT'));
     }
