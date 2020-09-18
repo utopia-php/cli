@@ -28,7 +28,7 @@ use Utopia\Validator\Email;
 $cli = new CLI();
 
 $cli
-    ->task('build')
+    ->task('command-name')
     ->param('email', null, new Email())
     ->action(function ($email) {
         Console::success($email);
