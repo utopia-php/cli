@@ -24,12 +24,12 @@ class TaskTest extends TestCase
      */
     protected $task;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->task = new Task('test');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->task = null;
     }

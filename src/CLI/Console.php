@@ -87,13 +87,13 @@ class Console
      *
      * Log warning messages to console
      *
-     * @param string $message
-     * @return bool|int
+     * @param string $question
+     * @return string
      */
     static public function confirm(string $question)
     {
         if(!self::isInteractive()) {
-            return null;
+            return '';
         }
 
         self::log($question);
@@ -124,7 +124,7 @@ class Console
      * 
      * This function was inspired by: https://stackoverflow.com/a/13287902/2299554
      */
-    static public function execute(string $cmd, string $stdin = null, string &$stdout, string &$stderr, int $timeout = -1): int
+    static public function execute(string $cmd, string $stdin = '', string &$stdout, string &$stderr, int $timeout = -1): int
     {
         $pipes = [];
         $process = \proc_open(
@@ -163,7 +163,7 @@ class Console
                 \fclose($pipes[2]);
                 \proc_close($process);
 
-                return $status['exitcode'];
+                return (int)$status['exitcode'];
             }
 
             \usleep(100000);

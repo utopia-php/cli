@@ -48,6 +48,7 @@ class Task
     public function __construct(string $name)
     {
         $this->name = $name;
+        $this->action = function(): void {};
     }
 
     /**

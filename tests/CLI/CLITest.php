@@ -21,11 +21,11 @@ use Utopia\Validator\Text;
 
 class CLITest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
     }
 
@@ -69,7 +69,7 @@ class CLITest extends TestCase
         $this->assertEquals('', $result);
     }
 
-    public function testApp[]
+    public function testAppArray()
     {
         ob_start();
 

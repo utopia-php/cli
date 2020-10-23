@@ -41,7 +41,7 @@ class CLI {
      *
      * @var callable
      */
-    protected $error = null;
+    protected $error;
 
     /**
      * Init
@@ -75,7 +75,7 @@ class CLI {
 
         $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args: $_SERVER['argv']);
 
-        $this->error = function (Exception $error) {
+        $this->error = function (Exception $error): void {
             Console::error($error->getMessage());
         };
 
@@ -87,10 +87,10 @@ class CLI {
      *
      * Set a callback function that will be initialized on application start
      *
-     * @param $callback
+     * @param callable $callback
      * @return $this
      */
-    public function init($callback)
+    public function init(callable $callback): self
     {
         $this->init[] = $callback;
         return $this;
@@ -104,7 +104,7 @@ class CLI {
      * @param $callback
      * @return $this
      */
-    public function shutdown($callback)
+    public function shutdown(callable $callback): self
     {
         $this->shutdown[] = $callback;
         return $this;
@@ -118,13 +118,22 @@ class CLI {
      * @param $callback
      * @return $this
      */
-    public function error($callback)
+    public function error(callable $callback): self
     {
         $this->error = $callback;
         return $this;
     }
 
-    public function task($name)
+    /**
+     * Task
+     * 
+     * Add a new command task
+     * 
+     * @param string $name
+     * 
+     * @return Task
+     */
+    public function task(string $name): Task
     {
         $task = new Task($name);
 
@@ -134,14 +143,13 @@ class CLI {
     }
 
     /**
-     *
      * task-name --foo=test
      *
-     * @param $args
-     * @return mixed
+     * @param array $args
      * @throws Exception
+     * @return array
      */
-    public function parse(array $args)
+    public function parse(array $args): array
     {
         \array_shift($args); // Remove script path from args
 
@@ -167,8 +175,10 @@ class CLI {
 
     /**
      * Run
+     * 
+     * @return $this
      */
-    public function run()
+    public function run(): self
     {
         $command = isset($this->tasks[$this->command]) ? $this->tasks[$this->command] : null;
 
@@ -212,12 +222,12 @@ class CLI {
      *
      * Creates an validator instance and validate given value with given rules.
      *
-     * @param $key
-     * @param $param
-     * @param $value
+     * @param string $key
+     * @param array $param
+     * @param mixed $value
      * @throws Exception
      */
-    protected function validate($key, $param, $value)
+    protected function validate(string $key, array $param, $value): void
     {
         if ('' !== $value) {
             // checking whether the class exists
