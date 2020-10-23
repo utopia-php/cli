@@ -123,8 +123,15 @@ class Console
      * Execute a Commnad
      * 
      * This function was inspired by: https://stackoverflow.com/a/13287902/2299554
+     * 
+     * @param string $cmd
+     * @param string $stdin
+     * @param string $stdout
+     * @param string $stderr
+     * @param int $timeout
+     * @return int
      */
-    static public function execute(string $cmd, string $stdin = '', string &$stdout, string &$stderr, int $timeout = -1): int
+    static public function execute(string $cmd, string $stdin, string &$stdout, string &$stderr, int $timeout = -1): int
     {
         $pipes = [];
         $process = \proc_open(
