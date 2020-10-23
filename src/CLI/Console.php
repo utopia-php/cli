@@ -137,9 +137,9 @@ class Console
         $stderr = '';
 
         if (\is_resource($process)) {
-            \stream_set_blocking($pipes[0], 0);
-            \stream_set_blocking($pipes[1], 0);
-            \stream_set_blocking($pipes[2], 0);
+            \stream_set_blocking($pipes[0], false);
+            \stream_set_blocking($pipes[1], false);
+            \stream_set_blocking($pipes[2], false);
 
             \fwrite($pipes[0], $stdin);
             \fclose($pipes[0]);

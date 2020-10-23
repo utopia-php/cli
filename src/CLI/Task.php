@@ -19,9 +19,9 @@ class Task
     /**
      * Action Callback
      *
-     * @var null|callback
+     * @var callable
      */
-    protected $action = null;
+    protected $action;
 
     /**
      * Parameters
@@ -30,7 +30,7 @@ class Task
      *
      * @var array
      */
-    protected $params = array();
+    protected $params = [];
 
     /**
      * Labels
@@ -39,13 +39,13 @@ class Task
      *
      * @var array
      */
-    protected $labels = array();
+    protected $labels = [];
 
     /**
      * Task constructor.
-     * @param $name
+     * @param string $name
      */
-    public function __construct($name)
+    public function __construct(string $name)
     {
         $this->name = $name;
     }
@@ -56,7 +56,7 @@ class Task
      * @param string $desc
      * @return $this
      */
-    public function desc($desc)
+    public function desc($desc): self
     {
         $this->desc = $desc;
         return $this;
@@ -65,10 +65,10 @@ class Task
     /**
      * Add Action
      *
-     * @param $action
+     * @param callable $action
      * @return $this
      */
-    public function action($action)
+    public function action(callable $action): self
     {
         $this->action = $action;
         return $this;
@@ -78,14 +78,14 @@ class Task
      * Add Param
      *
      * @param string $key
-     * @param null $default
+     * @param mixed $default
      * @param string $validator
      * @param string $description
      * @param bool $optional
      *
      * @return $this
      */
-    public function param($key, $default, $validator, $description = '', $optional = false)
+    public function param(string $key, $default, $validator, string $description = '', bool $optional = false): self
     {
         $this->params[$key] = array(
             'default'       => $default,
@@ -106,7 +106,7 @@ class Task
      *
      * @return $this
      */
-    public function label($key, $value)
+    public function label(string $key, $value): self
     {
         $this->labels[$key] = $value;
 
@@ -118,7 +118,7 @@ class Task
      *
      * @return string
      */
-    public function getDesc()
+    public function getDesc(): string
     {
         return $this->desc;
     }
@@ -126,9 +126,9 @@ class Task
     /**
      * Get Action
      *
-     * @return callable|null
+     * @return callable
      */
-    public function getAction()
+    public function getAction(): callable
     {
         return $this->action;
     }
@@ -138,7 +138,7 @@ class Task
      *
      * @return array
      */
-    public function getParams()
+    public function getParams(): array
     {
         return $this->params;
     }
@@ -152,7 +152,7 @@ class Task
      * @param mixed $default
      * @return mixed
      */
-    public function getLabel($key, $default)
+    public function getLabel(string $key, $default)
     {
         return (isset($this->labels[$key])) ? $this->labels[$key] : $default;
     }

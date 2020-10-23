@@ -39,7 +39,7 @@ class CLI {
      *
      * An error callback
      *
-     * @var callback
+     * @var callable
      */
     protected $error = null;
 
@@ -48,18 +48,18 @@ class CLI {
      *
      * A callback function that is initialized on application start
      *
-     * @var callback[]
+     * @var callable[]
      */
-    protected $init = array();
+    protected $init = [];
 
     /**
      * Shutdown
      *
      * A callback function that is initialized on application end
      *
-     * @var callback[]
+     * @var callable[]
      */
-    protected $shutdown = array();
+    protected $shutdown = [];
 
     /**
      * CLI constructor.
@@ -175,7 +175,7 @@ class CLI {
         try {
             if($command) {
                 foreach($this->init as $init) {
-                    \call_user_func_array($init, array());
+                    \call_user_func_array($init, []);
                 }
 
                 $params = [];
@@ -193,7 +193,7 @@ class CLI {
                 \call_user_func_array($command->getAction(), $params);
 
                 foreach($this->shutdown as $shutdown) {
-                    \call_user_func_array($shutdown, array());
+                    \call_user_func_array($shutdown, []);
                 }
             }
             else {

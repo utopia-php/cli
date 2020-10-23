@@ -69,7 +69,7 @@ class CLITest extends TestCase
         $this->assertEquals('', $result);
     }
 
-    public function testAppArray()
+    public function testApp[]
     {
         ob_start();
 
