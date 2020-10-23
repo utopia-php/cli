@@ -92,7 +92,7 @@ class Console
      */
     static public function confirm(string $question)
     {
-        if(!self::isInteractive()) {
+        if (!self::isInteractive()) {
             return '';
         }
 
@@ -152,20 +152,18 @@ class Console
             \fclose($pipes[0]);
         }
 
-        while(\is_resource($process))
-        {
+        while (\is_resource($process)) {
             $stdout .= \stream_get_contents($pipes[1]);
             $stderr .= \stream_get_contents($pipes[2]);
 
-            if($timeout > 0 && \time() - $start > $timeout)
-            {
+            if ($timeout > 0 && \time() - $start > $timeout) {
                 \proc_terminate($process, 9);
                 return 1;
             }
 
             $status = \proc_get_status($process);
 
-            if(!$status['running']) {
+            if (!$status['running']) {
                 \fclose($pipes[1]);
                 \fclose($pipes[2]);
                 \proc_close($process);

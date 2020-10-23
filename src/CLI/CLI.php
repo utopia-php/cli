@@ -5,8 +5,8 @@ namespace Utopia\CLI;
 use Exception;
 use Utopia\Validator;
 
-class CLI {
-
+class CLI
+{
     /**
      * Command
      *
@@ -153,17 +153,16 @@ class CLI {
     {
         \array_shift($args); // Remove script path from args
 
-        if(isset($args[0])) {
+        if (isset($args[0])) {
             $this->command = \array_shift($args);
-        }
-        else {
+        } else {
             throw new Exception('Missing command');
         }
 
         $output = [];
 
         foreach ($args as &$arg) {
-            if(\substr($arg, 0, 2) === '--') {
+            if (\substr($arg, 0, 2) === '--') {
                 $arg = \substr($arg, 2);
             }
         }
@@ -183,14 +182,14 @@ class CLI {
         $command = isset($this->tasks[$this->command]) ? $this->tasks[$this->command] : null;
 
         try {
-            if($command) {
-                foreach($this->init as $init) {
+            if ($command) {
+                foreach ($this->init as $init) {
                     \call_user_func_array($init, []);
                 }
 
                 $params = [];
 
-                foreach($command->getParams() as $key => $param) {
+                foreach ($command->getParams() as $key => $param) {
                     // Get value from route or request object
                     $value = (isset($this->args[$key])) ? $this->args[$key] : $param['default'];
 
@@ -202,15 +201,13 @@ class CLI {
                 // Call the callback with the matched positions as params
                 \call_user_func_array($command->getAction(), $params);
 
-                foreach($this->shutdown as $shutdown) {
+                foreach ($this->shutdown as $shutdown) {
                     \call_user_func_array($shutdown, []);
                 }
-            }
-            else {
+            } else {
                 throw new Exception('No command found');
             }
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             \call_user_func_array($this->error, array($e));
         }
 
@@ -233,7 +230,7 @@ class CLI {
             // checking whether the class exists
             $validator = $param['validator'];
 
-            if(\is_callable($validator)) {
+            if (\is_callable($validator)) {
                 $validator = $validator();
             }
 
@@ -245,9 +242,10 @@ class CLI {
             if (!$validator->isValid($value)) {
                 throw new Exception('Invalid ' .$key . ': ' . $validator->getDescription(), 400);
             }
-        }
-        else if (!$param['optional']) {
-            throw new Exception('Param "' . $key . '" is not optional.', 400);
+        } else {
+            if (!$param['optional']) {
+                throw new Exception('Param "' . $key . '" is not optional.', 400);
+            }
         }
     }
 }
