@@ -171,7 +171,7 @@ class Console
                 return (int)$status['exitcode'];
             }
 
-            \usleep(100000);
+            \usleep(10000);
         }
 
         return 1;
