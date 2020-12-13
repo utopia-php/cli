@@ -124,7 +124,8 @@ class ConsoleTest extends TestCase
         $code = Console::execute('php '.$file, $stdin, $stdout, $stderr, 3);
 
         $this->assertEquals('', $stderr);
-        $this->assertEquals(40, count(explode("\n", $stdout)));
+        $this->assertGreaterThan(30, count(explode("\n", $stdout)));
+        $this->assertLessThan(50, count(explode("\n", $stdout)));
         $this->assertEquals(1, $code);
     }
 }
