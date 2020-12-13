@@ -105,7 +105,7 @@ You can use the `Console::loop` command to create your PHP daemon. The `loop` me
 
 use Utopia\CLI\Console;
 
-include __DIR__.'/../../vendor/autoload.php';
+include './vendor/autoload.php';
 
 Console::loop(function() {
     echo "Hello World\n";
