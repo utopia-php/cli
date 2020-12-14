@@ -186,4 +186,31 @@ class Console
     {
         return ('cli' === PHP_SAPI && defined('STDOUT'));
     }
+
+    /**
+     * @param callable $callback
+     * @param int $sleep in microseconds
+     */
+    static public function loop(callable $callback, $sleep = 100000 /* 100ms */): void
+    {
+        gc_enable();
+
+        $time = 0;
+        
+        while (!connection_aborted() || PHP_SAPI == "cli") {
+
+            $callback();
+
+            usleep($sleep);
+
+            $time = $time + $sleep;
+
+            if (PHP_SAPI == "cli") {
+                if($time >= (1000000 * 300)) { // Every 5 minutes
+                    $time = 0;
+                    gc_collect_cycles(); //Forces collection of any existing garbage cycles
+                }
+            }
+        }
+    }
 }

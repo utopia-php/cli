@@ -114,4 +114,18 @@ class ConsoleTest extends TestCase
         $this->assertEquals('', $stdout);
         $this->assertEquals(1, $code);
     }
+
+    public function testLoop()
+    {
+        $file = __DIR__.'/../resources/loop.php';
+        $stdin = '';
+        $stdout = '';
+        $stderr = '';
+        $code = Console::execute('php '.$file, $stdin, $stdout, $stderr, 3);
+
+        $this->assertEquals('', $stderr);
+        $this->assertGreaterThan(30, count(explode("\n", $stdout)));
+        $this->assertLessThan(50, count(explode("\n", $stdout)));
+        $this->assertEquals(1, $code);
+    }
 }

@@ -19,7 +19,7 @@ script.php
 ```php
 <?php
 
-require_once '../vendor/autoload.php';
+require_once './vendor/autoload.php';
 
 use Utopia\CLI\CLI;
 use Utopia\CLI\Console;
@@ -94,6 +94,22 @@ $code = Console::execute('>&2 echo "error"', $stdin, $stdout, $stderr, $timeout)
 echo $code; // 0
 echo $stdout; // ''
 echo $stderr; // 'error'
+```
+
+### Create a Daemon
+
+You can use the `Console::loop` command to create your PHP daemon. The `loop` method already handles CPU consumption using a configurable sleep function and calls the PHP garbage collector every 5 minutes.
+
+```php
+<?php
+
+use Utopia\CLI\Console;
+
+include './vendor/autoload.php';
+
+Console::loop(function() {
+    echo "Hello World\n";
+}, 200000 /* 200ms */);
 ```
 
 ## System Requirements
