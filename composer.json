@@ -14,7 +14,7 @@
         "psr-4": {"Utopia\\CLI\\": "src/CLI"}
     },
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.4",
         "utopia-php/framework": "0.*.*"
     },
     "require-dev": {
