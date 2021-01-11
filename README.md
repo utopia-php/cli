@@ -114,7 +114,7 @@ Console::loop(function() {
 
 ## System Requirements
 
-Utopia Framework requires PHP 7.3 or later. We recommend using the latest PHP version whenever possible.
+Utopia Framework requires PHP 7.4 or later. We recommend using the latest PHP version whenever possible.
 
 ## Authors
 
