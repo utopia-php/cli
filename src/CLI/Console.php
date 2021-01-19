@@ -189,9 +189,9 @@ class Console
 
     /**
      * @param callable $callback
-     * @param int $sleep in microseconds
+     * @param int $sleep in seconds
      */
-    static public function loop(callable $callback, $sleep = 100000 /* 100ms */): void
+    static public function loop(callable $callback, $sleep = 1 /* 1 second */): void
     {
         gc_enable();
 
@@ -201,7 +201,7 @@ class Console
 
             $callback();
 
-            usleep($sleep);
+            sleep($sleep);
 
             $time = $time + $sleep;
 
