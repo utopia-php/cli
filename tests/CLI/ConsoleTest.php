@@ -115,6 +115,18 @@ class ConsoleTest extends TestCase
         $this->assertEquals(1, $code);
     }
 
+    public function testExecuteMultiline()
+    {
+        $stdout = '';
+        $stderr = '';
+        $stdin = '';
+        $code = Console::executeMultiline(['php', '-r "echo \'hello world\';"'], $stdin, $stdout, $stderr, 10);
+
+        $this->assertEquals('', $stderr);
+        $this->assertEquals('hello world', $stdout);
+        $this->assertEquals(0, $code);
+    }
+
     public function testLoop()
     {
         $file = __DIR__.'/../resources/loop.php';

@@ -120,7 +120,7 @@ class Console
     }
 
     /**
-     * Execute a Commnad
+     * Execute a Command
      * 
      * This function was inspired by: https://stackoverflow.com/a/13287902/2299554
      * 
@@ -175,6 +175,23 @@ class Console
         }
 
         return 1;
+    }
+
+    /**
+     * Execute a Commnad
+     * 
+     * This function was inspired by: https://stackoverflow.com/a/13287902/2299554
+     * 
+     * @param array $cmd
+     * @param string $stdin
+     * @param string $stdout
+     * @param string $stderr
+     * @param int $timeout
+     * @return int
+     */
+    static public function executeMultiline(array $cmd, string $stdin, string &$stdout, string &$stderr, int $timeout = -1): int
+    {
+        return self::execute(implode(' ', $cmd), $stdin, $stdout, $stderr, $timeout);
     }
 
     /**
