@@ -173,13 +173,23 @@ class CLI
     }
 
     /**
+     * Find the command that should be triggered
+     * 
+     * @return Task|null
+     */
+    public function match()
+    {
+        return isset($this->tasks[$this->command]) ? $this->tasks[$this->command] : null;
+    }
+
+    /**
      * Run
      * 
      * @return $this
      */
     public function run(): self
     {
-        $command = isset($this->tasks[$this->command]) ? $this->tasks[$this->command] : null;
+        $command = $this->match();
 
         try {
             if ($command) {
@@ -212,6 +222,26 @@ class CLI
         }
 
         return $this;
+    }
+
+    /**
+     * Get list of all tasks
+     * 
+     * @return Task[]
+     */
+    public function getTasks(): array
+    {
+        return $this->tasks;
+    }
+
+    /**
+     * Get list of all args
+     * 
+     * @return array
+     */
+    public function getArgs(): array
+    {
+        return $this->args;
     }
 
     /**

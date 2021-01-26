@@ -115,6 +115,16 @@ class Task
     }
 
     /**
+     * Get Name
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
      * Get Description
      *
      * @return string
