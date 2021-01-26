@@ -34,6 +34,11 @@ class TaskTest extends TestCase
         $this->task = null;
     }
 
+    public function testName()
+    {
+        $this->assertEquals('test', $this->task->getName());
+    }
+
     public function testDescription()
     {
         $this->task->desc('test task');
