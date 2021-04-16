@@ -167,7 +167,28 @@ class CLI
             }
         }
 
-        parse_str(implode('&', $args), $output); // Parse like PHP query string to support PHP arrays
+        /** 
+         * Refer to this answer 
+         * https://stackoverflow.com/questions/18669499/php-issue-with-looping-over-an-array-twice-using-foreach-and-passing-value-by-re/18669732
+         */
+        unset($arg);
+
+        foreach ($args as $arg) {
+            $pair = explode("=",$arg); 
+            $key = $pair[0];
+            $value = $pair[1];
+            $output[$key][] = $value;
+        }
+
+        foreach ($output as $key => $value) {
+            /**
+             * If there is only one element in a particular key
+             * unshift the value out of the array
+             */
+            if (count($value) == 1) {
+                $output[$key] = array_shift($output[$key]);
+            }
+        }
 
         return $output;
     }

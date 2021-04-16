@@ -14,7 +14,6 @@
 namespace Utopia\Tests;
 
 use Utopia\CLI\CLI;
-use Utopia\Validator\Email;
 use PHPUnit\Framework\TestCase;
 use Utopia\Validator\ArrayList;
 use Utopia\Validator\Text;
@@ -37,7 +36,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->action(function ($email) {
                 echo $email;
             });
@@ -57,7 +56,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(10), 'Valid email address')
             ->action(function ($email) {
                 echo $email;
             });
@@ -73,11 +72,11 @@ class CLITest extends TestCase
     {
         ob_start();
 
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list[]=item1', '--list[]=item2']); // Mock command request
+        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -92,11 +91,11 @@ class CLITest extends TestCase
 
     public function testGetTasks()
     {
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list[]=item1', '--list[]=item2']); // Mock command request
+        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -104,7 +103,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build2')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -115,11 +114,11 @@ class CLITest extends TestCase
 
     public function testGetArgs()
     {
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list[]=item1', '--list[]=item2']); // Mock command request
+        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -127,7 +126,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build2')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -139,11 +138,11 @@ class CLITest extends TestCase
 
     public function testMatch()
     {
-        $cli = new CLI(['test.php', 'build2', '--email=me@example.com', '--list[]=item1', '--list[]=item2']); // Mock command request
+        $cli = new CLI(['test.php', 'build2', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -151,7 +150,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build2')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -159,11 +158,11 @@ class CLITest extends TestCase
 
         $this->assertEquals('build2', $cli->match()->getName());
 
-        $cli = new CLI(['test.php', 'buildx', '--email=me@example.com', '--list[]=item1', '--list[]=item2']); // Mock command request
+        $cli = new CLI(['test.php', 'buildx', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -171,7 +170,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build2')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
