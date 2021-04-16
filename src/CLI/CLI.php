@@ -3,6 +3,7 @@
 namespace Utopia\CLI;
 
 use Exception;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use Utopia\Validator;
 
 class CLI
@@ -167,7 +168,21 @@ class CLI
             }
         }
 
-        parse_str(implode('&', $args), $output); // Parse like PHP query string to support PHP arrays
+        /** 
+         * Refer to this answer 
+         * https://stackoverflow.com/questions/18669499/php-issue-with-looping-over-an-array-twice-using-foreach-and-passing-value-by-re/18669732
+         */
+        unset($arg);
+
+        foreach ($args as $arg) {
+            $pair = explode("=",$arg); 
+            $key = $pair[0];
+            $value = $pair[1];
+            $output[$key][] = $value;
+        }
+
+        var_dump("OUTPUT = ", $output);
+        // parse_str(implode('&', $args), $output); // Parse like PHP query string to support PHP arrays
 
         return $output;
     }
