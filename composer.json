@@ -11,9 +11,7 @@
         }
     ],
     "autoload": {
-        "psr-4": {
-            "Utopia\\CLI\\": "src/CLI"
-        }
+        "psr-4": {"Utopia\\CLI\\": "src/CLI"}
     },
     "require": {
         "php": ">=7.4",
