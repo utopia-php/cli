@@ -3,7 +3,6 @@
 namespace Utopia\CLI;
 
 use Exception;
-use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use Utopia\Validator;
 
 class CLI
