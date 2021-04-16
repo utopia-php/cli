@@ -183,7 +183,7 @@ class CLI
         foreach ($output as $key => $value) {
             /**
              * If there is only one element in a particular key
-             * Convert the value of the key to a string
+             * unshift the value out of the array
              */
             if (count($value) == 1) {
                 $output[$key] = array_shift($output[$key]);
