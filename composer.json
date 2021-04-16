@@ -12,8 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Utopia\\CLI\\": "src/CLI",
-            "Utopia\\Tests\\": "tests/resources"
+            "Utopia\\CLI\\": "src/CLI"
         }
     },
     "require": {

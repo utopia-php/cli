@@ -36,7 +36,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->action(function ($email) {
                 echo $email;
             });
@@ -56,7 +56,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(10), 'Valid email address')
             ->action(function ($email) {
                 echo $email;
             });
@@ -76,7 +76,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -95,7 +95,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build1')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -103,7 +103,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build2')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -118,7 +118,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build1')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -126,7 +126,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build2')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -142,7 +142,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build1')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -150,7 +150,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build2')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -162,7 +162,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build1')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);
@@ -170,7 +170,7 @@ class CLITest extends TestCase
 
         $cli
             ->task('build2')
-            ->param('email', null, new Email(), 'Valid email address')
+            ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
                 echo $email.'-'.implode('-', $list);

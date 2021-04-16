@@ -14,6 +14,7 @@
 namespace Utopia\Tests;
 
 use Utopia\CLI\Task;
+use Utopia\Validator\Text;
 use PHPUnit\Framework\TestCase;
 
 class TaskTest extends TestCase
@@ -64,7 +65,7 @@ class TaskTest extends TestCase
 
     public function testParam()
     {
-        $this->task->param('email', 'me@example.com', new Email(), 'Param with valid email address', false);
+        $this->task->param('email', 'me@example.com', new Text(0), 'Param with valid email address', false);
 
         $this->assertCount(1, $this->task->getParams());
     }
