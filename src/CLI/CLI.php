@@ -181,8 +181,15 @@ class CLI
             $output[$key][] = $value;
         }
 
-        var_dump("OUTPUT = ", $output);
-        // parse_str(implode('&', $args), $output); // Parse like PHP query string to support PHP arrays
+        foreach ($output as $key => $value) {
+            /**
+             * If there is only one element in a particular key
+             * Convert the value of the key to a string
+             */
+            if (count($value) == 1) {
+                $output[$key] = array_shift($output[$key]);
+            }
+        }
 
         return $output;
     }

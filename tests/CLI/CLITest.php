@@ -14,7 +14,6 @@
 namespace Utopia\Tests;
 
 use Utopia\CLI\CLI;
-use Utopia\Validator\Email;
 use PHPUnit\Framework\TestCase;
 use Utopia\Validator\ArrayList;
 use Utopia\Validator\Text;
@@ -73,7 +72,7 @@ class CLITest extends TestCase
     {
         ob_start();
 
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list[]=item1', '--list[]=item2']); // Mock command request
+        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build')
@@ -92,7 +91,7 @@ class CLITest extends TestCase
 
     public function testGetTasks()
     {
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list[]=item1', '--list[]=item2']); // Mock command request
+        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')
@@ -115,7 +114,7 @@ class CLITest extends TestCase
 
     public function testGetArgs()
     {
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list[]=item1', '--list[]=item2']); // Mock command request
+        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')
@@ -139,7 +138,7 @@ class CLITest extends TestCase
 
     public function testMatch()
     {
-        $cli = new CLI(['test.php', 'build2', '--email=me@example.com', '--list[]=item1', '--list[]=item2']); // Mock command request
+        $cli = new CLI(['test.php', 'build2', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')
@@ -159,7 +158,7 @@ class CLITest extends TestCase
 
         $this->assertEquals('build2', $cli->match()->getName());
 
-        $cli = new CLI(['test.php', 'buildx', '--email=me@example.com', '--list[]=item1', '--list[]=item2']); // Mock command request
+        $cli = new CLI(['test.php', 'buildx', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')

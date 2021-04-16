@@ -15,7 +15,6 @@ namespace Utopia\Tests;
 
 use Utopia\CLI\Task;
 use PHPUnit\Framework\TestCase;
-use Utopia\Validator\Email;
 
 class TaskTest extends TestCase
 {
