@@ -221,8 +221,14 @@ class CLI
                 $params = [];
 
                 foreach ($command->getParams() as $key => $param) {
-                    // Get value from route or request object
-                    $value = (isset($this->args[$key])) ? $this->args[$key] : $param['default'];
+                    // Get the param from the command line, or prompt or use the default param;
+                    if (isset($this->args[$key])) {
+                        $value = $this->args[$key];
+                    } else if(isset($param['prompt'])) {
+                        $value = Console::confirm($param['prompt']);
+                    } else {
+                        $value = $param['default'];
+                    }
 
                     $this->validate($key, $param, $value);
 

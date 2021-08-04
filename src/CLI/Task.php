@@ -48,7 +48,8 @@ class Task
     public function __construct(string $name)
     {
         $this->name = $name;
-        $this->action = function(): void {};
+        $this->action = function (): void {
+        };
     }
 
     /**
@@ -86,12 +87,14 @@ class Task
      *
      * @return $this
      */
-    public function param(string $key, $default, $validator, string $description = '', bool $optional = false): self
+    public function param(string $key, $default, $validator, string $description = '', string $prompt = '', array $options = [], bool $optional = false): self
     {
         $this->params[$key] = array(
             'default'       => $default,
             'validator'     => $validator,
             'description'   => $description,
+            'prompt'        => $prompt,
+            'options'       => $options,
             'optional'      => $optional,
             'value'         => null,
         );
@@ -166,5 +169,16 @@ class Task
     public function getLabel(string $key, $default)
     {
         return (isset($this->labels[$key])) ? $this->labels[$key] : $default;
+    }
+
+    /**
+     * Set Options
+     * 
+     * Set the options for the prompt
+     */
+    public function setOptions(array $options)
+    {
+        $this->params['options'] = $options;
+        return $this;
     }
 }
