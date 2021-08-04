@@ -73,7 +73,7 @@ class CLI
             throw new Exception('CLI tasks can only work from the command line');
         }
 
-        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args: $_SERVER['argv']);
+        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         $this->error = function (Exception $error): void {
             Console::error($error->getMessage());
@@ -174,7 +174,7 @@ class CLI
         unset($arg);
 
         foreach ($args as $arg) {
-            $pair = explode("=",$arg); 
+            $pair = explode("=", $arg);
             $key = $pair[0];
             $value = $pair[1];
             $output[$key][] = $value;
@@ -221,11 +221,18 @@ class CLI
                 $params = [];
 
                 foreach ($command->getParams() as $key => $param) {
-                    // Get the param from the command line, or prompt or use the default param;
+                    /** 
+                     * Get the value for a param using the following priority 
+                     * 1. Command line argument
+                     * 2. Prompt
+                     * 3. Default value
+                    */
                     if (isset($this->args[$key])) {
                         $value = $this->args[$key];
-                    } else if(isset($param['prompt'])) {
-                        $value = Console::confirm($param['prompt']);
+                    } else if (isset($param['prompt']) && !empty($param['prompt'])) {
+                        // $value = Console::confirm($param['prompt']);
+                        $value = Console::select($param['prompt'], $param['options'], $param['numSelect']);
+                        Console::log("Selected ". implode(',', $value));
                     } else {
                         $value = $param['default'];
                     }
@@ -297,7 +304,7 @@ class CLI
             }
 
             if (!$validator->isValid($value)) {
-                throw new Exception('Invalid ' .$key . ': ' . $validator->getDescription(), 400);
+                throw new Exception('Invalid ' . $key . ': ' . $validator->getDescription(), 400);
             }
         } else {
             if (!$param['optional']) {

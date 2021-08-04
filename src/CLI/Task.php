@@ -87,7 +87,7 @@ class Task
      *
      * @return $this
      */
-    public function param(string $key, $default, $validator, string $description = '', string $prompt = '', array $options = [], bool $optional = false): self
+    public function param(string $key, $default, $validator, string $description = '', string $prompt = '', array $options = [], int $numSelect, bool $optional = false): self
     {
         $this->params[$key] = array(
             'default'       => $default,
@@ -95,6 +95,7 @@ class Task
             'description'   => $description,
             'prompt'        => $prompt,
             'options'       => $options,
+            'numSelect'     => $numSelect,
             'optional'      => $optional,
             'value'         => null,
         );
