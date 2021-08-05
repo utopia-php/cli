@@ -5,40 +5,45 @@ namespace Utopia\CLI;
 class Console
 {
 
-    public const UP = 'UP';
-    public const DOWN = 'DOWN';
-    public const RIGHT = 'RIGHT';
-    public const LEFT = 'LEFT';
-    public const CTRLA = 'CTRLA';
-    public const CTRLB = 'CTRLB';
-    public const CTRLE = 'CTRLE';
-    public const CTRLF = 'CTRLF';
-    public const BACKSPACE = 'BACKSPACE';
-    public const CTRLW = 'CTRLW';
-    public const ENTER = 'ENTER';
-    public const TAB = 'TAB';
-    public const ESC = 'ESC';
+    protected const KEY_UP = 'UP';
+    protected const KEY_DOWN = 'DOWN';
+    protected const KEY_RIGHT = 'RIGHT';
+    protected const KEY_LEFT = 'LEFT';
+    protected const KEY_CTRLA = 'CTRLA';
+    protected const KEY_CTRLB = 'CTRLB';
+    protected const KEY_CTRLE = 'CTRLE';
+    protected const KEY_CTRLF = 'CTRLF';
+    protected const KEY_BACKSPACE = 'BACKSPACE';
+    protected const KEY_CTRLW = 'CTRLW';
+    protected const KEY_ENTER = 'ENTER';
+    protected const KEY_TAB = 'TAB';
+    protected const KEY_ESC = 'ESC';
 
     private static $controls = [
-        "\033[A" => self::UP,
-        "\033[B" => self::DOWN,
-        "\033[C" => self::RIGHT,
-        "\033[D" => self::LEFT,
-        "\033OA" => self::UP,
-        "\033OB" => self::DOWN,
-        "\033OC" => self::RIGHT,
-        "\033OD" => self::LEFT,
-        "\001"   => self::CTRLA,
-        "\002"   => self::CTRLB,
-        "\005"   => self::CTRLE,
-        "\006"   => self::CTRLF,
-        "\010"   => self::BACKSPACE,
-        "\177"   => self::BACKSPACE,
-        "\027"   => self::CTRLW,
-        "\n"     => self::ENTER,
-        "\t"     => self::TAB,
-        "\e"     => self::ESC,
+        "\033[A" => self::KEY_UP,
+        "\033[B" => self::KEY_DOWN,
+        "\033[C" => self::KEY_RIGHT,
+        "\033[D" => self::KEY_LEFT,
+        "\033OA" => self::KEY_UP,
+        "\033OB" => self::KEY_DOWN,
+        "\033OC" => self::KEY_RIGHT,
+        "\033OD" => self::KEY_LEFT,
+        "\001"   => self::KEY_CTRLA,
+        "\002"   => self::KEY_CTRLB,
+        "\005"   => self::KEY_CTRLE,
+        "\006"   => self::KEY_CTRLF,
+        "\010"   => self::KEY_BACKSPACE,
+        "\177"   => self::KEY_BACKSPACE,
+        "\027"   => self::KEY_CTRLW,
+        "\n"     => self::KEY_ENTER,
+        "\t"     => self::KEY_TAB,
+        "\e"     => self::KEY_ESC,
     ];
+
+    static protected $markerRadioSelected = '[●]';
+    static protected $markerRadioUnselected = '[○]';
+    static protected $markerCheckboxSelected = '[✔]';
+    static protected $markerCheckboxUnselected = '[ ]';
 
     /**
      * Title
@@ -153,58 +158,60 @@ class Console
             return '';
         }
 
-        // $existingContents = ob_get_contents();
-        // $existingContents = fgets(STDOUT);
-        // Console::success($existingContents);
-
-        // Disable echo 
         self::disableEchoBack();
-        // Disable canonical mode 
         self::disableCanonical();
+        self::disableCursor();
+
+        $markerSelected = $numSelect == 1 ? self::$markerRadioSelected : self::$markerCheckboxSelected;
+        $markerUnselected = $numSelect == 1 ? self::$markerRadioUnselected : self::$markerCheckboxUnselected;
 
         $cursorPosition = 0;
+        $keys = array_keys($options);
         $selections = [];
         $numOptions = count($options);
         $input = '';
 
         while (true) {
-            //Clean everything 
-            fwrite(STDOUT, "\033[2J");
-            fwrite(STDOUT, "\033[H");
+            self::clear();
+            self::moveCursorToTop();
 
-            // Render stuff
+            /** Start rendering */
             self::log($prompt);
             foreach ($options as $key => $value) {
-                if ($cursorPosition == $key && isset($selections[$key])) {
-                    self::success($key . ': ' . '[  ' . $value.'  ]');
+                if ($keys[$cursorPosition] == $key && isset($selections[$key])) {
+                    self::success("$markerSelected $value ( $key ) <-");
                 } else if (isset($selections[$key])) {
-                    self::success($key . ': ' . $value);
-                } else if ($cursorPosition == $key) {
-                    self::log($key . ': ' . '[  ' . $value.'  ]');
+                    self::success("$markerSelected $value ( $key )");
+                } else if ($keys[$cursorPosition] == $key) {
+                    self::log("$markerUnselected $value ( $key ) <-");
                 } else {
-                    self::log($key . ': ' . $value);
+                    self::log("$markerUnselected $value ( $key )");
                 }
             }
 
             if (count($selections) == $numSelect) {
+                // https://www.php.net/manual/en/function.pcntl-signal.php
+                self::enableEchoBack();
+                self::enableCanonical();
+                self::enableCursor();
                 return $selections;
             }
-            // Get input
+
+            /** Get and process Input */
             $input = fread(STDIN, 4);
 
-            // Process input 
             if (self::isControl($input)) {
                 $pressed = self::getControl($input);
                 switch ($pressed) {
-                    case self::UP:
+                    case self::KEY_UP:
                         $cursorPosition = ($cursorPosition - 1) < 0 ? $numOptions - 1 : $cursorPosition - 1;
                         break;
-                    case self::DOWN:
+                    case self::KEY_DOWN:
                         $cursorPosition = ($cursorPosition + 1) > $numOptions - 1 ? 0 : $cursorPosition + 1;
                         break;
-                    case self::ENTER:
+                    case self::KEY_ENTER:
                         if (count($selections) < $numSelect) {
-                            $selections[$cursorPosition] = $options[$cursorPosition];
+                            $selections[$keys[$cursorPosition]] = $options[$keys[$cursorPosition]];
                         }
                         break;
                     default:
@@ -213,20 +220,26 @@ class Console
             }
         }
 
-        // Enable echo
-        self::enableEchoBack();
-        // Enable canonical mode
-        self::enableCanonical();
-
-        return "Selected";
+        return null;
     }
 
-    static public function enableEchoBack()
+
+    static protected function clear()
+    {
+        fwrite(STDOUT, "\033[2J");
+    }
+
+    static protected function moveCursorToTop()
+    {
+        fwrite(STDOUT, "\033[H");
+    }
+
+    static protected function enableEchoBack()
     {
         system("stty echo");
     }
 
-    static public function disableEchoBack()
+    static protected function disableEchoBack()
     {
         system("stty -echo");
     }
@@ -234,25 +247,35 @@ class Console
     /**
      * @see https://www.gnu.org/software/libc/manual/html_node/Canonical-or-Not.html 
      */
-    static public function enableCanonical()
+    static protected function enableCanonical()
     {
         system('stty icanon');
     }
 
-    static public function disableCanonical()
+    static protected function disableCanonical()
     {
         system('stty -icanon');
+    }
+
+    static protected function enableCursor(): void
+    {
+        fwrite(STDOUT, "\033[?25h");
+    }
+
+    static protected function disableCursor(): void
+    {
+        fwrite(STDOUT, "\033[?25l");
     }
 
     /**
      * Is this character a control sequence?
      */
-    static public function isControl($char): bool
+    static protected function isControl($char): bool
     {
         return preg_match('/[\x00-\x1F\x7F]/', $char);
     }
 
-    static public function getControl(string $input): string
+    static protected function getControl(string $input): string
     {
         if (!isset(static::$controls[$input])) {
             throw new \RuntimeException(sprintf('Character "%s" is not a control', $input));
@@ -276,7 +299,7 @@ class Console
     }
 
     /**
-     * Execute a Commnad
+     * Execute a Command
      * 
      * This function was inspired by: https://stackoverflow.com/a/13287902/2299554
      * 
