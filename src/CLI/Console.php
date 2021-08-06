@@ -11,6 +11,7 @@ class Console
     protected const KEY_LEFT = 'LEFT';
     protected const KEY_CTRLA = 'CTRLA';
     protected const KEY_CTRLB = 'CTRLB';
+    protected const KEY_CTRLC = 'CTRLC';
     protected const KEY_CTRLE = 'CTRLE';
     protected const KEY_CTRLF = 'CTRLF';
     protected const KEY_BACKSPACE = 'BACKSPACE';
@@ -30,6 +31,7 @@ class Console
         "\033OD" => self::KEY_LEFT,
         "\001"   => self::KEY_CTRLA,
         "\002"   => self::KEY_CTRLB,
+        "\003"   => self::KEY_CTRLC,
         "\005"   => self::KEY_CTRLE,
         "\006"   => self::KEY_CTRLF,
         "\010"   => self::KEY_BACKSPACE,
@@ -166,11 +168,39 @@ class Console
         return $line;
     }
 
+
+    static protected function draw(string $prompt, array $options, array $selections, int $numSelect, int $cursorPosition)
+    {
+        $keys = array_keys($options);
+        $markerSelected = $numSelect == 1 ? self::$markerRadioSelected : self::$markerCheckboxSelected;
+        $markerUnselected = $numSelect == 1 ? self::$markerRadioUnselected : self::$markerCheckboxUnselected;
+
+        self::clear();
+        self::moveCursorToTop();
+
+        /** Start rendering */
+        foreach (self::$buffer as $line) {
+            fwrite(STDOUT, $line);
+        }
+
+        self::log($prompt);
+        foreach ($options as $key => $value) {
+            if ($keys[$cursorPosition] == $key && isset($selections[$key])) {
+                self::success("$markerSelected $value ( $key ) <-\n");
+            } else if (isset($selections[$key])) {
+                self::success("$markerSelected $value ( $key )\n");
+            } else if ($keys[$cursorPosition] == $key) {
+                self::log("$markerUnselected $value ( $key ) <-\n");
+            } else {
+                self::log("$markerUnselected $value ( $key )\n");
+            }
+        }
+    }
+
     /**
      * 
      * 
      */
-
     static public function select(string $prompt, array $options, int $numSelect)
     {
         if (!self::isInteractive()) {
@@ -180,15 +210,14 @@ class Console
         self::disableEchoBack();
         self::disableCanonical();
         self::disableCursor();
-        // pcntl_async_signals(true);
-        // pcntl_signal(SIGINT, function () {
-        //     self::restoreTerminalConfig();
-        //     // posix_kill(getmypid(), SIGKILL);
-        //     exit(1);
-        // });
 
-        $markerSelected = $numSelect == 1 ? self::$markerRadioSelected : self::$markerCheckboxSelected;
-        $markerUnselected = $numSelect == 1 ? self::$markerRadioUnselected : self::$markerCheckboxUnselected;
+        pcntl_async_signals(true);
+        $handler = function() {
+            self::restoreTerminalConfig();
+            exit(1);
+        };
+        pcntl_signal(SIGINT, $handler);
+        pcntl_signal(SIGTERM, $handler);
 
         $cursorPosition = 0;
         $keys = array_keys($options);
@@ -196,36 +225,19 @@ class Console
         $numOptions = count($options);
         $input = '';
 
-        /** Render the existing buffer */
-        foreach (self::$buffer as $line) {
-            fwrite(STDOUT, $line);
-        }
 
+        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
+        // Create a draw function 
+        // Draw only when a new input character is detected
         while (true) {
-            self::clear();
-            self::moveCursorToTop();
-
-            /** Start rendering */
-            self::log($prompt);
-            foreach ($options as $key => $value) {
-                if ($keys[$cursorPosition] == $key && isset($selections[$key])) {
-                    self::success("$markerSelected $value ( $key ) <-\n");
-                } else if (isset($selections[$key])) {
-                    self::success("$markerSelected $value ( $key )\n");
-                } else if ($keys[$cursorPosition] == $key) {
-                    self::log("$markerUnselected $value ( $key ) <-\n");
-                } else {
-                    self::log("$markerUnselected $value ( $key )\n");
-                }
-            }
 
             if (count($selections) == $numSelect) {
-                // https://www.php.net/manual/en/function.pcntl-signal.php
                 self::restoreTerminalConfig();
                 return $selections;
             }
 
             /** Get and process Input ( Why 4 bytes ) */
+            stream_set_blocking(STDIN, false);
             $input = fread(STDIN, 4);
 
             if (self::isControl($input)) {
@@ -233,9 +245,11 @@ class Console
                 switch ($pressed) {
                     case self::KEY_UP:
                         $cursorPosition = ($cursorPosition - 1) < 0 ? $numOptions - 1 : $cursorPosition - 1;
+                        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);                        
                         break;
                     case self::KEY_DOWN:
                         $cursorPosition = ($cursorPosition + 1) > $numOptions - 1 ? 0 : $cursorPosition + 1;
+                        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
                         break;
                     case self::KEY_ENTER:
                         if (isset($selections[$keys[$cursorPosition]])) {
@@ -243,11 +257,13 @@ class Console
                         } else if (count($selections) < $numSelect) {
                             $selections[$keys[$cursorPosition]] = $options[$keys[$cursorPosition]];
                         } 
+                        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
                         break;
                     default:
                         break;
                 }
             }
+            usleep(100);
         }
     }
 
