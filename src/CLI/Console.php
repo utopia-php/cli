@@ -45,6 +45,19 @@ class Console
     static protected $markerCheckboxSelected = '[✔]';
     static protected $markerCheckboxUnselected = '[ ]';
 
+    static protected bool $isBuffered = false;
+    static protected array $buffer = [];
+
+    static protected function addToBuffer(string $text)
+    {
+        self::$buffer[] = $text;
+    }
+
+    static protected function clearBuffer()
+    {
+        unset(self::$buffer);
+    }
+
     /**
      * Title
      *
@@ -68,7 +81,8 @@ class Console
      */
     static public function log(string $message)
     {
-        return \fwrite(STDOUT, $message . "\n");
+        if (self::$isBuffered) self::addToBuffer($message);
+        return \fwrite(STDOUT, $message);
     }
 
     /**
@@ -81,7 +95,8 @@ class Console
      */
     static public function success(string $message)
     {
-        return \fwrite(STDOUT, "\033[32m" . $message . "\033[0m\n");
+        if (self::$isBuffered) self::addToBuffer($message);
+        return \fwrite(STDOUT, "\033[32m" . $message . "\033[0m");
     }
 
     /**
@@ -94,7 +109,8 @@ class Console
      */
     static public function error(string $message)
     {
-        return \fwrite(STDERR, "\033[31m" . $message . "\033[0m\n");
+        if (self::$isBuffered) self::addToBuffer($message);
+        return \fwrite(STDERR, "\033[31m" . $message . "\033[0m");
     }
 
     /**
@@ -107,7 +123,8 @@ class Console
      */
     static public function info(string $message)
     {
-        return \fwrite(STDOUT, "\033[34m" . $message . "\033[0m\n");
+        if (self::$isBuffered) self::addToBuffer($message);
+        return \fwrite(STDOUT, "\033[34m" . $message . "\033[0m");
     }
 
     /**
@@ -120,7 +137,8 @@ class Console
      */
     static public function warning(string $message)
     {
-        return \fwrite(STDERR, "\033[1;33m" . $message . "\033[0m\n");
+        if (self::$isBuffered) self::addToBuffer($message);
+        return \fwrite(STDERR, "\033[1;33m" . $message . "\033[0m");
     }
 
     /**
@@ -142,6 +160,7 @@ class Console
         $handle = \fopen('php://stdin', 'r');
         $line   = \trim(\fgets($handle));
 
+        self::addToBuffer($line);
         \fclose($handle);
 
         return $line;
@@ -161,6 +180,12 @@ class Console
         self::disableEchoBack();
         self::disableCanonical();
         self::disableCursor();
+        // pcntl_async_signals(true);
+        // pcntl_signal(SIGINT, function () {
+        //     self::restoreTerminalConfig();
+        //     // posix_kill(getmypid(), SIGKILL);
+        //     exit(1);
+        // });
 
         $markerSelected = $numSelect == 1 ? self::$markerRadioSelected : self::$markerCheckboxSelected;
         $markerUnselected = $numSelect == 1 ? self::$markerRadioUnselected : self::$markerCheckboxUnselected;
@@ -171,6 +196,11 @@ class Console
         $numOptions = count($options);
         $input = '';
 
+        /** Render the existing buffer */
+        foreach (self::$buffer as $line) {
+            fwrite(STDOUT, $line);
+        }
+
         while (true) {
             self::clear();
             self::moveCursorToTop();
@@ -179,25 +209,23 @@ class Console
             self::log($prompt);
             foreach ($options as $key => $value) {
                 if ($keys[$cursorPosition] == $key && isset($selections[$key])) {
-                    self::success("$markerSelected $value ( $key ) <-");
+                    self::success("$markerSelected $value ( $key ) <-\n");
                 } else if (isset($selections[$key])) {
-                    self::success("$markerSelected $value ( $key )");
+                    self::success("$markerSelected $value ( $key )\n");
                 } else if ($keys[$cursorPosition] == $key) {
-                    self::log("$markerUnselected $value ( $key ) <-");
+                    self::log("$markerUnselected $value ( $key ) <-\n");
                 } else {
-                    self::log("$markerUnselected $value ( $key )");
+                    self::log("$markerUnselected $value ( $key )\n");
                 }
             }
 
             if (count($selections) == $numSelect) {
                 // https://www.php.net/manual/en/function.pcntl-signal.php
-                self::enableEchoBack();
-                self::enableCanonical();
-                self::enableCursor();
+                self::restoreTerminalConfig();
                 return $selections;
             }
 
-            /** Get and process Input */
+            /** Get and process Input ( Why 4 bytes ) */
             $input = fread(STDIN, 4);
 
             if (self::isControl($input)) {
@@ -210,19 +238,26 @@ class Console
                         $cursorPosition = ($cursorPosition + 1) > $numOptions - 1 ? 0 : $cursorPosition + 1;
                         break;
                     case self::KEY_ENTER:
-                        if (count($selections) < $numSelect) {
+                        if (isset($selections[$keys[$cursorPosition]])) {
+                            unset($selections[$keys[$cursorPosition]]);
+                        } else if (count($selections) < $numSelect) {
                             $selections[$keys[$cursorPosition]] = $options[$keys[$cursorPosition]];
-                        }
+                        } 
                         break;
                     default:
                         break;
                 }
             }
         }
-
-        return null;
     }
 
+
+    static protected function restoreTerminalConfig()
+    {
+        self::enableEchoBack();
+        self::enableCanonical();
+        self::enableCursor();
+    }
 
     static protected function clear()
     {

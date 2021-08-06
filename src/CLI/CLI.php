@@ -232,7 +232,7 @@ class CLI
                     } else if (isset($param['prompt']) && !empty($param['prompt'])) {
                         // $value = Console::confirm($param['prompt']);
                         $value = Console::select($param['prompt'], $param['options'], $param['numSelect']);
-                        Console::log("Selected ". implode(',', $value));
+                        Console::log("Selected ". implode(',', $value). "\n");
                     } else {
                         $value = $param['default'];
                     }
