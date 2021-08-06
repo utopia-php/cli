@@ -231,6 +231,9 @@ class CLI
                         $value = $this->args[$key];
                     } else if (isset($param['prompt']) && !empty($param['prompt'])) {
                         // $value = Console::confirm($param['prompt']);
+
+
+                        if ($params['options'])
                         $value = Console::select($param['prompt'], $param['options'], $param['numSelect']);
                         Console::log("Selected ". implode(',', $value). "\n");
                     } else {

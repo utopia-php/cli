@@ -203,14 +203,15 @@ class Console
      */
     static public function select(string $prompt, array $options, int $numSelect)
     {
+        /** Prepare the terminal*/
         if (!self::isInteractive()) {
-            return '';
+            return [];
         }
-
         self::disableEchoBack();
         self::disableCanonical();
         self::disableCursor();
 
+        /** Intercept signals */
         pcntl_async_signals(true);
         $handler = function() {
             self::restoreTerminalConfig();
@@ -219,18 +220,16 @@ class Console
         pcntl_signal(SIGINT, $handler);
         pcntl_signal(SIGTERM, $handler);
 
+        /** Initialize the renderer */
         $cursorPosition = 0;
         $keys = array_keys($options);
         $selections = [];
         $numOptions = count($options);
         $input = '';
 
-
+        /**Render */
         self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
-        // Create a draw function 
-        // Draw only when a new input character is detected
         while (true) {
-
             if (count($selections) == $numSelect) {
                 self::restoreTerminalConfig();
                 return $selections;
