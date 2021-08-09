@@ -83,12 +83,23 @@ class Task
      * @param mixed $default
      * @param string $validator
      * @param string $description
+     * @param string $prompt
+     * @param string $options
+     * @param int $numSelect
      * @param bool $optional
      *
      * @return $this
      */
-    public function param(string $key, $default, $validator, string $description = '', string $prompt = '', array $options = [], int $numSelect, bool $optional = false): self
+    public function param(string $key, $default, $validator, string $description = '', string $prompt = '', array $options = [], int $numSelect = 0, bool $optional = false): self
     {
+        if ($numSelect < 0) {
+            throw new \Exception('Param numSelect must be >= 0');
+        }
+
+        if ($numSelect > count($options)) {
+            throw new \Exception('Param numSelect cannot be greater than the number of options');
+        }
+
         $this->params[$key] = array(
             'default'       => $default,
             'validator'     => $validator,

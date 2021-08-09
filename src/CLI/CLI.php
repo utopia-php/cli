@@ -176,7 +176,7 @@ class CLI
         foreach ($args as $arg) {
             $pair = explode("=", $arg);
             $key = $pair[0];
-            $value = $pair[1];
+            $value = isset($pair[1]) ? $pair[1] : '';
             $output[$key][] = $value;
         }
 
@@ -222,7 +222,7 @@ class CLI
 
                 foreach ($command->getParams() as $key => $param) {
                     /** 
-                     * Get the value for a param using the following priority 
+                     * Get the value for a param in the following priority 
                      * 1. Command line argument
                      * 2. Prompt
                      * 3. Default value
@@ -230,12 +230,11 @@ class CLI
                     if (isset($this->args[$key])) {
                         $value = $this->args[$key];
                     } else if (isset($param['prompt']) && !empty($param['prompt'])) {
-                        // $value = Console::confirm($param['prompt']);
-
-
-                        if ($params['options'])
-                        $value = Console::select($param['prompt'], $param['options'], $param['numSelect']);
-                        Console::log("Selected ". implode(',', $value). "\n");
+                        if (empty($param['options'])) {
+                            $value = Console::confirm($param['prompt']);
+                        } else {
+                            $value = Console::select($param['prompt'], $param['options'], $param['numSelect']);
+                        }
                     } else {
                         $value = $param['default'];
                     }
@@ -255,6 +254,7 @@ class CLI
                 throw new Exception('No command found');
             }
         } catch (Exception $e) {
+            Console::restoreTerminalConfig();
             \call_user_func_array($this->error, array($e));
         }
 

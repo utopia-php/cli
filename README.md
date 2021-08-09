@@ -38,10 +38,141 @@ $cli->run();
 
 ```
 
-And than, run from command line:
+And then, run from command line:
 
 ```bash
 php script.php command-name --email=me@example.com
+```
+
+### Simple Prompts 
+
+Each parameter in the Utopia CLI task can be passed in 3 ways in the following order of precedence:
+* Command line ( --param=value ) 
+* Prompt 
+* Default value
+
+If a parameter is not passed using the **command line**, a pre-configured **prompt will be displayed**. If the prompt is not configured, the **default value** will be used. 
+
+In the previous email example, we can enable prompts by adding the following to the `script.php` file:
+
+```php
+<?php
+
+require_once './vendor/autoload.php';
+
+use Utopia\CLI\CLI;
+use Utopia\CLI\Console;
+use Utopia\Validator\Email;
+
+$cli = new CLI();
+
+$cli
+    ->task('command-name')
+    ->param('email', '', new Wildcard(), '', "Please enter your email\n")
+    ->action(function ($email) {
+        Console::success($email);
+    });
+
+$cli->run();
+```
+And then, run from command line:
+
+```bash
+php script.php command-name 
+Please enter your email
+hello@world.com   
+```
+
+That's how you create a text prompt 👏. 
+
+### Single Select / Multi Select Prompts 
+
+You can also create a prompt that allows you to select a single value or multiple values by providing `options` and a value ( `$numSelect` ) indicating the maximum number of values that can be selected.
+
+```php
+<?php
+require_once './vendor/autoload.php';
+
+use Utopia\CLI\CLI;
+use Utopia\CLI\Console;
+use Utopia\Validator\Email;
+
+$cli = new CLI();
+
+$emails = [
+    "john@doe.com" => "John Doe",
+    "hello@world.com" => "Hello World"
+];
+
+$cli
+    ->task('command-name')
+    ->param('email', '', new Wildcard(), '', "Please select your email ID\n", $emails, 1, false)
+    ->action(function ($email) {
+        var_dump($email);
+    });
+
+$cli->run();
+```
+
+And then, run from command line:
+
+```bash
+php script.php command-name 
+
+Please select your email ID
+[○] John Doe ( john@doe.com )
+[●] Hello World ( hello@world.com ) <-
+array(1) {
+  ["hello@world.com"]=>
+  string(11) "Hello World"
+}
+```
+
+Creating multi-select prompts follows a similar process. Just increase the value of `$numSelect` to 2 or more.
+
+
+
+```php
+<?php
+require_once './vendor/autoload.php';
+
+use Utopia\CLI\CLI;
+use Utopia\CLI\Console;
+use Utopia\Validator\Email;
+
+$cli = new CLI();
+
+$emails = [
+    "john@doe.com" => "John Doe",
+    "hello@world.com" => "Hello World",
+    "lorem@ipsum.com" => "Lorem Ipsum"
+];
+
+$cli
+    ->task('command-name')
+    ->param('email', '', new Wildcard(), '', "Please select your email IDs ( upto 2 )\n", $emails, 2, false)
+    ->action(function ($email) {
+        var_dump($email);
+    });
+
+$cli->run();
+```
+
+And then, run from command line:
+
+```bash
+php script.php command-name 
+
+Please select your email IDs ( upto 2 )
+[✔] John Doe ( john@doe.com )
+[ ] Hello World ( hello@world.com )
+[✔] Lorem Ipsum ( lorem@ipsum.com ) <-
+array(2) {
+  ["john@doe.com"]=>
+  string(8) "John Doe"
+  ["lorem@ipsum.com"]=>
+  string(11) "Lorem Ipsum"
+}
 ```
 
 ### Log Messages
