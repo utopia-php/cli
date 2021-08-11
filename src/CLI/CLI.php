@@ -228,14 +228,17 @@ class CLI
                      * 3. Default value
                     */
                     if (isset($this->args[$key])) {
+                        var_dump("Going to CLI value");
                         $value = $this->args[$key];
                     } else if (isset($param['prompt']) && is_string($param['prompt']) && !empty($param['prompt'])) {
+                        var_dump("Going to prompt");
                         if (empty($param['options'])) {
                             $value = Console::confirm($param['prompt']);
                         } else {
                             $value = Console::select($param['prompt'], $param['options'], $param['numSelect']);
                         }
                     } else {
+                        var_dump("Going to default value");
                         $value = $param['default'];
                     }
 
