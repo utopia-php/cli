@@ -92,6 +92,10 @@ class Task
      */
     public function param(string $key, $default, $validator, string $description = '', string $prompt = '', array $options = [], int $numSelect = 0, bool $optional = false): self
     {
+        if (!is_string($prompt)) {
+            throw new \Exception('Prompt must be a string.');
+        }
+
         if ($numSelect < 0) {
             throw new \Exception('$numSelect must be >= 0');
         }
