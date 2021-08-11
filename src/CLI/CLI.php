@@ -229,7 +229,7 @@ class CLI
                     */
                     if (isset($this->args[$key])) {
                         $value = $this->args[$key];
-                    } else if (isset($param['prompt']) && !empty($param['prompt'])) {
+                    } else if (isset($param['prompt']) && is_string($param['prompt']) && !empty($param['prompt'])) {
                         if (empty($param['options'])) {
                             $value = Console::confirm($param['prompt']);
                         } else {
