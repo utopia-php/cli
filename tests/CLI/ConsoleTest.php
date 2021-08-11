@@ -29,13 +29,46 @@ class ConsoleTest extends TestCase
     public function testLogs()
     {
         // Use vars to resolve adapter key
-        $this->assertEquals(4, Console::log('log'));
-        $this->assertEquals(17, Console::success('success'));
-        $this->assertEquals(14, Console::info('info'));
-        $this->assertEquals(19, Console::warning('warning'));
-        $this->assertEquals(15, Console::error('error'));
-        $this->assertEquals('this is an answer', Console::confirm('this is a question'));
+        $this->assertEquals(4, Console::log("log\n"));
+        $this->assertEquals(17, Console::success("success\n"));
+        $this->assertEquals(14, Console::info("info\n"));
+        $this->assertEquals(19, Console::warning("warning\n"));
+        $this->assertEquals(15, Console::error("error\n"));
+        $this->assertEquals('this is an answer', Console::confirm("this is a question\n"));
     }
+
+    // public function testSelect() {
+    //     $prompt = "Select an option\n";
+    //     $options = [
+    //         "a" => "Option 1",
+    //         "b" => "Option 2",
+    //         "c" => "Option 4"
+    //     ];
+        
+    //     // $stream = fopen('php://stdin', 'r+');
+    //     // fwrite(STDIN, "ABCD");
+    //     $fp = fopen("php://output", 'a+');
+    //     $res = fwrite($fp, "ABCD");
+    //     var_dump("Status : ", $res);
+    //     // Read what we have written.
+    //     rewind($fp);
+    //     $input = stream_get_contents($fp);
+    //     // rewind($stream);
+    //     // fwrite(STDIN, '\033[B\n');
+    //     // $result = Console::select($prompt, $options, 1);
+    //     // try {
+    //     //     $input = fgets(STDIN);
+    //     // } catch (\Exception $e) {
+    //     //     echo $e->getMessage();
+    //     // }
+
+    //     echo sprintf("%s stream contents\n", $input);
+    //     echo "Hey there\n";
+
+    //     $this->assertEquals("ABCD", $input);
+
+    //     // fclose($stream);
+    // }
 
     public function testExecuteBasic()
     {

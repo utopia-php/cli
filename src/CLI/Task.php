@@ -93,11 +93,15 @@ class Task
     public function param(string $key, $default, $validator, string $description = '', string $prompt = '', array $options = [], int $numSelect = 0, bool $optional = false): self
     {
         if ($numSelect < 0) {
-            throw new \Exception('Param numSelect must be >= 0');
+            throw new \Exception('$numSelect must be >= 0');
+        }
+
+        if (count($options) > 0 && $numSelect < 1) {
+            throw new \Exception('$numSelect must be at least 1 when options are passed.');
         }
 
         if ($numSelect > count($options)) {
-            throw new \Exception('Param numSelect cannot be greater than the number of options');
+            throw new \Exception('$numSelect cannot be greater than the number of options');
         }
 
         $this->params[$key] = array(
