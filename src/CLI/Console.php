@@ -151,7 +151,8 @@ class Console
         }
 
         self::log($question, true);
-
+        
+        stream_set_blocking(STDIN, false);
         $handle = \fopen('php://stdin', 'r');
         $line   = \trim(\fgets($handle));
 
