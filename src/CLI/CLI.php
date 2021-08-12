@@ -222,11 +222,12 @@ class CLI
 
                 foreach ($command->getParams() as $key => $param) {
                     /** 
-                     * Get the value for a param in the following priority 
+                     * Get the value for a param in the following precedence order 
                      * 1. Command line argument
                      * 2. Prompt
                      * 3. Default value
                     */
+                    $value = '';
                     if (isset($this->args[$key])) {
                         $value = $this->args[$key];
                     } else if (isset($param['prompt']) && is_string($param['prompt']) && !empty($param['prompt'])) {
