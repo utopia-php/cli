@@ -235,9 +235,11 @@ class CLI
                         } else {
                             $value = Console::select($param['prompt'], $param['options'], $param['numSelect']);
                         }
-                    } else {
-                        $value = $param['default'];
                     }
+
+                    if (empty($value)) {
+                        $value = $param['default'];
+                    } 
 
                     $this->validate($key, $param, $value);
 
