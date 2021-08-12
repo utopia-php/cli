@@ -257,7 +257,7 @@ class CLI
                 throw new Exception('No command found');
             }
         } catch (Exception $e) {
-            Console::restoreTerminalConfig();
+            // Console::restoreTerminalConfig();
             \call_user_func_array($this->error, array($e));
         }
 
