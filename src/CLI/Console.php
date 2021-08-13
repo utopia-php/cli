@@ -264,6 +264,7 @@ class Console
         self::enableEchoBack();
         self::enableCanonical();
         self::enableCursor();
+        stream_set_blocking(STDIN, true);
     }
 
     static protected function clear()
