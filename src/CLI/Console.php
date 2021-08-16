@@ -180,9 +180,9 @@ class Console
         self::log($prompt, $buffered);
         foreach ($options as $key => $value) {
             if ($keys[$cursorPosition] == $key && isset($selections[$key])) {
-                self::success("$markerSelected $value ( $key ) <-\n", $buffered);
+                self::log("\033[36;1m$markerSelected $value ( $key ) <-\n\033[0m", $buffered);
             } else if (isset($selections[$key])) {
-                self::success("$markerSelected $value ( $key )\n", $buffered);
+                self::log("\033[36;1m$markerSelected $value ( $key )\n\033[0m", $buffered);
             } else if ($keys[$cursorPosition] == $key) {
                 self::log("$markerUnselected $value ( $key ) <-\n", $buffered);
             } else {
