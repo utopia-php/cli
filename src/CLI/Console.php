@@ -4,7 +4,11 @@ namespace Utopia\CLI;
 
 class Console
 {
-
+    /**
+     * Names of the supported control keys
+     * 
+     * @var string 
+     */
     protected const KEY_UP = 'UP';
     protected const KEY_DOWN = 'DOWN';
     protected const KEY_RIGHT = 'RIGHT';
@@ -21,6 +25,11 @@ class Console
     protected const KEY_TAB = 'TAB';
     protected const KEY_ESC = 'ESC';
 
+    /**
+     * Mappings of key codes to key names.
+     * 
+     * @var array
+     */
     private static $controls = [
         "\033[A" => self::KEY_UP,
         "\033[B" => self::KEY_DOWN,
@@ -44,29 +53,83 @@ class Console
         "\e"     => self::KEY_ESC,
     ];
 
+    /**
+     * Marker for a selected radio button 
+     * 
+     * @var string 
+     */
     static protected $markerRadioSelected = '[●]';
+
+    /**
+     * Marker for an unselected radio button 
+     * 
+     * @var string 
+     */
     static protected $markerRadioUnselected = '[○]';
+
+    /**
+     * Marker for a selected check box 
+     * 
+     * @var string 
+     */
     static protected $markerCheckboxSelected = '[✔]';
+
+    /**
+     * Marker for an unselected check box 
+     * 
+     * @var string 
+     */
     static protected $markerCheckboxUnselected = '[ ]';
 
 
+    /**
+     * Global flag to enable / disable buffering 
+     * 
+     * @var bool 
+     */
     static bool $isBuffered = false;
 
+    /**
+     * Buffer to store all the output 
+     * 
+     * @var array 
+     */
     static array $buffer = [];
 
+    /**
+     * Toggle to enable output buffering 
+     * 
+     * @return void
+     */
     static public function enableBuffer() {
         self::$isBuffered = true;
     }
 
+    /**
+     * Toggle to disable output buffering
+     *
+     * @return void
+     */
     static public function disableBuffer() {
         self::$isBuffered = false;
     }
 
+    /**
+     * Add a string to the buffer
+     *
+     * @param string $text
+     * @return void
+     */
     static protected function addToBuffer(string $text)
     {
         self::$buffer[] = $text;
     }
 
+    /**
+     * Clears the output buffer
+     *
+     * @return void
+     */
     static protected function clearBuffer()
     {
         self::$buffer = [];
@@ -160,9 +223,9 @@ class Console
     }
 
     /**
-     * Warning
+     * Confirm
      *
-     * Log warning messages to console
+     * Displays a prompt on the console
      *
      * @param string $question
      * @return string
@@ -188,21 +251,36 @@ class Console
     }
 
 
+    /**
+     * Draw 
+     * 
+     * Draws a prompt onto the console
+     * 
+     * @param string $prompt
+     * @param array $options
+     * @param array $selections
+     * @param int $max
+     * @param int $cursorPosition
+     * @param bool $isBuffered
+     *  
+     * @return void
+     */
     static protected function draw(string $prompt, array $options, array $selections, int $max, int $cursorPosition, bool $isBuffered = false)
     {
         $keys = array_keys($options);
         $markerSelected = $max == 1 ? self::$markerRadioSelected : self::$markerCheckboxSelected;
         $markerUnselected = $max == 1 ? self::$markerRadioUnselected : self::$markerCheckboxUnselected;
 
+        /** Start rendering */
         self::clear();
         self::moveCursorToTop();
-
-        /** Start rendering */
+        
         foreach (self::$buffer as $line) {
             self::log($line);
         }
 
         if($isBuffered) self::enableBuffer(); 
+
         self::log($prompt);
         foreach ($options as $key => $value) {
             if ($keys[$cursorPosition] == $key && isset($selections[$key])) {
@@ -220,18 +298,22 @@ class Console
     }
 
     /**
+     * Select
      * 
+     * Creates a single or multi-select prompt
      * 
+     * @param string $prompt
+     * @param array $options
+     * @param int $max
+     *  
+     * @return void
      */
     static public function select(string $prompt, array $options, int $max)
     {
-        /** Prepare the terminal*/
         if (!self::isInteractive()) {
             return [];
         }
-
-        self::prepareTerminal();
-        
+   
         /** Intercept signals */
         pcntl_async_signals(true);
         $handler = function () {
@@ -241,7 +323,9 @@ class Console
         pcntl_signal(SIGINT, $handler);
         pcntl_signal(SIGTERM, $handler);
 
-        /** Initialize the renderer */
+        self::prepareTerminal();
+
+        /** Initialize all the values */
         $cursorPosition = 0;
         $keys = array_keys($options);
         $selections = [];
@@ -249,10 +333,12 @@ class Console
         $input = '';
         $confirm = false;
 
-        /**Render */
         self::draw($prompt, $options, $selections, $max, $cursorPosition);
+
         while (true) {
-            /** Get and process Input ( Why 4 bytes ) */
+            /** Set stream to non-blocking to allow POSIX signals to be intercepted. 
+             * Get and process the standard input ( Why 4 bytes? ) 
+             */
             stream_set_blocking(STDIN, false);
             $input = fread(STDIN, 4);
 
@@ -305,82 +391,6 @@ class Console
 
             usleep(100);
         }
-    }
-
-    static function prepareTerminal() 
-    {
-        self::disableEchoBack();
-        self::disableCanonical();
-        self::disableCursor();
-    }
-
-    // rename to restoreTerminal 
-    static function restoreTerminal()
-    {
-        self::enableEchoBack();
-        self::enableCanonical();
-        self::enableCursor();
-        stream_set_blocking(STDIN, true);
-    }
-
-    static protected function clear()
-    {
-        fwrite(STDOUT, "\033[2J");
-    }
-
-    /**
-     * Erase screen from the current line down to the bottom of the screen
-     */
-    static protected function clearDown(): void
-    {
-        fwrite(STDOUT, "\033[J");
-    }
-
-    static protected function moveCursorToTop()
-    {
-        fwrite(STDOUT, "\033[H");
-    }
-
-    static protected function enableEchoBack()
-    {
-        system("stty echo");
-    }
-
-    static protected function disableEchoBack()
-    {
-        system("stty -echo");
-    }
-
-    /**
-     * @see https://www.gnu.org/software/libc/manual/html_node/Canonical-or-Not.html 
-     */
-    static protected function enableCanonical()
-    {
-        system('stty icanon');
-    }
-
-    static protected function disableCanonical()
-    {
-        system('stty -icanon');
-    }
-
-    static protected function enableCursor(): void
-    {
-        fwrite(STDOUT, "\033[?25h");
-    }
-
-    static protected function disableCursor(): void
-    {
-        fwrite(STDOUT, "\033[?25l");
-    }
-
-    static protected function getControl(string $input): string
-    {
-        if (!isset(static::$controls[$input])) {
-            throw new \RuntimeException(sprintf('Character "%s" is not a control', $input));
-        }
-
-        return static::$controls[$input];
     }
 
     /**
@@ -489,5 +499,133 @@ class Console
                 }
             }
         }
+    }
+
+    /**
+     * Prepare the terminal for select mode.
+     * 
+     * @return void
+     */
+    static function prepareTerminal() 
+    {
+        self::disableEchoBack();
+        self::disableCanonical();
+        self::disableCursor();
+    }
+
+    /**
+     * Restore the terminal to its original state.
+     * 
+     * @return void
+     */
+    static function restoreTerminal()
+    {
+        self::enableEchoBack();
+        self::enableCanonical();
+        self::enableCursor();
+        stream_set_blocking(STDIN, true);
+    }
+
+    /**
+     * Clear contents of the screen
+     * 
+     * @return void
+     */
+    static protected function clear()
+    {
+        fwrite(STDOUT, "\033[2J");
+    }
+
+    /**
+     * Erase screen from the current line down to the bottom of the screen
+     */
+    static protected function clearDown(): void
+    {
+        fwrite(STDOUT, "\033[J");
+    }
+
+    /**
+     * Move the cursor to the top of the screen
+     * 
+     * @return void
+     */
+    static protected function moveCursorToTop()
+    {
+        fwrite(STDOUT, "\033[H");
+    }
+
+    /**
+     * Echo characters back to the screen
+     * 
+     * @return void
+     */
+    static protected function enableEchoBack()
+    {
+        system("stty echo");
+    }
+
+    /**
+     * Disable the echo back of characters to the screen
+     * 
+     * @return void
+     */
+    static protected function disableEchoBack()
+    {
+        system("stty -echo");
+    }
+
+    /**
+     * Enable canonical mode 
+     * 
+     * @see https://www.gnu.org/software/libc/manual/html_node/Canonical-or-Not.html 
+     */
+    static protected function enableCanonical()
+    {
+        system('stty icanon');
+    }
+
+    /**
+     * Disable canonical mode
+     * 
+     * @return void
+     */
+    static protected function disableCanonical()
+    {
+        system('stty -icanon');
+    }
+
+    /**
+     * Enable the cursor
+     * 
+     * @return void
+     */
+    static protected function enableCursor(): void
+    {
+        fwrite(STDOUT, "\033[?25h");
+    }
+
+    /**
+     * Disable the cursor
+     * 
+     * @return void
+     */
+    static protected function disableCursor(): void
+    {
+        fwrite(STDOUT, "\033[?25l");
+    }
+
+    /**
+     * Get the mapping from a control code to it's respective character
+     * 
+     * @param string $input
+     * @return string
+     */
+    static protected function getControl(string $input): string
+    {
+        if (!isset(static::$controls[$input])) {
+            throw new \RuntimeException(sprintf('Character "%s" is not a control', $input));
+        }
+
+        return static::$controls[$input];
     }
 }
