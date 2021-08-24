@@ -307,7 +307,9 @@ class CLI
                         $value = $this->args[$key];
                     } else if (isset($param['prompt']) && is_string($param['prompt']) && !empty($param['prompt'])) {
                         if (empty($param['options'])) {
+                            Console::enableBuffer();
                             $value = Console::confirm($param['prompt']);
+                            Console::disableBuffer();
                         } else {
                             $value = Console::select($param['prompt'], $param['options'], $param['max']);
                         }

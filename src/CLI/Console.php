@@ -49,7 +49,28 @@ class Console
     static protected $markerCheckboxSelected = '[✔]';
     static protected $markerCheckboxUnselected = '[ ]';
 
+
+    static bool $isBuffered = false;
+
     static array $buffer = [];
+
+    static public function enableBuffer() {
+        self::$isBuffered = true;
+    }
+
+    static public function disableBuffer() {
+        self::$isBuffered = false;
+    }
+
+    static protected function addToBuffer(string $text)
+    {
+        self::$buffer[] = $text;
+    }
+
+    static protected function clearBuffer()
+    {
+        self::$buffer = [];
+    }
 
     /**
      * Title
@@ -72,9 +93,9 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function log(string $message, bool $buffered = false)
+    static public function log(string $message)
     {
-        if ($buffered) self::addToBuffer($message);
+        if (self::$isBuffered) self::addToBuffer($message);
         return \fwrite(STDOUT, $message);
     }
 
@@ -86,10 +107,10 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function success(string $message, bool $buffered = false)
+    static public function success(string $message)
     {
         $message = "\033[32m" . $message . "\033[0m";
-        if ($buffered) self::addToBuffer($message);
+        if (self::$isBuffered) self::addToBuffer($message);
         return \fwrite(STDOUT, $message);
     }
 
@@ -101,10 +122,10 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function error(string $message, bool $buffered = false)
+    static public function error(string $message)
     {
         $message = "\033[31m" . $message . "\033[0m";
-        if ($buffered) self::addToBuffer($message);
+        if (self::$isBuffered) self::addToBuffer($message);
         return \fwrite(STDERR, $message);
     }
 
@@ -116,10 +137,10 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function info(string $message, bool $buffered = false)
+    static public function info(string $message)
     {
         $message = "\033[34m" . $message . "\033[0m";
-        if ($buffered) self::addToBuffer($message);
+        if (self::$isBuffered) self::addToBuffer($message);
         return \fwrite(STDOUT, $message);
     }
 
@@ -131,10 +152,10 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function warning(string $message, bool $buffered = false)
+    static public function warning(string $message)
     {
         $message = "\033[1;33m" . $message . "\033[0m";
-        if ($buffered) self::addToBuffer($message);
+        if (self::$isBuffered) self::addToBuffer($message);
         return \fwrite(STDERR, $message);
     }
 
@@ -146,18 +167,18 @@ class Console
      * @param string $question
      * @return string
      */
-    static public function confirm(string $question, bool $isBuffered = true)
+    static public function confirm(string $question)
     {
         if (!self::isInteractive()) {
             return '';
         }
 
-        self::log($question, $isBuffered);
+        self::log($question);
 
         $handle = \fopen('php://stdin', 'r');
         $line   = \trim(\fgets($handle));
 
-        if ($isBuffered) {
+        if (self::$isBuffered) {
             self::addToBuffer($line . "\n");
         }
 
@@ -167,7 +188,7 @@ class Console
     }
 
 
-    static protected function draw(string $prompt, array $options, array $selections, int $max, int $cursorPosition, bool $buffered = false)
+    static protected function draw(string $prompt, array $options, array $selections, int $max, int $cursorPosition, bool $isBuffered = false)
     {
         $keys = array_keys($options);
         $markerSelected = $max == 1 ? self::$markerRadioSelected : self::$markerCheckboxSelected;
@@ -181,18 +202,21 @@ class Console
             self::log($line);
         }
 
-        self::log($prompt, $buffered);
+        if($isBuffered) self::enableBuffer(); 
+        self::log($prompt);
         foreach ($options as $key => $value) {
             if ($keys[$cursorPosition] == $key && isset($selections[$key])) {
-                self::log("\033[36;1m$markerSelected $value ( $key ) <-\n\033[0m", $buffered);
+                self::log("\033[36;1m$markerSelected $value ( $key ) <-\n\033[0m");
             } else if (isset($selections[$key])) {
-                self::log("\033[36;1m$markerSelected $value ( $key )\n\033[0m", $buffered);
+                self::log("\033[36;1m$markerSelected $value ( $key )\n\033[0m");
             } else if ($keys[$cursorPosition] == $key) {
-                self::log("$markerUnselected $value ( $key ) <-\n", $buffered);
+                self::log("$markerUnselected $value ( $key ) <-\n");
             } else {
-                self::log("$markerUnselected $value ( $key )\n", $buffered);
+                self::log("$markerUnselected $value ( $key )\n");
             }
         }
+
+        if ($isBuffered) self::disableBuffer();
     }
 
     /**
@@ -211,7 +235,7 @@ class Console
         /** Intercept signals */
         pcntl_async_signals(true);
         $handler = function () {
-            self::restoreTerminalConfig();
+            self::restoreTerminal();
             self::exit(1);
         };
         pcntl_signal(SIGINT, $handler);
@@ -265,12 +289,12 @@ class Console
             }
 
             if (count($selections) == $max || $confirm) {
-                self::restoreTerminalConfig();
-                $selection = Console::confirm("Confirm selection? [Y/N] ", false);
+                self::restoreTerminal();
+                $selection = Console::confirm("Confirm selection? [Y/N] ");
                 self::prepareTerminal();
                 if ($selection == 'Y') {
                     self::draw($prompt, $options, $selections, $max, $cursorPosition, true);
-                    self::restoreTerminalConfig();
+                    self::restoreTerminal();
                     return $selections;
                 } else {
                     $selections = [];
@@ -291,7 +315,7 @@ class Console
     }
 
     // rename to restoreTerminal 
-    static function restoreTerminalConfig()
+    static function restoreTerminal()
     {
         self::enableEchoBack();
         self::enableCanonical();
@@ -465,15 +489,5 @@ class Console
                 }
             }
         }
-    }
-
-    static protected function addToBuffer(string $text)
-    {
-        self::$buffer[] = $text;
-    }
-
-    static protected function clearBuffer()
-    {
-        unset(self::$buffer);
     }
 }
