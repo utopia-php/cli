@@ -17,6 +17,7 @@ class Console
     protected const KEY_BACKSPACE = 'BACKSPACE';
     protected const KEY_CTRLW = 'CTRLW';
     protected const KEY_ENTER = 'ENTER';
+    protected const KEY_SPACE = 'SPACE';
     protected const KEY_TAB = 'TAB';
     protected const KEY_ESC = 'ESC';
 
@@ -38,6 +39,7 @@ class Console
         "\177"   => self::KEY_BACKSPACE,
         "\027"   => self::KEY_CTRLW,
         "\n"     => self::KEY_ENTER,
+        " "     => self::KEY_SPACE,
         "\t"     => self::KEY_TAB,
         "\e"     => self::KEY_ESC,
     ];
@@ -144,18 +146,20 @@ class Console
      * @param string $question
      * @return string
      */
-    static public function confirm(string $question)
+    static public function confirm(string $question, bool $isBuffered = true)
     {
         if (!self::isInteractive()) {
             return '';
         }
 
-        self::log($question, true);
-        
+        self::log($question, $isBuffered);
+
         $handle = \fopen('php://stdin', 'r');
         $line   = \trim(\fgets($handle));
 
-        self::addToBuffer($line."\n");
+        if ($isBuffered) {
+            self::addToBuffer($line . "\n");
+        }
 
         \fclose($handle);
 
@@ -163,7 +167,7 @@ class Console
     }
 
 
-    static protected function draw(string $prompt, array $options, array $selections, int $numSelect, int $cursorPosition,bool $buffered = false)
+    static protected function draw(string $prompt, array $options, array $selections, int $numSelect, int $cursorPosition, bool $buffered = false)
     {
         $keys = array_keys($options);
         $markerSelected = $numSelect == 1 ? self::$markerRadioSelected : self::$markerCheckboxSelected;
@@ -201,13 +205,12 @@ class Console
         if (!self::isInteractive()) {
             return [];
         }
-        self::disableEchoBack();
-        self::disableCanonical();
-        self::disableCursor();
 
+        self::prepareTerminal();
+        
         /** Intercept signals */
         pcntl_async_signals(true);
-        $handler = function() {
+        $handler = function () {
             self::restoreTerminalConfig();
             self::exit(1);
         };
@@ -220,44 +223,72 @@ class Console
         $selections = [];
         $numOptions = count($options);
         $input = '';
+        $confirm = false;
 
         /**Render */
         self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
         while (true) {
-            if (count($selections) == $numSelect) {
-                self::restoreTerminalConfig();
-                return $selections;
-            }
-
             /** Get and process Input ( Why 4 bytes ) */
             stream_set_blocking(STDIN, false);
             $input = fread(STDIN, 4);
 
-            if (self::isControl($input)) {
+            if (isset(self::$controls[$input])) {
                 $pressed = self::getControl($input);
                 switch ($pressed) {
                     case self::KEY_UP:
                         $cursorPosition = ($cursorPosition - 1) < 0 ? $numOptions - 1 : $cursorPosition - 1;
-                        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);                        
+                        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
                         break;
                     case self::KEY_DOWN:
                         $cursorPosition = ($cursorPosition + 1) > $numOptions - 1 ? 0 : $cursorPosition + 1;
                         self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
                         break;
-                    case self::KEY_ENTER:
+                    case self::KEY_SPACE:
                         if (isset($selections[$keys[$cursorPosition]])) {
                             unset($selections[$keys[$cursorPosition]]);
-                        } else if (count($selections) < $numSelect) {
+                        } else {
+                            if ($numSelect <= 1) {
+                                foreach ($selections as $key => $value) {
+                                    unset($selections[$key]);
+                                }
+                            }
                             $selections[$keys[$cursorPosition]] = $options[$keys[$cursorPosition]];
-                        } 
-                        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition, count($selections) === $numSelect);
+                        }
+                        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
                         break;
+                    case self::KEY_ENTER:
+                        if (!empty($selections)) {
+                            $confirm = true;
+                            self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
+                        }
                 }
             }
+
+            if (count($selections) == $numSelect || $confirm) {
+                self::restoreTerminalConfig();
+                $selection = Console::confirm("Confirm selection? [Y/N] ", false);
+                self::prepareTerminal();
+                if ($selection == 'Y') {
+                    self::draw($prompt, $options, $selections, $numSelect, $cursorPosition, true);
+                    self::restoreTerminalConfig();
+                    return $selections;
+                } else {
+                    $selections = [];
+                    $confirm = false;
+                    self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
+                }
+            }
+
             usleep(100);
         }
     }
 
+    static function prepareTerminal() 
+    {
+        self::disableEchoBack();
+        self::disableCanonical();
+        self::disableCursor();
+    }
 
     static function restoreTerminalConfig()
     {
@@ -275,7 +306,7 @@ class Console
     /**
      * Erase screen from the current line down to the bottom of the screen
      */
-    static protected function clearDown() : void
+    static protected function clearDown(): void
     {
         fwrite(STDOUT, "\033[J");
     }
@@ -316,14 +347,6 @@ class Console
     static protected function disableCursor(): void
     {
         fwrite(STDOUT, "\033[?25l");
-    }
-
-    /**
-     * Is this character a control sequence?
-     */
-    static protected function isControl($char): bool
-    {
-        return preg_match('/[\x00-\x1F\x7F]/', $char);
     }
 
     static protected function getControl(string $input): string
