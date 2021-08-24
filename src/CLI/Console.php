@@ -306,7 +306,7 @@ class Console
      * @param array $options
      * @param int $max
      *  
-     * @return void
+     * @return array
      */
     static public function select(string $prompt, array $options, int $max)
     {
