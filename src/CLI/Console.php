@@ -167,11 +167,11 @@ class Console
     }
 
 
-    static protected function draw(string $prompt, array $options, array $selections, int $numSelect, int $cursorPosition, bool $buffered = false)
+    static protected function draw(string $prompt, array $options, array $selections, int $max, int $cursorPosition, bool $buffered = false)
     {
         $keys = array_keys($options);
-        $markerSelected = $numSelect == 1 ? self::$markerRadioSelected : self::$markerCheckboxSelected;
-        $markerUnselected = $numSelect == 1 ? self::$markerRadioUnselected : self::$markerCheckboxUnselected;
+        $markerSelected = $max == 1 ? self::$markerRadioSelected : self::$markerCheckboxSelected;
+        $markerUnselected = $max == 1 ? self::$markerRadioUnselected : self::$markerCheckboxUnselected;
 
         self::clear();
         self::moveCursorToTop();
@@ -199,7 +199,7 @@ class Console
      * 
      * 
      */
-    static public function select(string $prompt, array $options, int $numSelect)
+    static public function select(string $prompt, array $options, int $max)
     {
         /** Prepare the terminal*/
         if (!self::isInteractive()) {
@@ -226,7 +226,7 @@ class Console
         $confirm = false;
 
         /**Render */
-        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
+        self::draw($prompt, $options, $selections, $max, $cursorPosition);
         while (true) {
             /** Get and process Input ( Why 4 bytes ) */
             stream_set_blocking(STDIN, false);
@@ -237,45 +237,45 @@ class Console
                 switch ($pressed) {
                     case self::KEY_UP:
                         $cursorPosition = ($cursorPosition - 1) < 0 ? $numOptions - 1 : $cursorPosition - 1;
-                        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
+                        self::draw($prompt, $options, $selections, $max, $cursorPosition);
                         break;
                     case self::KEY_DOWN:
                         $cursorPosition = ($cursorPosition + 1) > $numOptions - 1 ? 0 : $cursorPosition + 1;
-                        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
+                        self::draw($prompt, $options, $selections, $max, $cursorPosition);
                         break;
                     case self::KEY_SPACE:
                         if (isset($selections[$keys[$cursorPosition]])) {
                             unset($selections[$keys[$cursorPosition]]);
                         } else {
-                            if ($numSelect <= 1) {
+                            if ($max <= 1) {
                                 foreach ($selections as $key => $value) {
                                     unset($selections[$key]);
                                 }
                             }
                             $selections[$keys[$cursorPosition]] = $options[$keys[$cursorPosition]];
                         }
-                        self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
+                        self::draw($prompt, $options, $selections, $max, $cursorPosition);
                         break;
                     case self::KEY_ENTER:
                         if (!empty($selections)) {
                             $confirm = true;
-                            self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
+                            self::draw($prompt, $options, $selections, $max, $cursorPosition);
                         }
                 }
             }
 
-            if (count($selections) == $numSelect || $confirm) {
+            if (count($selections) == $max || $confirm) {
                 self::restoreTerminalConfig();
                 $selection = Console::confirm("Confirm selection? [Y/N] ", false);
                 self::prepareTerminal();
                 if ($selection == 'Y') {
-                    self::draw($prompt, $options, $selections, $numSelect, $cursorPosition, true);
+                    self::draw($prompt, $options, $selections, $max, $cursorPosition, true);
                     self::restoreTerminalConfig();
                     return $selections;
                 } else {
                     $selections = [];
                     $confirm = false;
-                    self::draw($prompt, $options, $selections, $numSelect, $cursorPosition);
+                    self::draw($prompt, $options, $selections, $max, $cursorPosition);
                 }
             }
 
@@ -290,6 +290,7 @@ class Console
         self::disableCursor();
     }
 
+    // rename to restoreTerminal 
     static function restoreTerminalConfig()
     {
         self::enableEchoBack();
@@ -357,7 +358,6 @@ class Console
 
         return static::$controls[$input];
     }
-
 
     /**
      * Exit

@@ -90,18 +90,18 @@ class Task
      *
      * @return $this
      */
-    public function param(string $key, $default, $validator, string $description = '', $prompt = '', array $options = [], int $numSelect = 0, bool $optional = false): self
+    public function param(string $key, $default, $validator, string $description = '', $prompt = '', array $options = [], int $max = 0, bool $optional = false): self
     {
-        if ($numSelect < 0) {
-            throw new \Exception('$numSelect must be >= 0');
+        if ($max < 0) {
+            throw new \Exception('$max must be >= 0');
         }
 
-        if (count($options) > 0 && $numSelect < 1) {
-            throw new \Exception('$numSelect must be at least 1 when options are passed.');
+        if (count($options) > 0 && $max < 1) {
+            throw new \Exception('$max must be at least 1 when options are passed.');
         }
 
-        if ($numSelect > count($options)) {
-            throw new \Exception('$numSelect cannot be greater than the number of options');
+        if ($max > count($options)) {
+            throw new \Exception('$max cannot be greater than the number of options');
         }
 
         $this->params[$key] = array(
@@ -110,7 +110,7 @@ class Task
             'description'   => $description,
             'prompt'        => $prompt,
             'options'       => $options,
-            'numSelect'     => $numSelect,
+            'max'           => $max,
             'optional'      => $optional,
             'value'         => null,
         );
