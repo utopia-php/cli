@@ -64,9 +64,7 @@ class CLI
     /**
      * @var array
      */
-    protected $resources = [
-        'error' => null,
-    ];
+    protected $resources = [];
 
     /**
      * @var array
@@ -163,11 +161,12 @@ class CLI
      * Set a callback function that will be initialized on application start
      *
      * @param callable $callback
+     * @param array $resources
      * @return $this
      */
-    public function init(callable $callback): self
+    public function init(callable $callback, array $resources = []): self
     {
-        $this->init[] = $callback;
+        $this->init[] = ['callback' => $callback, 'resources' => $resources];
         return $this;
     }
 
@@ -290,7 +289,7 @@ class CLI
         try {
             if ($command) {
                 foreach ($this->init as $init) {
-                    \call_user_func_array($init, []);
+                    \call_user_func_array($init['callback'], $this->getResources($init['resources']));
                 }
 
                 $params = [];
@@ -383,6 +382,10 @@ class CLI
 
             if (\is_callable($validator)) {
                 $validator = $validator();
+            }
+
+            if (\is_callable($validator)) {
+                $validator = \call_user_func_array($validator, $this->getResources($param['injections']));
             }
 
             // is the validator object an instance of the Validator class
