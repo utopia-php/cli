@@ -158,7 +158,7 @@ class Console
 
             if ($timeout > 0 && \time() - $start > $timeout) {
                 \proc_terminate($process, 9);
-                return 1;
+                return 124;
             }
 
             $status = \proc_get_status($process);
