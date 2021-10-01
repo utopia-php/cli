@@ -32,6 +32,20 @@ body:
       description: "What did actually happen? Add screenshots, if applicable."
       placeholder: "It actually ..."
   - type: dropdown
+    id: utopia-version
+    attributes:
+      label: "🎲 Utopia Framework version"
+      description: "What version of Utopia are you running?"
+      options:
+        - Version 0.18.x
+        - Version 0.17.x
+        - Version 0.16.x
+        - Version 0.15.x
+        - Version 0.14.x
+        - Different version (specify in environment)
+    validations:
+      required: true      
+  - type: dropdown
     id: php-version
     attributes:
       label: "🐘 PHP Version"
