@@ -62,6 +62,16 @@ class CLI
     protected $shutdown = [];
 
     /**
+     * @var array
+     */
+    protected $resources = [];
+
+    /**
+     * @var array
+     */
+    protected static $resourcesCallbacks = [];
+
+    /**
      * CLI constructor.
      *
      * @param array $args
@@ -73,13 +83,76 @@ class CLI
             throw new Exception('CLI tasks can only work from the command line');
         }
 
-        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args: $_SERVER['argv']);
+        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         $this->error = function (Exception $error): void {
-            Console::error($error->getMessage());
+            Console::error($error->getMessage()."\n");
         };
 
         @\cli_set_process_title($this->command);
+    }
+
+    /**
+     * If a resource has been created return it, otherwise create it and then return it
+     *
+     * @param string $name
+     * @param bool $fresh
+     * @return mixed
+     * @throws Exception
+     */
+    public function getResource(string $name, $fresh = false)
+    {
+        if ($name === 'utopia') {
+            return $this;
+        }
+
+        if (!\array_key_exists($name, $this->resources) || $fresh || self::$resourcesCallbacks[$name]['reset']) {
+            if (!\array_key_exists($name, self::$resourcesCallbacks)) {
+                throw new Exception('Failed to find resource: "' . $name . '"');
+            }
+
+            $this->resources[$name] = \call_user_func_array(self::$resourcesCallbacks[$name]['callback'],
+                $this->getResources(self::$resourcesCallbacks[$name]['injections']));
+        }
+
+        self::$resourcesCallbacks[$name]['reset'] = false;
+
+        return $this->resources[$name];
+    }
+
+    /**
+     * Get Resources By List
+     *
+     * @param array $list
+     * @return array
+     */
+    public function getResources(array $list): array
+    {
+        $resources = [];
+        
+        foreach ($list as $name) {
+            $resources[$name] = $this->getResource($name);
+        }
+
+        return $resources;
+    }
+
+    /**
+     * Set a new resource callback
+     *
+     * @param string $name
+     * @param callable $callback
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    public static function setResource(string $name, callable $callback, array $injections = []): void
+    {
+        if ($name === 'utopia') {
+            throw new Exception("'utopia' is a reserved keyword.", 500);
+        }
+        self::$resourcesCallbacks[$name] = ['callback' => $callback, 'injections' => $injections, 'reset' => true];
     }
 
     /**
@@ -88,11 +161,12 @@ class CLI
      * Set a callback function that will be initialized on application start
      *
      * @param callable $callback
+     * @param array $resources
      * @return $this
      */
-    public function init(callable $callback): self
+    public function init(callable $callback, array $resources = []): self
     {
-        $this->init[] = $callback;
+        $this->init[] = ['callback' => $callback, 'resources' => $resources];
         return $this;
     }
 
@@ -174,9 +248,9 @@ class CLI
         unset($arg);
 
         foreach ($args as $arg) {
-            $pair = explode("=",$arg); 
+            $pair = explode("=", $arg);
             $key = $pair[0];
-            $value = $pair[1];
+            $value = isset($pair[1]) ? $pair[1] : '';
             $output[$key][] = $value;
         }
 
@@ -215,18 +289,42 @@ class CLI
         try {
             if ($command) {
                 foreach ($this->init as $init) {
-                    \call_user_func_array($init, []);
+                    \call_user_func_array($init['callback'], $this->getResources($init['resources']));
                 }
 
                 $params = [];
 
                 foreach ($command->getParams() as $key => $param) {
-                    // Get value from route or request object
-                    $value = (isset($this->args[$key])) ? $this->args[$key] : $param['default'];
+                    /** 
+                     * Get the value for a param in the following precedence order 
+                     * 1. Command line argument
+                     * 2. Prompt
+                     * 3. Default value
+                    */
+                    $value = '';
+                    if (isset($this->args[$key])) {
+                        $value = $this->args[$key];
+                    } else if (isset($param['prompt']) && is_string($param['prompt']) && !empty($param['prompt'])) {
+                        if (empty($param['options'])) {
+                            Console::enableBuffer();
+                            $value = Console::confirm($param['prompt']);
+                            Console::disableBuffer();
+                        } else {
+                            $value = Console::select($param['prompt'], $param['options'], $param['max']);
+                        }
+                    }
+
+                    if (empty($value)) {
+                        $value = $param['default'];
+                    } 
 
                     $this->validate($key, $param, $value);
 
-                    $params[$key] = $value;
+                    $params[$param['order']] = $value;
+                }
+
+                foreach ($command->getInjections() as $key => $injection) {
+                    $params[$injection['order']] = $this->getResource($injection['name']);
                 }
 
                 // Call the callback with the matched positions as params
@@ -239,6 +337,7 @@ class CLI
                 throw new Exception('No command found');
             }
         } catch (Exception $e) {
+            // Console::restoreTerminalConfig();
             \call_user_func_array($this->error, array($e));
         }
 
@@ -285,13 +384,17 @@ class CLI
                 $validator = $validator();
             }
 
+            if (\is_callable($validator)) {
+                $validator = \call_user_func_array($validator, $this->getResources($param['injections']));
+            }
+
             // is the validator object an instance of the Validator class
             if (!$validator instanceof Validator) {
                 throw new Exception('Validator object is not an instance of the Validator class', 500);
             }
 
             if (!$validator->isValid($value)) {
-                throw new Exception('Invalid ' .$key . ': ' . $validator->getDescription(), 400);
+                throw new Exception('Invalid ' . $key . ': ' . $validator->getDescription(), 400);
             }
         } else {
             if (!$param['optional']) {

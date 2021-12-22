@@ -69,4 +69,19 @@ class TaskTest extends TestCase
 
         $this->assertCount(1, $this->task->getParams());
     }
+
+    public function testResources()
+    {
+        $this->assertEquals([], $this->task->getInjections());
+        
+        $this->task
+            ->inject('user')
+            ->inject('time')
+            ->action(function() {})
+        ;
+
+        $this->assertCount(2, $this->task->getInjections());
+        $this->assertEquals('user', $this->task->getInjections()['user']['name']);
+        $this->assertEquals('time', $this->task->getInjections()['time']['name']);
+    }
 }

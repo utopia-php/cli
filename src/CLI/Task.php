@@ -2,6 +2,8 @@
 
 namespace Utopia\CLI;
 
+use Exception;
+
 class Task
 {
     /**
@@ -42,13 +44,23 @@ class Task
     protected $labels = [];
 
     /**
+     * Injections
+     *
+     * List of route required injections for action callback
+     *
+     * @var array
+     */
+    protected $injections = [];
+
+    /**
      * Task constructor.
      * @param string $name
      */
     public function __construct(string $name)
     {
         $this->name = $name;
-        $this->action = function(): void {};
+        $this->action = function (): void {
+        };
     }
 
     /**
@@ -82,18 +94,39 @@ class Task
      * @param mixed $default
      * @param string $validator
      * @param string $description
+     * @param string $prompt
+     * @param string $options
+     * @param int $numSelect
      * @param bool $optional
+     * @param array $injections
      *
      * @return $this
      */
-    public function param(string $key, $default, $validator, string $description = '', bool $optional = false): self
+    public function param(string $key, $default, $validator, string $description = '', $prompt = '', array $options = [], int $max = 0, bool $optional = false, array $injections = []): self
     {
+        if ($max < 0) {
+            throw new \Exception('$max must be >= 0');
+        }
+
+        if (count($options) > 0 && $max < 1) {
+            throw new \Exception('$max must be at least 1 when options are passed.');
+        }
+
+        if ($max > count($options)) {
+            throw new \Exception('$max cannot be greater than the number of options');
+        }
+
         $this->params[$key] = array(
             'default'       => $default,
             'validator'     => $validator,
             'description'   => $description,
+            'prompt'        => $prompt,
+            'options'       => $options,
+            'max'           => $max,
             'optional'      => $optional,
             'value'         => null,
+            'injections'    => $injections,
+            'order'         => count($this->params) + count($this->injections),
         );
 
         return $this;
@@ -110,6 +143,27 @@ class Task
     public function label(string $key, $value): self
     {
         $this->labels[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Inject
+     *
+     * @param string $injection
+     *
+     * @return $this
+     */
+    public function inject($injection): self
+    {
+        if (array_key_exists($injection, $this->injections)) {
+            throw new Exception('Injection already declared for ' . $injection);
+        }
+
+        $this->injections[$injection] = [
+            'name' => $injection,
+            'order' => count($this->params) + count($this->injections),
+        ];
 
         return $this;
     }
@@ -166,5 +220,26 @@ class Task
     public function getLabel(string $key, $default)
     {
         return (isset($this->labels[$key])) ? $this->labels[$key] : $default;
+    }
+
+    /**
+     * Get Injections
+     *
+     * @return array
+     */
+    public function getInjections(): array
+    {
+        return $this->injections;
+    }
+
+    /**
+     * Set Options
+     * 
+     * Set the options for the prompt
+     */
+    public function setOptions(array $options)
+    {
+        $this->params['options'] = $options;
+        return $this;
     }
 }
