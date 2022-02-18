@@ -190,16 +190,24 @@ class Console
     /**
      * @param callable $callback
      * @param int $sleep in seconds
+     * @param callable $onError
      */
-    static public function loop(callable $callback, $sleep = 1 /* 1 second */): void
+    static public function loop(callable $callback, $sleep = 1 /* 1 second */, callable $onError = null): void
     {
         gc_enable();
 
         $time = 0;
         
         while (!connection_aborted() || PHP_SAPI == "cli") {
-
-            $callback();
+            try {
+                $callback();
+            } catch(\Exception $e) {
+                if($onError != null) {
+                    $onError($e);
+                } else {
+                    throw $e;
+                }
+            }
 
             sleep($sleep);
 
