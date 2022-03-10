@@ -166,7 +166,12 @@ class Console
             if (!$status['running']) {
                 \fclose($pipes[1]);
                 \fclose($pipes[2]);
-                \proc_close($process);
+                
+                if ($status['exitcode'] === -1) {
+                    $status['exitcode'] = \proc_close($process);
+                } else {
+                    \proc_close($process);
+                }
 
                 return (int)$status['exitcode'];
             }
