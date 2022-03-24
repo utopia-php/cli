@@ -166,9 +166,9 @@ class Console
             if (!$status['running']) {
                 \fclose($pipes[1]);
                 \fclose($pipes[2]);
-                \proc_close($process);
+                $exitCode = \proc_close($process);
 
-                return (int)$status['exitcode'];
+                return $exitCode;
             }
 
             \usleep(10000);
