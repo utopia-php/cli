@@ -133,20 +133,24 @@ class Console
      */
     static public function execute(string $cmd, string $stdin, string &$stdout, string &$stderr, int $timeout = -1): int
     {
+        $cmd = '( ' . $cmd . ' ) 3>/dev/null ; echo $? >&3';
+
         $pipes = [];
         $process = \proc_open(
             $cmd,
-            [['pipe','r'],['pipe','w'],['pipe','w']],
+            [['pipe','r'],['pipe','w'],['pipe','w'],['pipe', 'w']],
             $pipes
         );
         $start = \time();
         $stdout = '';
         $stderr = '';
+        $statusPipe = '';
 
         if (\is_resource($process)) {
             \stream_set_blocking($pipes[0], false);
             \stream_set_blocking($pipes[1], false);
             \stream_set_blocking($pipes[2], false);
+            \stream_set_blocking($pipes[3], false);
 
             \fwrite($pipes[0], $stdin);
             \fclose($pipes[0]);
@@ -155,6 +159,7 @@ class Console
         while (\is_resource($process)) {
             $stdout .= \stream_get_contents($pipes[1]);
             $stderr .= \stream_get_contents($pipes[2]);
+            $statusPipe .= \stream_get_contents($pipes[3]);
 
             if ($timeout > 0 && \time() - $start > $timeout) {
                 \proc_terminate($process, 9);
@@ -166,7 +171,9 @@ class Console
             if (!$status['running']) {
                 \fclose($pipes[1]);
                 \fclose($pipes[2]);
-                $exitCode = \proc_close($process);
+                \proc_close($process);
+
+                $exitCode = (int) str_replace("\n","",$statusPipe);
 
                 return $exitCode;
             }
