@@ -144,7 +144,7 @@ class Console
         $start = \time();
         $stdout = '';
         $stderr = '';
-        $statusPipe = '';
+        $status = '';
 
         if (\is_resource($process)) {
             \stream_set_blocking($pipes[0], false);
@@ -159,21 +159,19 @@ class Console
         while (\is_resource($process)) {
             $stdout .= \stream_get_contents($pipes[1]);
             $stderr .= \stream_get_contents($pipes[2]);
-            $statusPipe .= \stream_get_contents($pipes[3]);
+            $status .= \stream_get_contents($pipes[3]);
 
             if ($timeout > 0 && \time() - $start > $timeout) {
                 \proc_terminate($process, 9);
                 return 1;
             }
 
-            $status = \proc_get_status($process);
-
-            if (!$status['running']) {
+            if (!\proc_get_status($process)['running']) {
                 \fclose($pipes[1]);
                 \fclose($pipes[2]);
                 \proc_close($process);
 
-                $exitCode = (int) str_replace("\n","",$statusPipe);
+                $exitCode = (int) str_replace("\n","",$status);
 
                 return $exitCode;
             }
