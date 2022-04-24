@@ -189,10 +189,11 @@ class Console
 
     /**
      * @param callable $callback
-     * @param int $sleep in seconds
+     * @param int $sleep // seconds
      * @param callable $onError
+     * @throws \Exception
      */
-    static public function loop(callable $callback, $sleep = 1 /* 1 second */, callable $onError = null): void
+    static public function loop(callable $callback, int $sleep = 1 /* 1 second */, callable $onError = null): void
     {
         gc_enable();
 
@@ -214,7 +215,7 @@ class Console
             $time = $time + $sleep;
 
             if (PHP_SAPI == "cli") {
-                if($time >= (1000000 * 300)) { // Every 5 minutes
+                if($time >= (5 * 60)) { // Every 5 minutes
                     $time = 0;
                     gc_collect_cycles(); //Forces collection of any existing garbage cycles
                 }
