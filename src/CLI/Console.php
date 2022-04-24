@@ -209,7 +209,16 @@ class Console
                 }
             }
 
-            usleep($sleep * 1000000);
+            $intSeconds = intval($sleep);
+            $microSeconds = ($sleep - $intSeconds) * 1000000;
+
+            if($intSeconds > 0) {
+                sleep($intSeconds);
+            }
+
+            if($microSeconds > 0) {
+                usleep($microSeconds);
+            }
 
             $time = $time + $sleep;
 
