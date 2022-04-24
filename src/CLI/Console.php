@@ -214,7 +214,7 @@ class Console
             $time = $time + $sleep;
 
             if (PHP_SAPI == "cli") {
-                if($time >= $time * 60 * 5) { // Every 5 minutes
+                if($time >= 60 * 5) { // Every 5 minutes
                     $time = 0;
                     gc_collect_cycles(); //Forces collection of any existing garbage cycles
                 }
