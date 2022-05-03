@@ -18,18 +18,17 @@ composer require utopia-php/cli
 script.php
 ```php
 <?php
-
 require_once './vendor/autoload.php';
 
 use Utopia\CLI\CLI;
 use Utopia\CLI\Console;
-use Utopia\Validator\Email;
+use Utopia\Validator\Wildcard;
 
 $cli = new CLI();
 
 $cli
     ->task('command-name')
-    ->param('email', null, new Email())
+    ->param('email', null, new Wildcard())
     ->action(function ($email) {
         Console::success($email);
     });
@@ -70,8 +69,6 @@ Console::error('Red log message'); // stderr
 
 Function returns exit code (0 - OK, >0 - error) and writes stdout, stderr to reference variables. The timeout variable allows you to limit the number of seconds the command can run.
 
-
-
 ```php
 $stdout = '';
 $stderr = '';
@@ -109,7 +106,7 @@ include './vendor/autoload.php';
 
 Console::loop(function() {
     echo "Hello World\n";
-}, 200000 /* 200ms */);
+}, 1 /* 1 second */);
 ```
 
 ## System Requirements

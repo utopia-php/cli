@@ -1,6 +1,7 @@
 <?php
-
 namespace Utopia\CLI;
+
+use Utopia\Validator;
 
 class Task
 {
@@ -80,13 +81,13 @@ class Task
      *
      * @param string $key
      * @param mixed $default
-     * @param string $validator
+     * @param Validator $validator
      * @param string $description
      * @param bool $optional
      *
      * @return $this
      */
-    public function param(string $key, $default, $validator, string $description = '', bool $optional = false): self
+    public function param(string $key, $default, Validator $validator, string $description = '', bool $optional = false): self
     {
         $this->params[$key] = array(
             'default'       => $default,
