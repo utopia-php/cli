@@ -143,6 +143,20 @@ class CLI
     }
 
     /**
+     * Add Task
+     * 
+     * Add a pre-initialized task command
+     * 
+     * @param Task $task
+     * 
+     * @return void
+     */
+    public function addTask(Task $task): void
+    {
+        $this->tasks[$task->getName()] = $task;
+    }
+
+    /**
      * task-name --foo=test
      *
      * @param array $args
