@@ -394,4 +394,9 @@ class CLI
             }
         }
     }
+
+    public static function reset(): void
+    {
+        self::$resourcesCallbacks = [];
+    }
 }
