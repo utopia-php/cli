@@ -31,7 +31,7 @@ class CLITest extends TestCase
 
     public function testResources()
     {
-        $cli = new CLI();
+        $cli = new CLI(['test.php', 'build']);
         CLI::setResource('rand', function () {
             return rand();
         });
