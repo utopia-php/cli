@@ -2,6 +2,7 @@
 namespace Utopia\CLI;
 
 use Utopia\Validator;
+use Exception;
 
 class Task
 {
@@ -32,6 +33,15 @@ class Task
      * @var array
      */
     protected $params = [];
+
+    /**
+     * Injections
+     *
+     * List of route required injections for action callback
+     *
+     * @var array
+     */
+    protected array $injections = [];
 
     /**
      * Labels
@@ -95,10 +105,35 @@ class Task
             'description'   => $description,
             'optional'      => $optional,
             'value'         => null,
+            'order' => count($this->params) + count($this->injections),
         );
 
         return $this;
     }
+
+    /**
+     * Inject
+     *
+     * @param string $injection
+     *
+     * @throws Exception
+     *
+     * @return static
+     */
+    public function inject(string $injection): static
+    {
+        if (array_key_exists($injection, $this->injections)) {
+            throw new Exception('Injection already declared for ' . $injection);
+        }
+
+        $this->injections[$injection] = [
+            'name' => $injection,
+            'order' => count($this->params) + count($this->injections),
+        ];
+
+        return $this;
+    }
+
 
     /**
      * Add Label
@@ -153,6 +188,16 @@ class Task
     public function getParams(): array
     {
         return $this->params;
+    }
+
+    /**
+     * Get Injections
+     *
+     * @return array
+     */
+    public function getInjections(): array
+    {
+        return $this->injections;
     }
 
     /**

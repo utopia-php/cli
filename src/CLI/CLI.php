@@ -17,6 +17,16 @@ class CLI
     protected $command = '';
 
     /**
+     * @var array
+     */
+    protected array $resources = [];
+
+    /**
+     * @var array
+     */
+    protected static array $resourcesCallbacks = [];
+
+    /**
      * Args
      *
      * List of arguments passed to this process
@@ -143,6 +153,70 @@ class CLI
     }
 
     /**
+     * If a resource has been created return it, otherwise create it and then return it
+     *
+     * @param string $name
+     * @param bool $fresh
+     * @return mixed
+     * @throws Exception
+     */
+    public function getResource(string $name, bool $fresh = false): mixed
+    {
+        if ($name === 'utopia') {
+            return $this;
+        }
+
+        if (!\array_key_exists($name, $this->resources) || $fresh || self::$resourcesCallbacks[$name]['reset']) {
+            if (!\array_key_exists($name, self::$resourcesCallbacks)) {
+                throw new Exception('Failed to find resource: "' . $name . '"');
+            }
+
+            $this->resources[$name] = \call_user_func_array(self::$resourcesCallbacks[$name]['callback'],
+                $this->getResources(self::$resourcesCallbacks[$name]['injections']));
+        }
+
+        self::$resourcesCallbacks[$name]['reset'] = false;
+
+        return $this->resources[$name];
+    }
+
+    /**
+     * Get Resources By List
+     *
+     * @param array $list
+     * @return array
+     */
+    public function getResources(array $list): array
+    {
+        $resources = [];
+
+        foreach ($list as $name) {
+            $resources[$name] = $this->getResource($name);
+        }
+
+        return $resources;
+    }
+
+    /**
+     * Set a new resource callback
+     *
+     * @param string $name
+     * @param callable $callback
+     * @param array $injections
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    public static function setResource(string $name, callable $callback, array $injections = []): void
+    {
+        if ($name === 'utopia') {
+            throw new Exception("'utopia' is a reserved keyword.", 500);
+        }
+        self::$resourcesCallbacks[$name] = ['callback' => $callback, 'injections' => $injections, 'reset' => true];
+    }
+
+    /**
      * task-name --foo=test
      *
      * @param array $args
@@ -221,13 +295,18 @@ class CLI
                 $params = [];
 
                 foreach ($command->getParams() as $key => $param) {
-                    // Get value from route or request object
                     $value = (isset($this->args[$key])) ? $this->args[$key] : $param['default'];
 
                     $this->validate($key, $param, $value);
 
-                    $params[$key] = $value;
+                    $params[$param['order']] = $value;
                 }
+
+                foreach($command->getInjections() as $key => $injection) {
+                    $params[$injection['order']] = $this->getResource($injection['name']);
+                }
+
+                ksort($params);
 
                 // Call the callback with the matched positions as params
                 \call_user_func_array($command->getAction(), $params);

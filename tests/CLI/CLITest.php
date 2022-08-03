@@ -136,6 +136,28 @@ class CLITest extends TestCase
         $this->assertEquals(['email' => 'me@example.com', 'list' => ['item1', 'item2']], $cli->getArgs());
     }
 
+    public function testInjection()
+    {
+        ob_start();
+
+        $cli = new CLI(['test.php', 'build', '--email=me@example.com']);
+        CLI::setResource('test', fn() => 'test-value');
+
+        $cli->task('build')
+            ->inject('test')
+            ->param('email', null, new Text(15), 'valid email address')
+            ->action(function($test, $email){
+                echo $test . '-' . $email;
+            });
+        
+        $cli->run();
+
+        $result = ob_get_clean();
+
+        $this->assertEquals('test-value-me@example.com', $result);
+        
+    }
+
     public function testMatch()
     {
         $cli = new CLI(['test.php', 'build2', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
