@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Utopia PHP Framework
  *
@@ -73,11 +74,12 @@ class TaskTest extends TestCase
     public function testResources()
     {
         $this->assertEquals([], $this->task->getInjections());
-        
+
         $this->task
             ->inject('user')
             ->inject('time')
-            ->action(function() {})
+            ->action(function () {
+            })
         ;
 
         $this->assertCount(2, $this->task->getInjections());

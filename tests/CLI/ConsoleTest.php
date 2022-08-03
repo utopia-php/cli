@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Utopia PHP Framework
  *
@@ -117,11 +118,11 @@ class ConsoleTest extends TestCase
 
     public function testLoop()
     {
-        $file = __DIR__.'/../resources/loop.php';
+        $file = __DIR__ . '/../resources/loop.php';
         $stdin = '';
         $stdout = '';
         $stderr = '';
-        $code = Console::execute('php '.$file, $stdin, $stdout, $stderr, 30);
+        $code = Console::execute('php ' . $file, $stdin, $stdout, $stderr, 30);
 
         $this->assertEquals('', $stderr);
         $this->assertGreaterThan(30, count(explode("\n", $stdout)));

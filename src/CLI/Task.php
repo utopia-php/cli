@@ -1,4 +1,5 @@
 <?php
+
 namespace Utopia\CLI;
 
 use Utopia\Validator;
@@ -59,7 +60,8 @@ class Task
     public function __construct(string $name)
     {
         $this->name = $name;
-        $this->action = function(): void {};
+        $this->action = function (): void {
+        };
     }
 
     /**

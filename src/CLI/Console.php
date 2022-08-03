@@ -7,12 +7,12 @@ class Console
     /**
      * Title
      *
-     * Sets the process title visible in tools such as top and ps. 
+     * Sets the process title visible in tools such as top and ps.
      *
      * @param string $title
      * @return bool
      */
-    static public function title(string $title)
+    public static function title(string $title): bool
     {
         return @\cli_set_process_title($title);
     }
@@ -25,7 +25,7 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function log(string $message)
+    public static function log(string $message): int|false
     {
         return \fwrite(STDOUT, $message . "\n");
     }
@@ -38,7 +38,7 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function success(string $message)
+    public static function success(string $message): int|false
     {
         return \fwrite(STDOUT, "\033[32m" . $message . "\033[0m\n");
     }
@@ -51,7 +51,7 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function error(string $message)
+    public static function error(string $message): int|false
     {
         return \fwrite(STDERR, "\033[31m" . $message . "\033[0m\n");
     }
@@ -64,7 +64,7 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function info(string $message)
+    public static function info(string $message): int|false
     {
         return \fwrite(STDOUT, "\033[34m" . $message . "\033[0m\n");
     }
@@ -77,7 +77,7 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    static public function warning(string $message)
+    public static function warning(string $message): int|false
     {
         return \fwrite(STDERR, "\033[1;33m" . $message . "\033[0m\n");
     }
@@ -90,7 +90,7 @@ class Console
      * @param string $question
      * @return string
      */
-    static public function confirm(string $question)
+    public static function confirm(string $question): string
     {
         if (!self::isInteractive()) {
             return '';
@@ -102,7 +102,7 @@ class Console
         $line   = \trim(\fgets($handle));
 
         \fclose($handle);
-        
+
         return $line;
     }
 
@@ -114,16 +114,16 @@ class Console
      * @param string $message
      * @return void
      */
-    static public function exit(int $status = 0): void
+    public static function exit(int $status = 0): void
     {
         exit($status);
     }
 
     /**
      * Execute a Commnad
-     * 
+     *
      * This function was inspired by: https://stackoverflow.com/a/13287902/2299554
-     * 
+     *
      * @param string $cmd
      * @param string $stdin
      * @param string $stdout
@@ -131,7 +131,7 @@ class Console
      * @param int $timeout
      * @return int
      */
-    static public function execute(string $cmd, string $stdin, string &$stdout, string &$stderr, int $timeout = -1): int
+    public static function execute(string $cmd, string $stdin, string &$stdout, string &$stderr, int $timeout = -1): int
     {
         $cmd = '( ' . $cmd . ' ) 3>/dev/null ; echo $? >&3';
 
@@ -171,7 +171,7 @@ class Console
                 \fclose($pipes[2]);
                 \proc_close($process);
 
-                $exitCode = (int) str_replace("\n","",$status);
+                $exitCode = (int) str_replace("\n", "", $status);
 
                 return $exitCode;
             }
@@ -184,10 +184,10 @@ class Console
 
     /**
      * Is Interactive Mode?
-     * 
+     *
      * @return bool
      */
-    static public function isInteractive(): bool
+    public static function isInteractive(): bool
     {
         return ('cli' === PHP_SAPI && defined('STDOUT'));
     }
@@ -197,7 +197,7 @@ class Console
      * @param float $sleep // in seconds!
      * @param callable $onError
      */
-    static public function loop(callable $callback, $sleep = 1 /* seconds */, callable $onError = null): void
+    public static function loop(callable $callback, $sleep = 1 /* seconds */, callable $onError = null): void
     {
         gc_enable();
 
@@ -206,8 +206,8 @@ class Console
         while (!connection_aborted() || PHP_SAPI == "cli") {
             try {
                 $callback();
-            } catch(\Exception $e) {
-                if($onError != null) {
+            } catch (\Exception $e) {
+                if ($onError != null) {
                     $onError($e);
                 } else {
                     throw $e;
@@ -217,18 +217,18 @@ class Console
             $intSeconds = intval($sleep);
             $microSeconds = ($sleep - $intSeconds) * 1000000;
 
-            if($intSeconds > 0) {
+            if ($intSeconds > 0) {
                 sleep($intSeconds);
             }
 
-            if($microSeconds > 0) {
+            if ($microSeconds > 0) {
                 usleep($microSeconds);
             }
 
             $time = $time + $sleep;
 
             if (PHP_SAPI == "cli") {
-                if($time >= 60 * 5) { // Every 5 minutes
+                if ($time >= 60 * 5) { // Every 5 minutes
                     $time = 0;
                     gc_collect_cycles(); //Forces collection of any existing garbage cycles
                 }

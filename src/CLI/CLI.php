@@ -14,7 +14,7 @@ class CLI
      *
      * @var string
      */
-    protected $command = '';
+    protected string $command = '';
 
     /**
      * @var array
@@ -33,7 +33,7 @@ class CLI
      *
      * @var array
      */
-    protected $args = [];
+    protected array $args = [];
 
     /**
      * Tasks
@@ -42,7 +42,7 @@ class CLI
      *
      * @var array
      */
-    protected $tasks = [];
+    protected array $tasks = [];
 
     /**
      * Error
@@ -83,7 +83,7 @@ class CLI
             throw new Exception('CLI tasks can only work from the command line');
         }
 
-        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args: $_SERVER['argv']);
+        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         $this->error = function (Exception $error): void {
             Console::error($error->getMessage());
@@ -136,11 +136,11 @@ class CLI
 
     /**
      * Task
-     * 
+     *
      * Add a new command task
-     * 
+     *
      * @param string $name
-     * 
+     *
      * @return Task
      */
     public function task(string $name): Task
@@ -171,8 +171,10 @@ class CLI
                 throw new Exception('Failed to find resource: "' . $name . '"');
             }
 
-            $this->resources[$name] = \call_user_func_array(self::$resourcesCallbacks[$name]['callback'],
-                $this->getResources(self::$resourcesCallbacks[$name]['injections']));
+            $this->resources[$name] = \call_user_func_array(
+                self::$resourcesCallbacks[$name]['callback'],
+                $this->getResources(self::$resourcesCallbacks[$name]['injections'])
+            );
         }
 
         self::$resourcesCallbacks[$name]['reset'] = false;
@@ -241,14 +243,14 @@ class CLI
             }
         }
 
-        /** 
-         * Refer to this answer 
+        /**
+         * Refer to this answer
          * https://stackoverflow.com/questions/18669499/php-issue-with-looping-over-an-array-twice-using-foreach-and-passing-value-by-re/18669732
          */
         unset($arg);
 
         foreach ($args as $arg) {
-            $pair = explode("=",$arg); 
+            $pair = explode("=", $arg);
             $key = $pair[0];
             $value = $pair[1];
             $output[$key][] = $value;
@@ -269,17 +271,17 @@ class CLI
 
     /**
      * Find the command that should be triggered
-     * 
+     *
      * @return Task|null
      */
-    public function match()
+    public function match(): ?Task
     {
         return isset($this->tasks[$this->command]) ? $this->tasks[$this->command] : null;
     }
 
     /**
      * Run
-     * 
+     *
      * @return $this
      */
     public function run(): self
@@ -302,7 +304,7 @@ class CLI
                     $params[$param['order']] = $value;
                 }
 
-                foreach($command->getInjections() as $key => $injection) {
+                foreach ($command->getInjections() as $key => $injection) {
                     $params[$injection['order']] = $this->getResource($injection['name']);
                 }
 
@@ -326,7 +328,7 @@ class CLI
 
     /**
      * Get list of all tasks
-     * 
+     *
      * @return Task[]
      */
     public function getTasks(): array
@@ -336,7 +338,7 @@ class CLI
 
     /**
      * Get list of all args
-     * 
+     *
      * @return array
      */
     public function getArgs(): array
@@ -370,7 +372,7 @@ class CLI
             }
 
             if (!$validator->isValid($value)) {
-                throw new Exception('Invalid ' .$key . ': ' . $validator->getDescription(), 400);
+                throw new Exception('Invalid ' . $key . ': ' . $validator->getDescription(), 400);
             }
         } else {
             if (!$param['optional']) {
