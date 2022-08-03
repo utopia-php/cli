@@ -3,6 +3,7 @@
 namespace Utopia\CLI;
 
 use Exception;
+use Utopia\Hook;
 use Utopia\Validator;
 
 class CLI
@@ -49,27 +50,27 @@ class CLI
      *
      * An error callback
      *
-     * @var callable
+     * @var Hook[]
      */
-    protected $error;
+    protected $errors = [];
 
     /**
      * Init
      *
      * A callback function that is initialized on application start
      *
-     * @var callable[]
+     * @var Hook[]
      */
-    protected $init = [];
+    protected array $init = [];
 
     /**
      * Shutdown
      *
      * A callback function that is initialized on application end
      *
-     * @var callable[]
+     * @var Hook[]
      */
-    protected $shutdown = [];
+    protected array $shutdown = [];
 
     /**
      * CLI constructor.
@@ -97,13 +98,13 @@ class CLI
      *
      * Set a callback function that will be initialized on application start
      *
-     * @param callable $callback
-     * @return $this
+     * @return Hook
      */
-    public function init(callable $callback): self
+    public function init(): Hook
     {
-        $this->init[] = $callback;
-        return $this;
+        $hook = new Hook();
+        $this->init[] = $hook;
+        return $hook;
     }
 
     /**
@@ -111,13 +112,13 @@ class CLI
      *
      * Set a callback function that will be initialized on application end
      *
-     * @param $callback
-     * @return $this
+     * @return Hook
      */
-    public function shutdown(callable $callback): self
+    public function shutdown(): Hook
     {
-        $this->shutdown[] = $callback;
-        return $this;
+        $hook = new Hook();
+        $this->shutdown[] = $hook;
+        return $hook;
     }
 
     /**
@@ -125,13 +126,13 @@ class CLI
      *
      * An error callback for failed or no matched requests
      *
-     * @param $callback
-     * @return $this
+     * @return Hook
      */
-    public function error(callable $callback): self
+    public function error(): Hook
     {
-        $this->error = $callback;
-        return $this;
+        $hook = new Hook();
+        $this->errors[] = $hook;
+        return $hook;
     }
 
     /**
@@ -280,6 +281,32 @@ class CLI
     }
 
     /**
+     * Get Arguments
+     *
+     * @param Hook $hook
+     * @return array
+     */
+    protected function getParams(Hook $hook): array
+    {
+        $params = [];
+
+        foreach ($hook->getParams() as $key => $param) {
+            $value = (isset($this->args[$key])) ? $this->args[$key] : $param['default'];
+
+            $this->validate($key, $param, $value);
+
+            $params[$param['order']] = $value;
+        }
+
+        foreach ($hook->getInjections() as $key => $injection) {
+            $params[$injection['order']] = $this->getResource($injection['name']);
+        }
+
+        ksort($params);
+        return $params;
+    }
+
+    /**
      * Run
      *
      * @return $this
@@ -290,37 +317,24 @@ class CLI
 
         try {
             if ($command) {
-                foreach ($this->init as $init) {
-                    \call_user_func_array($init, []);
+                foreach ($this->init as $hook) {
+                    \call_user_func_array($hook->getAction(), $this->getParams($hook));
                 }
-
-                $params = [];
-
-                foreach ($command->getParams() as $key => $param) {
-                    $value = (isset($this->args[$key])) ? $this->args[$key] : $param['default'];
-
-                    $this->validate($key, $param, $value);
-
-                    $params[$param['order']] = $value;
-                }
-
-                foreach ($command->getInjections() as $key => $injection) {
-                    $params[$injection['order']] = $this->getResource($injection['name']);
-                }
-
-                ksort($params);
 
                 // Call the callback with the matched positions as params
-                \call_user_func_array($command->getAction(), $params);
+                \call_user_func_array($command->getAction(), $this->getParams($command));
 
-                foreach ($this->shutdown as $shutdown) {
-                    \call_user_func_array($shutdown, []);
+                foreach ($this->shutdown as $hook) {
+                    \call_user_func_array($hook->getAction(), $this->getParams($hook));
                 }
             } else {
                 throw new Exception('No command found');
             }
         } catch (Exception $e) {
-            \call_user_func_array($this->error, array($e));
+            foreach($this->errors as $hook) {
+                self::setResource('error', fn () => $e);
+                \call_user_func_array($hook->getAction(), $this->getParams($hook));
+            }
         }
 
         return $this;
