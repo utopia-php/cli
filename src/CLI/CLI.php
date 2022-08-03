@@ -331,7 +331,7 @@ class CLI
                 throw new Exception('No command found');
             }
         } catch (Exception $e) {
-            foreach($this->errors as $hook) {
+            foreach ($this->errors as $hook) {
                 self::setResource('error', fn () => $e);
                 \call_user_func_array($hook->getAction(), $this->getParams($hook));
             }
