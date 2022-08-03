@@ -10,14 +10,14 @@ class Task
     /**
      * @var string
      */
-    protected $name = '';
+    protected string $name = '';
 
     /**
      * Description
      *
      * @var string
      */
-    protected $desc = '';
+    protected string $desc = '';
 
     /**
      * Action Callback
@@ -33,7 +33,7 @@ class Task
      *
      * @var array
      */
-    protected $params = [];
+    protected array $params = [];
 
     /**
      * Injections
@@ -51,7 +51,7 @@ class Task
      *
      * @var array
      */
-    protected $labels = [];
+    protected array $labels = [];
 
     /**
      * Task constructor.
@@ -211,7 +211,7 @@ class Task
      * @param mixed $default
      * @return mixed
      */
-    public function getLabel(string $key, $default)
+    public function getLabel(string $key, $default): mixed
     {
         return (isset($this->labels[$key])) ? $this->labels[$key] : $default;
     }
