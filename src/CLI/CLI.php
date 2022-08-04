@@ -281,7 +281,8 @@ class CLI
     }
 
     /**
-     * Get Arguments
+     * Get Params
+     * Get runtime params for the provided Hook
      *
      * @param Hook $hook
      * @return array
