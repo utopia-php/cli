@@ -43,6 +43,45 @@ And than, run from command line:
 php script.php command-name --email=me@example.com
 ```
 
+### Hooks
+
+There are three types of hooks, init hooks, shutdown hooks and error hooks. Init hooks are executed before the task is executed. Shutdown hook is executed after task is executed before application shuts down. Finally error hooks are executed whenever there's an error in the application lifecycle. You can provide multiple hooks for each stage.
+
+```php
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use Utopia\App;
+use Utopia\Request;
+use Utopia\Response;
+
+CLI::setResource('res1', function() {
+    return 'resource 1';
+})
+
+CLI::init()
+    inject('res1')
+    ->action(function($res1) {
+        Console::info($res1);
+    });
+
+CLI::error()
+    ->inject('error')
+    ->action(function($error) {
+        Console::error('Error occurred ' . $error);
+    });
+
+$cli = new CLI();
+
+$cli
+    ->task('command-name')
+    ->param('email', null, new Wildcard())
+    ->action(function ($email) {
+        Console::success($email);
+    });
+
+$cli->run();
+```
+
 ### Log Messages
 
 ```php
