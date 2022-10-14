@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Utopia\Tests;
 
 use Utopia\CLI\Task;
