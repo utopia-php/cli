@@ -4,12 +4,7 @@
     "type": "library",
     "keywords": ["php","framework", "upf", "utopia", "cli", "command line"],
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Eldad Fux",
-            "email": "eldad@appwrite.io"
-        }
-    ],
+   
     "scripts": {
         "test": "vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt",
         "lint": "vendor/bin/phpcs",

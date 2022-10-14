@@ -152,12 +152,7 @@ Console::loop(function() {
 
 Utopia Framework requires PHP 7.4 or later. We recommend using the latest PHP version whenever possible.
 
-## Authors
 
-**Eldad Fux**
-
-+ [https://twitter.com/eldadfux](https://twitter.com/eldadfux)
-+ [https://github.com/eldadfux](https://github.com/eldadfux)
 
 ## Copyright and license
 
