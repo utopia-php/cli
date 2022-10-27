@@ -18,11 +18,12 @@ class CLI
     protected string $command = '';
 
     /**
-     * @var array
+     * @var array<string,mixed>
      */
     protected array $resources = [];
 
     /**
+     *
      * @var array
      */
     protected static array $resourcesCallbacks = [];
@@ -32,7 +33,7 @@ class CLI
      *
      * List of arguments passed to this process
      *
-     * @var array
+     * @var array<string,mixed>
      */
     protected array $args = [];
 
@@ -41,7 +42,7 @@ class CLI
      *
      * List of commands tasks for this CLI process
      *
-     * @var array
+     * @var array<Task>
      */
     protected array $tasks = [];
 
@@ -74,8 +75,7 @@ class CLI
 
     /**
      * CLI constructor.
-     *
-     * @param array $args
+     * @param array<int,string> $args
      * @throws Exception
      */
     public function __construct(array $args = [])
@@ -86,7 +86,7 @@ class CLI
 
         $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
-        $this->error = function (Exception $error): void {
+        $error = function (Exception $error): void {
             Console::error($error->getMessage());
         };
 
@@ -182,8 +182,8 @@ class CLI
     /**
      * Get Resources By List
      *
-     * @param array $list
-     * @return array
+     * @param array<string> $list
+     * @return array<string,mixed>
      */
     public function getResources(array $list): array
     {
@@ -201,7 +201,7 @@ class CLI
      *
      * @param string $name
      * @param callable $callback
-     * @param array $injections
+     * @param array<int,string> $injections
      *
      * @throws Exception
      *
@@ -215,16 +215,16 @@ class CLI
     /**
      * task-name --foo=test
      *
-     * @param array $args
+     * @param array<int,string> $args
      * @throws Exception
-     * @return array
+     * @return array<string>
      */
     public function parse(array $args): array
     {
         \array_shift($args); // Remove script path from args
 
         if (isset($args[0])) {
-            $this->command = \array_shift($args);
+            $command = \array_shift($args);
         } else {
             throw new Exception('Missing command');
         }
@@ -278,7 +278,7 @@ class CLI
      * Get runtime params for the provided Hook
      *
      * @param Hook $hook
-     * @return array
+     * @return array<string>
      */
     protected function getParams(Hook $hook): array
     {
@@ -347,7 +347,7 @@ class CLI
     /**
      * Get list of all args
      *
-     * @return array
+     * @return array<string,mixed>
      */
     public function getArgs(): array
     {
@@ -360,7 +360,7 @@ class CLI
      * Creates an validator instance and validate given value with given rules.
      *
      * @param string $key
-     * @param array $param
+     * @param array<string> $param
      * @param mixed $value
      * @throws Exception
      */

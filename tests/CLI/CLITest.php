@@ -17,7 +17,7 @@ class CLITest extends TestCase
     {
     }
 
-    public function testResources()
+    public function testResources():void
     {
         $cli = new CLI(['test.php', 'build']);
         CLI::setResource('rand', function () {
@@ -42,7 +42,7 @@ class CLITest extends TestCase
         $this->assertEquals($resource, $cli->getResource('rand'));
     }
 
-    public function testAppSuccess()
+    public function testAppSuccess():void
     {
         ob_start();
 
@@ -62,7 +62,7 @@ class CLITest extends TestCase
         $this->assertEquals('me@example.com', $result);
     }
 
-    public function testAppFailure()
+    public function testAppFailure():void
     {
         ob_start();
 
@@ -82,7 +82,7 @@ class CLITest extends TestCase
         $this->assertEquals('', $result);
     }
 
-    public function testAppArray()
+    public function testAppArray():void
     {
         ob_start();
 
@@ -103,7 +103,7 @@ class CLITest extends TestCase
         $this->assertEquals('me@example.com-item1-item2', $result);
     }
 
-    public function testGetTasks()
+    public function testGetTasks():void
     {
         $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
@@ -126,7 +126,7 @@ class CLITest extends TestCase
         $this->assertCount(2, $cli->getTasks());
     }
 
-    public function testGetArgs()
+    public function testGetArgs():void
     {
         $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
@@ -150,7 +150,7 @@ class CLITest extends TestCase
         $this->assertEquals(['email' => 'me@example.com', 'list' => ['item1', 'item2']], $cli->getArgs());
     }
 
-    public function testHook()
+    public function testHook():void
     {
         CLI::reset();
 
@@ -184,7 +184,7 @@ class CLITest extends TestCase
         $this->assertEquals('(init)-me@example.com-item1-item2-(shutdown)', $result);
     }
 
-    public function testInjection()
+    public function testInjection():void
     {
         ob_start();
 
@@ -205,7 +205,7 @@ class CLITest extends TestCase
         $this->assertEquals('test-value-me@example.com', $result);
     }
 
-    public function testMatch()
+    public function testMatch():void
     {
         $cli = new CLI(['test.php', 'build2', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
@@ -224,7 +224,7 @@ class CLITest extends TestCase
             ->action(function ($email, $list) {
                 echo $email . '-' . implode('-', $list);
             });
-
+        // @phpstan-ignore-next-line
         $this->assertEquals('build2', $cli->match()->getName());
 
         $cli = new CLI(['test.php', 'buildx', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request

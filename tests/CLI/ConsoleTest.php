@@ -15,7 +15,7 @@ class ConsoleTest extends TestCase
     {
     }
 
-    public function testLogs()
+    public function testLogs():void
     {
         // Use vars to resolve adapter key
         $this->assertEquals(4, Console::log('log'));
@@ -26,7 +26,7 @@ class ConsoleTest extends TestCase
         $this->assertEquals('this is an answer', Console::confirm('this is a question'));
     }
 
-    public function testExecuteBasic()
+    public function testExecuteBasic():void
     {
         $stdout = '';
         $stderr = '';
@@ -38,7 +38,7 @@ class ConsoleTest extends TestCase
         $this->assertEquals(0, $code);
     }
 
-    public function testExecuteStdOut()
+    public function testExecuteStdOut():void
     {
         $stdout = '';
         $stderr = '';
@@ -50,7 +50,7 @@ class ConsoleTest extends TestCase
         $this->assertEquals(0, $code);
     }
 
-    public function testExecuteStdErr()
+    public function testExecuteStdErr():void
     {
         $stdout = '';
         $stderr = '';
@@ -62,7 +62,7 @@ class ConsoleTest extends TestCase
         $this->assertEquals(0, $code);
     }
 
-    public function testExecuteExitCode()
+    public function testExecuteExitCode():void
     {
         $stdout = '';
         $stderr = '';
@@ -83,7 +83,7 @@ class ConsoleTest extends TestCase
         $this->assertEquals(100, $code);
     }
 
-    public function testExecuteTimeout()
+    public function testExecuteTimeout():void
     {
         $stdout = '';
         $stderr = '';
@@ -104,7 +104,7 @@ class ConsoleTest extends TestCase
         $this->assertEquals(1, $code);
     }
 
-    public function testLoop()
+    public function testLoop():void
     {
         $file = __DIR__ . '/../resources/loop.php';
         $stdin = '';

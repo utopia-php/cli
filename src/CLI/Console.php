@@ -25,7 +25,7 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    public static function log(string $message): int|false
+    public static function log(string $message): bool|int
     {
         return \fwrite(STDOUT, $message . "\n");
     }
@@ -38,7 +38,7 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    public static function success(string $message): int|false
+    public static function success(string $message): bool|int
     {
         return \fwrite(STDOUT, "\033[32m" . $message . "\033[0m\n");
     }
@@ -51,7 +51,7 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    public static function error(string $message): int|false
+    public static function error(string $message): bool|int
     {
         return \fwrite(STDERR, "\033[31m" . $message . "\033[0m\n");
     }
@@ -64,7 +64,7 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    public static function info(string $message): int|false
+    public static function info(string $message): bool|int
     {
         return \fwrite(STDOUT, "\033[34m" . $message . "\033[0m\n");
     }
@@ -77,7 +77,7 @@ class Console
      * @param string $message
      * @return bool|int
      */
-    public static function warning(string $message): int|false
+    public static function warning(string $message): bool|int
     {
         return \fwrite(STDERR, "\033[1;33m" . $message . "\033[0m\n");
     }
@@ -98,8 +98,8 @@ class Console
 
         self::log($question);
 
-        $handle = \fopen('php://stdin', 'r');
-        $line   = \trim(\fgets($handle));
+        $handle = \fopen('php://stdin', 'r') or die("Unable to open file!");;
+        $line   = \trim(\strval(\fgets($handle)));
 
         \fclose($handle);
 
@@ -111,7 +111,7 @@ class Console
      *
      * Log warning messages to console
      *
-     * @param string $message
+     * @param int $status
      * @return void
      */
     public static function exit(int $status = 0): void
@@ -194,7 +194,7 @@ class Console
 
     /**
      * @param callable $callback
-     * @param float $sleep // in seconds!
+     * @param int $sleep // in seconds!
      * @param callable $onError
      */
     public static function loop(callable $callback, $sleep = 1 /* seconds */, callable $onError = null): void
