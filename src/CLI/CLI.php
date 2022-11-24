@@ -86,10 +86,6 @@ class CLI
 
         $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
-        $this->error = function (Exception $error): void {
-            Console::error($error->getMessage());
-        };
-
         @\cli_set_process_title($this->command);
     }
 
