@@ -24,6 +24,11 @@ class ConsoleTest extends TestCase
         $this->assertEquals(19, Console::warning('warning'));
         $this->assertEquals(15, Console::error('error'));
         $this->assertEquals('this is an answer', Console::confirm('this is a question'));
+
+        Console::setMode(Console::MODE_PRODUCTION);
+        $this->assertEquals(0, Console::log('log'));
+        Console::setMode(Console::MODE_DEVELOPMENT);
+        $this->assertEquals(4, Console::log('log'));
     }
 
     public function testExecuteBasic()

@@ -4,6 +4,26 @@ namespace Utopia\CLI;
 
 class Console
 {
+    const MODE_DEVELOPMENT = 'development';
+    const MODE_PRODUCTION = 'production';
+    
+    /**
+     * @var string
+     */
+    protected static string $mode = Console::MODE_DEVELOPMENT;
+
+    /**
+     * Set a mode for console logs
+     *
+     * @param string $mode
+     *
+     * @return void
+     */
+    public static function setMode(string $mode): void
+    {
+        self::$mode = $mode;
+    }
+
     /**
      * Title
      *
@@ -27,6 +47,10 @@ class Console
      */
     public static function log(string $message): int|false
     {
+        if(self::$mode === Console::MODE_PRODUCTION) {
+            return 0;
+        }
+
         return \fwrite(STDOUT, $message . "\n");
     }
 
