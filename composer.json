@@ -21,7 +21,7 @@
         "phpunit/phpunit": "^9.3",
         "squizlabs/php_codesniffer": "^3.6",
         "vimeo/psalm": "4.0.1",
-        "laravel/pint": "dev-main"
+        "laravel/pint": "1.2.*"
     },
     "minimum-stability": "dev"
 }
