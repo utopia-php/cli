@@ -2,8 +2,8 @@
 
 namespace Utopia\Tests;
 
-use Utopia\CLI\CLI;
 use PHPUnit\Framework\TestCase;
+use Utopia\CLI\CLI;
 use Utopia\Validator\ArrayList;
 use Utopia\Validator\Text;
 
@@ -189,7 +189,7 @@ class CLITest extends TestCase
         ob_start();
 
         $cli = new CLI(['test.php', 'build', '--email=me@example.com']);
-        CLI::setResource('test', fn() => 'test-value');
+        CLI::setResource('test', fn () => 'test-value');
 
         $cli->task('build')
             ->inject('test')

@@ -2,9 +2,9 @@
 
 namespace Utopia\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Utopia\CLI\Task;
 use Utopia\Validator\Text;
-use PHPUnit\Framework\TestCase;
 
 class TaskTest extends TestCase
 {
@@ -67,8 +67,7 @@ class TaskTest extends TestCase
             ->inject('user')
             ->inject('time')
             ->action(function () {
-            })
-        ;
+            });
 
         $this->assertCount(2, $this->task->getInjections());
         $this->assertEquals('user', $this->task->getInjections()['user']['name']);

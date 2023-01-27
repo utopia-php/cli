@@ -2,8 +2,8 @@
 
 namespace Utopia\Tests;
 
-use Utopia\CLI\Console;
 use PHPUnit\Framework\TestCase;
+use Utopia\CLI\Console;
 
 class ConsoleTest extends TestCase
 {

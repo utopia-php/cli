@@ -75,16 +75,17 @@ class CLI
     /**
      * CLI constructor.
      *
-     * @param array $args
+     * @param  array  $args
+     *
      * @throws Exception
      */
     public function __construct(array $args = [])
     {
-        if (\php_sapi_name() !== "cli") {
+        if (\php_sapi_name() !== 'cli') {
             throw new Exception('CLI tasks can only work from the command line');
         }
 
-        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
+        $this->args = $this->parse((! empty($args) || ! isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         @\cli_set_process_title($this->command);
     }
@@ -100,6 +101,7 @@ class CLI
     {
         $hook = new Hook();
         $this->init[] = $hook;
+
         return $hook;
     }
 
@@ -114,6 +116,7 @@ class CLI
     {
         $hook = new Hook();
         $this->shutdown[] = $hook;
+
         return $hook;
     }
 
@@ -128,6 +131,7 @@ class CLI
     {
         $hook = new Hook();
         $this->errors[] = $hook;
+
         return $hook;
     }
 
@@ -136,8 +140,7 @@ class CLI
      *
      * Add a new command task
      *
-     * @param string $name
-     *
+     * @param  string  $name
      * @return Task
      */
     public function task(string $name): Task
@@ -152,15 +155,16 @@ class CLI
     /**
      * If a resource has been created return it, otherwise create it and then return it
      *
-     * @param string $name
-     * @param bool $fresh
+     * @param  string  $name
+     * @param  bool  $fresh
      * @return mixed
+     *
      * @throws Exception
      */
     public function getResource(string $name, bool $fresh = false): mixed
     {
-        if (!\array_key_exists($name, $this->resources) || $fresh || self::$resourcesCallbacks[$name]['reset']) {
-            if (!\array_key_exists($name, self::$resourcesCallbacks)) {
+        if (! \array_key_exists($name, $this->resources) || $fresh || self::$resourcesCallbacks[$name]['reset']) {
+            if (! \array_key_exists($name, self::$resourcesCallbacks)) {
                 throw new Exception('Failed to find resource: "' . $name . '"');
             }
 
@@ -178,7 +182,7 @@ class CLI
     /**
      * Get Resources By List
      *
-     * @param array $list
+     * @param  array  $list
      * @return array
      */
     public function getResources(array $list): array
@@ -195,13 +199,12 @@ class CLI
     /**
      * Set a new resource callback
      *
-     * @param string $name
-     * @param callable $callback
-     * @param array $injections
+     * @param  string  $name
+     * @param  callable  $callback
+     * @param  array  $injections
+     * @return void
      *
      * @throws Exception
-     *
-     * @return void
      */
     public static function setResource(string $name, callable $callback, array $injections = []): void
     {
@@ -211,9 +214,10 @@ class CLI
     /**
      * task-name --foo=test
      *
-     * @param array $args
-     * @throws Exception
+     * @param  array  $args
      * @return array
+     *
+     * @throws Exception
      */
     public function parse(array $args): array
     {
@@ -240,7 +244,7 @@ class CLI
         unset($arg);
 
         foreach ($args as $arg) {
-            $pair = explode("=", $arg);
+            $pair = explode('=', $arg);
             $key = $pair[0];
             $value = $pair[1];
             $output[$key][] = $value;
@@ -273,7 +277,7 @@ class CLI
      * Get Params
      * Get runtime params for the provided Hook
      *
-     * @param Hook $hook
+     * @param  Hook  $hook
      * @return array
      */
     protected function getParams(Hook $hook): array
@@ -293,6 +297,7 @@ class CLI
         }
 
         ksort($params);
+
         return $params;
     }
 
@@ -355,9 +360,10 @@ class CLI
      *
      * Creates an validator instance and validate given value with given rules.
      *
-     * @param string $key
-     * @param array $param
-     * @param mixed $value
+     * @param  string  $key
+     * @param  array  $param
+     * @param  mixed  $value
+     *
      * @throws Exception
      */
     protected function validate(string $key, array $param, $value): void
@@ -371,15 +377,15 @@ class CLI
             }
 
             // is the validator object an instance of the Validator class
-            if (!$validator instanceof Validator) {
+            if (! $validator instanceof Validator) {
                 throw new Exception('Validator object is not an instance of the Validator class', 500);
             }
 
-            if (!$validator->isValid($value)) {
+            if (! $validator->isValid($value)) {
                 throw new Exception('Invalid ' . $key . ': ' . $validator->getDescription(), 400);
             }
         } else {
-            if (!$param['optional']) {
+            if (! $param['optional']) {
                 throw new Exception('Param "' . $key . '" is not optional.', 400);
             }
         }

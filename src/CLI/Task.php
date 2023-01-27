@@ -2,8 +2,6 @@
 
 namespace Utopia\CLI;
 
-use Utopia\Validator;
-use Exception;
 use Utopia\Hook;
 
 class Task extends Hook
@@ -13,10 +11,10 @@ class Task extends Hook
      */
     protected string $name = '';
 
-
     /**
      * Task constructor.
-     * @param string $name
+     *
+     * @param  string  $name
      */
     public function __construct(string $name)
     {
