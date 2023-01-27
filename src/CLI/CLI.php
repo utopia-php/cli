@@ -165,7 +165,7 @@ class CLI
     {
         if (! \array_key_exists($name, $this->resources) || $fresh || self::$resourcesCallbacks[$name]['reset']) {
             if (! \array_key_exists($name, self::$resourcesCallbacks)) {
-                throw new Exception('Failed to find resource: "' . $name . '"');
+                throw new Exception('Failed to find resource: "'.$name.'"');
             }
 
             $this->resources[$name] = \call_user_func_array(
@@ -382,11 +382,11 @@ class CLI
             }
 
             if (! $validator->isValid($value)) {
-                throw new Exception('Invalid ' . $key . ': ' . $validator->getDescription(), 400);
+                throw new Exception('Invalid '.$key.': '.$validator->getDescription(), 400);
             }
         } else {
             if (! $param['optional']) {
-                throw new Exception('Param "' . $key . '" is not optional.', 400);
+                throw new Exception('Param "'.$key.'" is not optional.', 400);
             }
         }
     }
