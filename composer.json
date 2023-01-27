@@ -7,8 +7,8 @@
    
     "scripts": {
         "test": "vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt",
-        "lint": "./vendor/bin/pint --test",
-        "format": "./vendor/bin/pint"
+        "lint": "vendor/bin/phpcs",
+        "format": "vendor/bin/phpcbf"
     },
     "autoload": {
         "psr-4": {"Utopia\\CLI\\": "src/CLI"}
