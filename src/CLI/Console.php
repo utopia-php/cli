@@ -23,9 +23,9 @@ class Console
      * Log messages to console
      *
      * @param string $message
-     * @return bool|int
+     * @return int|false
      */
-    public static function log(string $message): bool|int
+    public static function log(string $message): int|false
     {
         return \fwrite(STDOUT, $message . "\n");
     }
@@ -36,9 +36,9 @@ class Console
      * Log success messages to console
      *
      * @param string $message
-     * @return bool|int
+     * @return false|int
      */
-    public static function success(string $message): bool|int
+    public static function success(string $message): int|false
     {
         return \fwrite(STDOUT, "\033[32m" . $message . "\033[0m\n");
     }
@@ -49,9 +49,9 @@ class Console
      * Log error messages to console
      *
      * @param string $message
-     * @return bool|int
+     * @return false|int
      */
-    public static function error(string $message): bool|int
+    public static function error(string $message): int|false
     {
         return \fwrite(STDERR, "\033[31m" . $message . "\033[0m\n");
     }
@@ -62,9 +62,9 @@ class Console
      * Log informative messages to console
      *
      * @param string $message
-     * @return bool|int
+     * @return false|int
      */
-    public static function info(string $message): bool|int
+    public static function info(string $message): int|false
     {
         return \fwrite(STDOUT, "\033[34m" . $message . "\033[0m\n");
     }
@@ -75,9 +75,9 @@ class Console
      * Log warning messages to console
      *
      * @param string $message
-     * @return bool|int
+     * @return false|int
      */
-    public static function warning(string $message): bool|int
+    public static function warning(string $message): int|false
     {
         return \fwrite(STDERR, "\033[1;33m" . $message . "\033[0m\n");
     }
@@ -98,8 +98,13 @@ class Console
 
         self::log($question);
 
-        $handle = \fopen('php://stdin', 'r') or die("Unable to open file!");;
-        $line   = \trim(\strval(\fgets($handle)));
+        $handle = \fopen('php://stdin', 'r');
+
+        if (!$handle) {
+            throw new \Exception("Failed to read from stream - stdin"); 
+        }
+
+        $line   = \trim(\fgets($handle) ?: '');
 
         \fclose($handle);
 

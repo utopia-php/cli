@@ -8,72 +8,70 @@ use PHPUnit\Framework\TestCase;
 
 class TaskTest extends TestCase
 {
+    /**
+     * @var Task
+     */
+    protected $task;
 
     public function setUp(): void
     {
-        
+        $this->task = new Task('test');
     }
 
     public function tearDown(): void
     {
-        
+        unset($this->task);
     }
 
-    public function testName():void
+    public function testName(): void
     {
-        $task = new Task('test');
-        $this->assertEquals('test', $task->getName());
+        $this->assertEquals('test', $this->task->getName());
     }
 
-    public function testDescription():void
+    public function testDescription(): void
     {
-        $task = new Task('test');
-        $task->desc('test task');
+        $this->task->desc('test task');
 
-        $this->assertEquals('test task', $task->getDesc());
+        $this->assertEquals('test task', $this->task->getDesc());
     }
 
-    public function testAction():void
+    public function testAction(): void
     {
-        $task = new Task('test');
-        $task->action(function () {
+        $this->task->action(function () {
             return 'result';
         });
 
-        $this->assertEquals('result', $task->getAction()());
+        $this->assertEquals('result', $this->task->getAction()());
     }
 
-    public function testLabel():void
+    public function testLabel(): void
     {
-        $task = new Task('test');
-        $task->label('key', 'value');
+        $this->task->label('key', 'value');
 
-        $this->assertEquals('value', $task->getLabel('key', 'default'));
-        $this->assertEquals('default', $task->getLabel('unknown', 'default'));
+        $this->assertEquals('value', $this->task->getLabel('key', 'default'));
+        $this->assertEquals('default', $this->task->getLabel('unknown', 'default'));
     }
 
-    public function testParam():void
+    public function testParam(): void
     {
-        $task = new Task('test');
-        $task->param('email', 'me@example.com', new Text(0), 'Param with valid email address', false);
+        $this->task->param('email', 'me@example.com', new Text(0), 'Param with valid email address', false);
 
-        $this->assertCount(1, $task->getParams());
+        $this->assertCount(1, $this->task->getParams());
     }
 
-    public function testResources():void
+    public function testResources(): void
     {
-        $task = new Task('test');
-        $this->assertEquals([], $task->getInjections());
+        $this->assertEquals([], $this->task->getInjections());
 
-        $task
+        $this->task
             ->inject('user')
             ->inject('time')
             ->action(function () {
             })
         ;
 
-        $this->assertCount(2, $task->getInjections());
-        $this->assertEquals('user', $task->getInjections()['user']['name']);
-        $this->assertEquals('time', $task->getInjections()['time']['name']);
+        $this->assertCount(2, $this->task->getInjections());
+        $this->assertEquals('user', $this->task->getInjections()['user']['name']);
+        $this->assertEquals('time', $this->task->getInjections()['time']['name']);
     }
 }
