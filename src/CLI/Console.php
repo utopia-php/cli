@@ -194,10 +194,11 @@ class Console
     }
 
     /**
-     * @param callable $callback
-     * @param int $sleep // in seconds!
-     * @param int $delay // in seconds!
-     * @param callable|null $onError
+     * @param  callable  $callback
+     * @param  int  $sleep // in seconds!
+     * @param  int  $delay // in seconds!
+     * @param  callable|null  $onError
+     *
      * @throws \Exception
      */
     public static function loop(callable $callback, int $sleep = 1 /* seconds */, int $delay = 0 /* seconds */, callable $onError = null): void
@@ -206,18 +207,16 @@ class Console
 
         $time = 0;
 
-        if($delay > 0){
+        if ($delay > 0) {
             sleep($delay);
         }
 
         while (! connection_aborted() || PHP_SAPI == 'cli') {
-
             $suspend = $sleep;
 
             try {
                 $execStart = \time();
                 $callback();
-
             } catch (\Exception $e) {
                 if ($onError != null) {
                     $onError($e);
@@ -226,7 +225,7 @@ class Console
                 }
             }
 
-            $execTotal  = \time() - $execStart;
+            $execTotal = \time() - $execStart;
             $suspend = $suspend - $execTotal;
 
             $intSeconds = intval($suspend);
