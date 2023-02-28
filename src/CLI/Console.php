@@ -194,19 +194,30 @@ class Console
     }
 
     /**
-     * @param  callable  $callback
-     * @param  float  $sleep // in seconds!
-     * @param  callable  $onError
+     * @param callable $callback
+     * @param int $sleep // in seconds!
+     * @param int $delay // in seconds!
+     * @param callable|null $onError
+     * @throws \Exception
      */
-    public static function loop(callable $callback, $sleep = 1 /* seconds */, callable $onError = null): void
+    public static function loop(callable $callback, int $sleep = 1 /* seconds */, int $delay = 0 /* seconds */, callable $onError = null): void
     {
         gc_enable();
 
         $time = 0;
 
+        if($delay > 0){
+            sleep($delay);
+        }
+
         while (! connection_aborted() || PHP_SAPI == 'cli') {
+
+            $suspend = $sleep;
+
             try {
+                $execStart = \time();
                 $callback();
+
             } catch (\Exception $e) {
                 if ($onError != null) {
                     $onError($e);
@@ -215,8 +226,11 @@ class Console
                 }
             }
 
-            $intSeconds = intval($sleep);
-            $microSeconds = ($sleep - $intSeconds) * 1000000;
+            $execTotal  = \time() - $execStart;
+            $suspend = $suspend - $execTotal;
+
+            $intSeconds = intval($suspend);
+            $microSeconds = ($suspend - $intSeconds) * 1000000;
 
             if ($intSeconds > 0) {
                 sleep($intSeconds);
@@ -226,7 +240,7 @@ class Console
                 usleep($microSeconds);
             }
 
-            $time = $time + $sleep;
+            $time = $time + $suspend;
 
             if (PHP_SAPI == 'cli') {
                 if ($time >= 60 * 5) { // Every 5 minutes
