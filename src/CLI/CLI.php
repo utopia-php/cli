@@ -11,6 +11,7 @@ use Utopia\Validator;
 class CLI
 {
     use Resources, Hooks;
+
     /**
      * Command
      *
@@ -51,7 +52,7 @@ class CLI
             throw new Exception('CLI tasks can only work from the command line');
         }
 
-        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
+        $this->args = $this->parse((! empty($args) || ! isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         @\cli_set_process_title($this->command);
     }
@@ -213,16 +214,16 @@ class CLI
             }
 
             // is the validator object an instance of the Validator class
-            if (!$validator instanceof Validator) {
+            if (! $validator instanceof Validator) {
                 throw new Exception('Validator object is not an instance of the Validator class', 500);
             }
 
-            if (!$validator->isValid($value)) {
-                throw new Exception('Invalid ' . $key . ': ' . $validator->getDescription(), 400);
+            if (! $validator->isValid($value)) {
+                throw new Exception('Invalid '.$key.': '.$validator->getDescription(), 400);
             }
         } else {
-            if (!$param['optional']) {
-                throw new Exception('Param "' . $key . '" is not optional.', 400);
+            if (! $param['optional']) {
+                throw new Exception('Param "'.$key.'" is not optional.', 400);
             }
         }
     }
