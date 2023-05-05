@@ -192,42 +192,6 @@ class CLI
         return $this->args;
     }
 
-    /**
-     * Validate Param
-     *
-     * Creates an validator instance and validate given value with given rules.
-     *
-     * @param  string  $key
-     * @param  array  $param
-     * @param  mixed  $value
-     *
-     * @throws Exception
-     */
-    protected function validate(string $key, array $param, $value): void
-    {
-        if ('' !== $value) {
-            // checking whether the class exists
-            $validator = $param['validator'];
-
-            if (\is_callable($validator)) {
-                $validator = $validator();
-            }
-
-            // is the validator object an instance of the Validator class
-            if (! $validator instanceof Validator) {
-                throw new Exception('Validator object is not an instance of the Validator class', 500);
-            }
-
-            if (! $validator->isValid($value)) {
-                throw new Exception('Invalid '.$key.': '.$validator->getDescription(), 400);
-            }
-        } else {
-            if (! $param['optional']) {
-                throw new Exception('Param "'.$key.'" is not optional.', 400);
-            }
-        }
-    }
-
     public static function reset(): void
     {
         self::$resourcesCallbacks = [];
