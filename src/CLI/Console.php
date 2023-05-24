@@ -27,7 +27,7 @@ class Console
      */
     public static function log(string $message): int|false
     {
-        return \fwrite(STDOUT, $message."\n");
+        return \fwrite(STDOUT, $message . "\n");
     }
 
     /**
@@ -40,7 +40,7 @@ class Console
      */
     public static function success(string $message): int|false
     {
-        return \fwrite(STDOUT, "\033[32m".$message."\033[0m\n");
+        return \fwrite(STDOUT, "\033[32m" . $message . "\033[0m\n");
     }
 
     /**
@@ -53,7 +53,7 @@ class Console
      */
     public static function error(string $message): int|false
     {
-        return \fwrite(STDERR, "\033[31m".$message."\033[0m\n");
+        return \fwrite(STDERR, "\033[31m" . $message . "\033[0m\n");
     }
 
     /**
@@ -66,7 +66,7 @@ class Console
      */
     public static function info(string $message): int|false
     {
-        return \fwrite(STDOUT, "\033[34m".$message."\033[0m\n");
+        return \fwrite(STDOUT, "\033[34m" . $message . "\033[0m\n");
     }
 
     /**
@@ -79,7 +79,7 @@ class Console
      */
     public static function warning(string $message): int|false
     {
-        return \fwrite(STDERR, "\033[1;33m".$message."\033[0m\n");
+        return \fwrite(STDERR, "\033[1;33m" . $message . "\033[0m\n");
     }
 
     /**
@@ -92,7 +92,7 @@ class Console
      */
     public static function confirm(string $question): string
     {
-        if (! self::isInteractive()) {
+        if (!self::isInteractive()) {
             return '';
         }
 
@@ -131,9 +131,9 @@ class Console
      * @param  int  $timeout
      * @return int
      */
-    public static function execute(string $cmd, string $stdin, string &$stdout, string &$stderr, int $timeout = -1): int
+    public static function execute(string $cmd, string $stdin, string &$stdout, string &$stderr, int $timeout = -1, callable $onProgress = null): int
     {
-        $cmd = '( '.$cmd.' ) 3>/dev/null ; echo $? >&3';
+        $cmd = '( ' . $cmd . ' ) 3>/dev/null ; echo $? >&3';
 
         $pipes = [];
         $process = \proc_open(
@@ -157,8 +157,14 @@ class Console
         }
 
         while (\is_resource($process)) {
-            $stdout .= \stream_get_contents($pipes[1]);
-            $stderr .= \stream_get_contents($pipes[2]);
+            $stdoutContents = \stream_get_contents($pipes[1]) ?: '';
+            $stderrContents = \stream_get_contents($pipes[2]) ?: '';
+            if (isset($onProgress) && (!empty($stdoutContents) || !empty($stderrContents))) {
+                $onProgress($stdoutContents, $stderrContents);
+            }
+
+            $stdout .= $stdoutContents;
+            $stderr .= $stderrContents;
             $status .= \stream_get_contents($pipes[3]);
 
             if ($timeout > 0 && \time() - $start > $timeout) {
@@ -167,7 +173,7 @@ class Console
                 return 1;
             }
 
-            if (! \proc_get_status($process)['running']) {
+            if (!\proc_get_status($process)['running']) {
                 \fclose($pipes[1]);
                 \fclose($pipes[2]);
                 \proc_close($process);
@@ -211,7 +217,7 @@ class Console
             sleep($delay);
         }
 
-        while (! connection_aborted() || PHP_SAPI == 'cli') {
+        while (!connection_aborted() || PHP_SAPI == 'cli') {
             $suspend = $sleep;
 
             try {

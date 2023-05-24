@@ -38,6 +38,26 @@ class ConsoleTest extends TestCase
         $this->assertEquals(0, $code);
     }
 
+    public function testExecuteStream()
+    {
+        $stdout = '';
+        $stderr = '';
+        $stdin = '';
+
+        $stdoutStream = '';
+        $stderrStream = '';
+        $code = Console::execute('printf 1 && sleep 1 && printf 2 && sleep 1 && printf 3 && sleep 1 && printf 4 && sleep 1 && printf 5', $stdin, $stdout, $stderr, 10, function($stdout, $stderr) use (&$stdoutStream, &$stderrStream) {
+            $stdoutStream .= $stdout;
+            $stderrStream .= $stderr;
+        });
+
+        $this->assertEquals('', $stderr);
+        $this->assertEquals('12345', $stdout);
+        $this->assertEquals('', $stderrStream);
+        $this->assertEquals('12345', $stdoutStream);
+        $this->assertEquals(0, $code);
+    }
+
     public function testExecuteStdOut()
     {
         $stdout = '';
