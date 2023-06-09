@@ -160,7 +160,7 @@ class Console
             $stdoutContents = \stream_get_contents($pipes[1]) ?: '';
             $stderrContents = \stream_get_contents($pipes[2]) ?: '';
             if (isset($onProgress) && (! empty($stdoutContents) || ! empty($stderrContents))) {
-                $onProgress($stdoutContents, $stderrContents);
+                $onProgress($stdoutContents, $stderrContents, $process);
             }
 
             $stdout .= $stdoutContents;
