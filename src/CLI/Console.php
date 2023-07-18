@@ -131,7 +131,7 @@ class Console
      * @param  int  $timeout
      * @return int
      */
-    public static function execute(string $cmd, string $stdin, string &$stdout, string &$stderr, int $timeout = -1): int
+    public static function execute(string $cmd, string $stdin, string &$stdout, string &$stderr, int $timeout = -1, callable $onProgress = null): int
     {
         $cmd = '( '.$cmd.' ) 3>/dev/null ; echo $? >&3';
 
@@ -157,8 +157,14 @@ class Console
         }
 
         while (\is_resource($process)) {
-            $stdout .= \stream_get_contents($pipes[1]);
-            $stderr .= \stream_get_contents($pipes[2]);
+            $stdoutContents = \stream_get_contents($pipes[1]) ?: '';
+            $stderrContents = \stream_get_contents($pipes[2]) ?: '';
+            if (isset($onProgress) && (! empty($stdoutContents) || ! empty($stderrContents))) {
+                $onProgress($stdoutContents, $stderrContents, $process);
+            }
+
+            $stdout .= $stdoutContents;
+            $stderr .= $stderrContents;
             $status .= \stream_get_contents($pipes[3]);
 
             if ($timeout > 0 && \time() - $start > $timeout) {
