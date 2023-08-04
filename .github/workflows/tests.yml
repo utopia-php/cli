@@ -18,10 +18,12 @@ jobs:
         
           - name: Composer Install
             run: composer install --ignore-platform-reqs
+
+          - name: Run Analyze
+            run: composer analyze
           
           - name: Run Tests
             run: composer test
           
-          - name: Run Analyze
-            run: composer analyze
+
 
