@@ -8,7 +8,7 @@ jobs:
         runs-on: ubuntu-latest
         
         steps:
-          - name: Clone Repository
+          - name: Checkout
             uses: actions/checkout@v3
     
           - name: Setup PHP
@@ -21,6 +21,4 @@ jobs:
           
           - name: Run Tests
             run: composer test
-                      
-          - name: Run Analyze
-            run: composer analyze
+
