@@ -1,0 +1,24 @@
+name: Tests
+
+on: [pull_request]
+
+jobs: 
+    tests:
+        name: Tests
+        runs-on: ubuntu-20.04
+
+        steps:
+            - name: Clone Repository
+              uses: actions/checkout@v3
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2.25.5
+
+            - name: Composer Install
+              run: composer install --ignore-platform-reqs
+
+            - name: Run Analyze
+              run: composer analyze
+            
+            - name: Run Tests
+              run: composer test
