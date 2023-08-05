@@ -161,9 +161,9 @@ class Console
 
             $outputContents = $stdoutContents ?? '';
 
-            if(!empty($stderrContents)) {
+            if (! empty($stderrContents)) {
                 $separator = empty($outputContents) ? '' : "\n";
-                $outputContents .= $separator . $stderrContents;
+                $outputContents .= $separator.$stderrContents;
             }
 
             if (isset($onProgress) && (! empty($outputContents))) {
