@@ -11,19 +11,16 @@ jobs:
           - name: Checkout
             uses: actions/checkout@v3
     
-          - name: Setup PHP
-            uses: shivammathur/setup-php@2.25.5
-            with: 
-              php-version: '8.0'
-        
-          - name: Composer Install
-            run: composer install --ignore-platform-reqs
+          - name: Setup PHP Environment
+            run: |
+                docker build . -t php8-env
+                docker run -d --name tests php8-env 
 
           - name: Run Analyze
-            run: composer analyze
+            run: docker exec tests composer analyze
           
           - name: Run Tests
-            run: composer test
+            run: docker exec tests composer test
           
 
 
