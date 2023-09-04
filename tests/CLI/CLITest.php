@@ -15,6 +15,7 @@ class CLITest extends TestCase
 
     public function tearDown(): void
     {
+        CLI::reset();
     }
 
     public function testResources()
@@ -192,9 +193,9 @@ class CLITest extends TestCase
         CLI::setResource('test', fn () => 'test-value');
 
         $cli->task('build')
-            ->inject('test')
             ->param('email', null, new Text(15), 'valid email address')
-            ->action(function ($test, $email) {
+            ->inject('test')
+            ->action(function (string $email, string $test) {
                 echo $test.'-'.$email;
             });
 

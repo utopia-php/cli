@@ -4,10 +4,14 @@ namespace Utopia\CLI;
 
 use Exception;
 use Utopia\Hook;
+use Utopia\Traits\Hooks;
+use Utopia\Traits\Resources;
 use Utopia\Validator;
 
 class CLI
 {
+    use Resources, Hooks;
+
     /**
      * Command
      *
@@ -16,16 +20,6 @@ class CLI
      * @var string
      */
     protected string $command = '';
-
-    /**
-     * @var array
-     */
-    protected array $resources = [];
-
-    /**
-     * @var array
-     */
-    protected static array $resourcesCallbacks = [];
 
     /**
      * Args
@@ -46,33 +40,6 @@ class CLI
     protected array $tasks = [];
 
     /**
-     * Error
-     *
-     * An error callback
-     *
-     * @var Hook[]
-     */
-    protected $errors = [];
-
-    /**
-     * Init
-     *
-     * A callback function that is initialized on application start
-     *
-     * @var Hook[]
-     */
-    protected array $init = [];
-
-    /**
-     * Shutdown
-     *
-     * A callback function that is initialized on application end
-     *
-     * @var Hook[]
-     */
-    protected array $shutdown = [];
-
-    /**
      * CLI constructor.
      *
      * @param  array  $args
@@ -91,51 +58,6 @@ class CLI
     }
 
     /**
-     * Init
-     *
-     * Set a callback function that will be initialized on application start
-     *
-     * @return Hook
-     */
-    public function init(): Hook
-    {
-        $hook = new Hook();
-        $this->init[] = $hook;
-
-        return $hook;
-    }
-
-    /**
-     * Shutdown
-     *
-     * Set a callback function that will be initialized on application end
-     *
-     * @return Hook
-     */
-    public function shutdown(): Hook
-    {
-        $hook = new Hook();
-        $this->shutdown[] = $hook;
-
-        return $hook;
-    }
-
-    /**
-     * Error
-     *
-     * An error callback for failed or no matched requests
-     *
-     * @return Hook
-     */
-    public function error(): Hook
-    {
-        $hook = new Hook();
-        $this->errors[] = $hook;
-
-        return $hook;
-    }
-
-    /**
      * Task
      *
      * Add a new command task
@@ -150,65 +72,6 @@ class CLI
         $this->tasks[$name] = $task;
 
         return $task;
-    }
-
-    /**
-     * If a resource has been created return it, otherwise create it and then return it
-     *
-     * @param  string  $name
-     * @param  bool  $fresh
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    public function getResource(string $name, bool $fresh = false): mixed
-    {
-        if (! \array_key_exists($name, $this->resources) || $fresh || self::$resourcesCallbacks[$name]['reset']) {
-            if (! \array_key_exists($name, self::$resourcesCallbacks)) {
-                throw new Exception('Failed to find resource: "'.$name.'"');
-            }
-
-            $this->resources[$name] = \call_user_func_array(
-                self::$resourcesCallbacks[$name]['callback'],
-                $this->getResources(self::$resourcesCallbacks[$name]['injections'])
-            );
-        }
-
-        self::$resourcesCallbacks[$name]['reset'] = false;
-
-        return $this->resources[$name];
-    }
-
-    /**
-     * Get Resources By List
-     *
-     * @param  array  $list
-     * @return array
-     */
-    public function getResources(array $list): array
-    {
-        $resources = [];
-
-        foreach ($list as $name) {
-            $resources[$name] = $this->getResource($name);
-        }
-
-        return $resources;
-    }
-
-    /**
-     * Set a new resource callback
-     *
-     * @param  string  $name
-     * @param  callable  $callback
-     * @param  array  $injections
-     * @return void
-     *
-     * @throws Exception
-     */
-    public static function setResource(string $name, callable $callback, array $injections = []): void
-    {
-        self::$resourcesCallbacks[$name] = ['callback' => $callback, 'injections' => $injections, 'reset' => true];
     }
 
     /**
@@ -274,34 +137,6 @@ class CLI
     }
 
     /**
-     * Get Params
-     * Get runtime params for the provided Hook
-     *
-     * @param  Hook  $hook
-     * @return array
-     */
-    protected function getParams(Hook $hook): array
-    {
-        $params = [];
-
-        foreach ($hook->getParams() as $key => $param) {
-            $value = (isset($this->args[$key])) ? $this->args[$key] : $param['default'];
-
-            $this->validate($key, $param, $value);
-
-            $params[$param['order']] = $value;
-        }
-
-        foreach ($hook->getInjections() as $key => $injection) {
-            $params[$injection['order']] = $this->getResource($injection['name']);
-        }
-
-        ksort($params);
-
-        return $params;
-    }
-
-    /**
      * Run
      *
      * @return $this
@@ -312,24 +147,26 @@ class CLI
 
         try {
             if ($command) {
-                foreach ($this->init as $hook) {
-                    \call_user_func_array($hook->getAction(), $this->getParams($hook));
-                }
+                /**
+                 * Call init hooks
+                 */
+                $this->callHooks(self::$init, params: $this->args);
 
-                // Call the callback with the matched positions as params
-                \call_user_func_array($command->getAction(), $this->getParams($command));
+                /**
+                 * Call the command hook
+                 */
+                $this->callHook($command, params: $this->args);
 
-                foreach ($this->shutdown as $hook) {
-                    \call_user_func_array($hook->getAction(), $this->getParams($hook));
-                }
+                /**
+                 * Call shutdown hooks
+                 */
+                $this->callHooks(self::$shutdown, params: $this->args);
             } else {
                 throw new Exception('No command found');
             }
         } catch (Exception $e) {
-            foreach ($this->errors as $hook) {
-                self::setResource('error', fn () => $e);
-                \call_user_func_array($hook->getAction(), $this->getParams($hook));
-            }
+            self::setResource('error', fn () => $e);
+            $this->callHooks(self::$errors, params: $this->args);
         }
 
         return $this;
@@ -355,44 +192,11 @@ class CLI
         return $this->args;
     }
 
-    /**
-     * Validate Param
-     *
-     * Creates an validator instance and validate given value with given rules.
-     *
-     * @param  string  $key
-     * @param  array  $param
-     * @param  mixed  $value
-     *
-     * @throws Exception
-     */
-    protected function validate(string $key, array $param, $value): void
-    {
-        if ('' !== $value) {
-            // checking whether the class exists
-            $validator = $param['validator'];
-
-            if (\is_callable($validator)) {
-                $validator = $validator();
-            }
-
-            // is the validator object an instance of the Validator class
-            if (! $validator instanceof Validator) {
-                throw new Exception('Validator object is not an instance of the Validator class', 500);
-            }
-
-            if (! $validator->isValid($value)) {
-                throw new Exception('Invalid '.$key.': '.$validator->getDescription(), 400);
-            }
-        } else {
-            if (! $param['optional']) {
-                throw new Exception('Param "'.$key.'" is not optional.', 400);
-            }
-        }
-    }
-
     public static function reset(): void
     {
         self::$resourcesCallbacks = [];
+        self::$init = [];
+        self::$shutdown = [];
+        self::$errors = [];
     }
 }
