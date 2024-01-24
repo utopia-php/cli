@@ -4,8 +4,8 @@ namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Utopia\CLI\CLI;
-use Utopia\Validator\ArrayList;
-use Utopia\Validator\Text;
+use Utopia\Http\Validator\ArrayList;
+use Utopia\Http\Validator\Text;
 
 class CLITest extends TestCase
 {
