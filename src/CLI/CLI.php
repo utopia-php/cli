@@ -3,8 +3,8 @@
 namespace Utopia\CLI;
 
 use Exception;
-use Utopia\Hook;
-use Utopia\Validator;
+use Utopia\Http\Hook;
+use Utopia\Http\Validator;
 
 class CLI
 {
