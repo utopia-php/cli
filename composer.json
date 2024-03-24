@@ -8,7 +8,7 @@
     "scripts": {
         "test": "vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt",
         "check": "vendor/bin/phpstan analyse -c phpstan.neon",
-        "lint": ".vendor/bin/pint --test",
+        "lint": "vendor/bin/pint --test",
         "format": "vendor/bin/pint"
     },
     "autoload": {
