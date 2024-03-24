@@ -25,7 +25,4 @@ jobs:
       run: composer install --ignore-platform-reqs
 
     - name: Run tests
-      run: vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt
-
-    - name: Run Psalm
-      run: vendor/bin/psalm --show-info=true
+      run: composer test
