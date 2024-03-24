@@ -6,9 +6,10 @@
     "license": "MIT",
    
     "scripts": {
-        "test": ".vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt",
-        "lint": "./vendor/bin/pint --test",
-        "format": "./vendor/bin/pint"
+        "test": "vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt",
+        "check": "vendor/bin/phpstan analyse -c phpstan.neon",
+        "lint": "vendor/bin/pint --test",
+        "format": "vendor/bin/pint"
     },
     "autoload": {
         "psr-4": {"Utopia\\CLI\\": "src/CLI"}
@@ -20,7 +21,7 @@
     "require-dev": {
         "phpunit/phpunit": "^9.3",
         "squizlabs/php_codesniffer": "^3.6",
-        "vimeo/psalm": "4.0.1",
+        "phpstan/phpstan": "^1.10",
         "laravel/pint": "1.2.*"
     },
     "minimum-stability": "dev"

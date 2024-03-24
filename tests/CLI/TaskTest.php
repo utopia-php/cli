@@ -9,7 +9,7 @@ use Utopia\Http\Validator\Text;
 class TaskTest extends TestCase
 {
     /**
-     * @var Task
+     * @var ?Task
      */
     protected $task;
 

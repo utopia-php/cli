@@ -23,7 +23,7 @@ class Console
      * Log messages to console
      *
      * @param  string  $message
-     * @return bool|int
+     * @return int|false
      */
     public static function log(string $message): int|false
     {
@@ -36,7 +36,7 @@ class Console
      * Log success messages to console
      *
      * @param  string  $message
-     * @return bool|int
+     * @return int|false
      */
     public static function success(string $message): int|false
     {
@@ -49,7 +49,7 @@ class Console
      * Log error messages to console
      *
      * @param  string  $message
-     * @return bool|int
+     * @return int|false
      */
     public static function error(string $message): int|false
     {
@@ -62,7 +62,7 @@ class Console
      * Log informative messages to console
      *
      * @param  string  $message
-     * @return bool|int
+     * @return int|false
      */
     public static function info(string $message): int|false
     {
@@ -75,7 +75,7 @@ class Console
      * Log warning messages to console
      *
      * @param  string  $message
-     * @return bool|int
+     * @return int|false
      */
     public static function warning(string $message): int|false
     {
@@ -111,7 +111,7 @@ class Console
      *
      * Log warning messages to console
      *
-     * @param  string  $message
+     * @param  int  $status
      * @return void
      */
     public static function exit(int $status = 0): void
@@ -126,8 +126,7 @@ class Console
      *
      * @param  string  $cmd
      * @param  string  $stdin
-     * @param  string  $stdout
-     * @param  string  $stderr
+     * @param  string  $output
      * @param  int  $timeout
      * @return int
      */
@@ -159,7 +158,7 @@ class Console
             $stdoutContents = \stream_get_contents($pipes[1]) ?: '';
             $stderrContents = \stream_get_contents($pipes[2]) ?: '';
 
-            $outputContents = $stdoutContents ?? '';
+            $outputContents = $stdoutContents;
 
             if (! empty($stderrContents)) {
                 $separator = empty($outputContents) ? '' : "\n";
