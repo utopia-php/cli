@@ -6,10 +6,10 @@
     "license": "MIT",
    
     "scripts": {
-        "test": ".vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt",
+        "test": "vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt",
         "check": "vendor/bin/phpstan analyse -c phpstan.neon",
-        "lint": "./vendor/bin/pint --test",
-        "format": "./vendor/bin/pint"
+        "lint": ".vendor/bin/pint --test",
+        "format": "vendor/bin/pint"
     },
     "autoload": {
         "psr-4": {"Utopia\\CLI\\": "src/CLI"}
