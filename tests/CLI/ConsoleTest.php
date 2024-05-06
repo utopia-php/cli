@@ -29,8 +29,8 @@ class ConsoleTest extends TestCase
     public function testExecuteBasic()
     {
         $output = '';
-        $stdin = '';
-        $code = Console::execute('php -r "echo \'hello world\';"', $stdin, $output, 10);
+        $input = '';
+        $code = Console::execute('php -r "echo \'hello world\';"', $input, $output, 10);
 
         $this->assertEquals('hello world', $output);
         $this->assertEquals(0, $code);
@@ -39,10 +39,10 @@ class ConsoleTest extends TestCase
     public function testExecuteStream()
     {
         $output = '';
-        $stdin = '';
+        $input = '';
 
         $outputStream = '';
-        $code = Console::execute('printf 1 && sleep 1 && printf 2 && sleep 1 && printf 3 && sleep 1 && printf 4 && sleep 1 && printf 5', $stdin, $output, 10, function ($output) use (&$outputStream) {
+        $code = Console::execute('printf 1 && sleep 1 && printf 2 && sleep 1 && printf 3 && sleep 1 && printf 4 && sleep 1 && printf 5', $input, $output, 10, function ($output) use (&$outputStream) {
             $outputStream .= $output;
         });
 
@@ -54,8 +54,8 @@ class ConsoleTest extends TestCase
     public function testExecuteStdOut()
     {
         $output = '';
-        $stdin = '';
-        $code = Console::execute('>&1 echo "success"', $stdin, $output, 3);
+        $input = '';
+        $code = Console::execute('>&1 echo "success"', $input, $output, 3);
 
         $this->assertEquals("success\n", $output);
         $this->assertEquals(0, $code);
@@ -64,8 +64,8 @@ class ConsoleTest extends TestCase
     public function testExecuteStdErr()
     {
         $output = '';
-        $stdin = '';
-        $code = Console::execute('>&2 echo "error"', $stdin, $output, 3);
+        $input = '';
+        $code = Console::execute('>&2 echo "error"', $input, $output, 3);
 
         $this->assertEquals("error\n", $output);
         $this->assertEquals(0, $code);
@@ -74,15 +74,15 @@ class ConsoleTest extends TestCase
     public function testExecuteExitCode()
     {
         $output = '';
-        $stdin = '';
-        $code = Console::execute('php -r "echo \'hello world\'; exit(2);"', $stdin, $output, 10);
+        $input = '';
+        $code = Console::execute('php -r "echo \'hello world\'; exit(2);"', $input, $output, 10);
 
         $this->assertEquals('hello world', $output);
         $this->assertEquals(2, $code);
 
         $output = '';
-        $stdin = '';
-        $code = Console::execute('php -r "echo \'hello world\'; exit(100);"', $stdin, $output, 10);
+        $input = '';
+        $code = Console::execute('php -r "echo \'hello world\'; exit(100);"', $input, $output, 10);
 
         $this->assertEquals('hello world', $output);
         $this->assertEquals(100, $code);
@@ -91,15 +91,15 @@ class ConsoleTest extends TestCase
     public function testExecuteTimeout()
     {
         $output = '';
-        $stdin = '';
-        $code = Console::execute('php -r "sleep(1); echo \'hello world\'; exit(0);"', $stdin, $output, 3);
+        $input = '';
+        $code = Console::execute('php -r "sleep(1); echo \'hello world\'; exit(0);"', $input, $output, 3);
 
         $this->assertEquals('hello world', $output);
         $this->assertEquals(0, $code);
 
         $output = '';
-        $stdin = '';
-        $code = Console::execute('php -r "sleep(4); echo \'hello world\'; exit(0);"', $stdin, $output, 3);
+        $input = '';
+        $code = Console::execute('php -r "sleep(4); echo \'hello world\'; exit(0);"', $input, $output, 3);
 
         $this->assertEquals('', $output);
         $this->assertEquals(1, $code);
@@ -108,9 +108,9 @@ class ConsoleTest extends TestCase
     public function testLoop()
     {
         $file = __DIR__.'/../resources/loop.php';
-        $stdin = '';
+        $input = '';
         $output = '';
-        $code = Console::execute('php '.$file, $stdin, $output, 30);
+        $code = Console::execute('php '.$file, $input, $output, 30);
 
         $this->assertGreaterThan(30, count(explode("\n", $output)));
         $this->assertLessThan(50, count(explode("\n", $output)));
