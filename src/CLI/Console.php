@@ -125,12 +125,12 @@ class Console
      * This function was inspired by: https://stackoverflow.com/a/13287902/2299554
      *
      * @param  string  $cmd
-     * @param  string  $stdin
+     * @param  string  $input
      * @param  string  $output
      * @param  int  $timeout
      * @return int
      */
-    public static function execute(string $cmd, string $stdin, string &$output, int $timeout = -1, callable $onProgress = null): int
+    public static function execute(string $cmd, string $input, string &$output, int $timeout = -1, callable $onProgress = null): int
     {
         $cmd = '( '.$cmd.' ) 3>/dev/null ; echo $? >&3';
 
@@ -150,7 +150,7 @@ class Console
             \stream_set_blocking($pipes[2], false);
             \stream_set_blocking($pipes[3], false);
 
-            \fwrite($pipes[0], $stdin);
+            \fwrite($pipes[0], $input);
             \fclose($pipes[0]);
         }
 
