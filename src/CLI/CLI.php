@@ -3,6 +3,8 @@
 namespace Utopia\CLI;
 
 use Exception;
+use Swoole\Process\Pool;
+use Swoole\Runtime;
 use Utopia\DI\Container;
 use Utopia\DI\Dependency;
 use Utopia\Http\Hook;
@@ -10,6 +12,8 @@ use Utopia\Http\Validator;
 
 class CLI
 {
+    protected Pool $pool;
+
     /**
      * Command
      *
@@ -77,9 +81,8 @@ class CLI
      *
      * @throws Exception
      */
-    public function __construct(Container $container, array $args = [])
+    public function __construct(array $args = [])
     {
-        $this->container = $container;
         if (\php_sapi_name() !== 'cli') {
             throw new Exception('CLI tasks can only work from the command line');
         }
@@ -87,6 +90,8 @@ class CLI
         $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         @\cli_set_process_title($this->command);
+        Runtime::enableCoroutine();
+        $this->pool = new Pool(1);
     }
 
     /**
@@ -296,32 +301,38 @@ class CLI
      */
     public function run(): self
     {
+        $this->pool->set(['enable_coroutine' => true]);
+        $this->pool->start();
+
         $command = $this->match();
 
-        try {
-            if ($command) {
-                foreach ($this->init as $hook) {
+        $this->pool->on('WorkerStart', function (Pool $pool, string $workerId) use ($command) {
+            try {
+                if ($command) {
+                    foreach ($this->init as $hook) {
+                        \call_user_func_array($hook->getAction(), $this->getParams($hook));
+                    }
+
+                    // Call the callback with the matched positions as params
+                    \call_user_func_array($command->getAction(), $this->getParams($command));
+
+                    foreach ($this->shutdown as $hook) {
+                        \call_user_func_array($hook->getAction(), $this->getParams($hook));
+                    }
+                } else {
+                    throw new Exception('No command found');
+                }
+            } catch (Exception $e) {
+                foreach ($this->errors as $hook) {
+                    $error = new Dependency();
+                    $error->setName('error')->setCallback(fn() => $e);
+
+                    $this->setResource($error);
                     \call_user_func_array($hook->getAction(), $this->getParams($hook));
                 }
-
-                // Call the callback with the matched positions as params
-                \call_user_func_array($command->getAction(), $this->getParams($command));
-
-                foreach ($this->shutdown as $hook) {
-                    \call_user_func_array($hook->getAction(), $this->getParams($hook));
-                }
-            } else {
-                throw new Exception('No command found');
             }
-        } catch (Exception $e) {
-            foreach ($this->errors as $hook) {
-                $error = new Dependency();
-                $error->setName('error')->setCallback(fn() => $e);
+        });
 
-                $this->setResource($error);
-                \call_user_func_array($hook->getAction(), $this->getParams($hook));
-            }
-        }
 
         return $this;
     }
@@ -380,6 +391,11 @@ class CLI
                 throw new Exception('Param "' . $key . '" is not optional.', 400);
             }
         }
+    }
+
+    public function setContainer($container): void
+    {
+        $this->container = $container;
     }
 
     public function reset(): void
