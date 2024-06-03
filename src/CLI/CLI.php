@@ -72,12 +72,14 @@ class CLI
     /**
      * CLI constructor.
      *
+     * @param Container $container
      * @param array $args
      *
      * @throws Exception
      */
-    public function __construct(array $args = [])
+    public function __construct(Container $container, array $args = [])
     {
+        $this->container = $container;
         if (\php_sapi_name() !== 'cli') {
             throw new Exception('CLI tasks can only work from the command line');
         }
