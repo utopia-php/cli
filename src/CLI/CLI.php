@@ -3,8 +3,7 @@
 namespace Utopia\CLI;
 
 use Exception;
-use Swoole\Process\Pool;
-use Swoole\Runtime;
+use Utopia\CLI\Adapters\Generic;
 use Utopia\DI\Container;
 use Utopia\DI\Dependency;
 use Utopia\Http\Hook;
@@ -12,7 +11,14 @@ use Utopia\Http\Validator;
 
 class CLI
 {
-    protected Pool $pool;
+    /**
+     * Adapter
+     *
+     * Type of adapter to pass the callable to
+     *
+     * @var Adapter
+     */
+    protected Adapter $adapter;
 
     /**
      * Command
@@ -76,12 +82,12 @@ class CLI
     /**
      * CLI constructor.
      *
-     * @param Container $container
+     * @param Adapter $adapter
      * @param array $args
      *
      * @throws Exception
      */
-    public function __construct(array $args = [])
+    public function __construct(Adapter $adapter, array $args = [])
     {
         if (\php_sapi_name() !== 'cli') {
             throw new Exception('CLI tasks can only work from the command line');
@@ -90,8 +96,9 @@ class CLI
         $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         @\cli_set_process_title($this->command);
-        Runtime::enableCoroutine();
-        $this->pool = new Pool(1);
+
+        $this->adapter = $adapter;
+        $this->container = new Container();
     }
 
     /**
@@ -283,10 +290,14 @@ class CLI
 
             $this->validate($key, $param, $value);
 
-            $params[] = $value;
+            $params[$key] = $value;
         }
 
         foreach ($hook->getDependencies() as $dependency) {
+            if(array_key_exists($dependency, $params)){
+                continue;
+            }
+
             $params[] = $this->getResource($dependency);
         }
 
@@ -301,12 +312,9 @@ class CLI
      */
     public function run(): self
     {
-        $this->pool->set(['enable_coroutine' => true]);
-        $this->pool->start();
+        $this->adapter->start(function () {
+            $command = $this->match();
 
-        $command = $this->match();
-
-        $this->pool->on('WorkerStart', function (Pool $pool, string $workerId) use ($command) {
             try {
                 if ($command) {
                     foreach ($this->init as $hook) {
@@ -332,7 +340,6 @@ class CLI
                 }
             }
         });
-
 
         return $this;
     }
@@ -393,9 +400,11 @@ class CLI
         }
     }
 
-    public function setContainer($container): void
+    public function setContainer($container): self
     {
         $this->container = $container;
+
+        return $this;
     }
 
     public function reset(): void
