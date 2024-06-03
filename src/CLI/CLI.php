@@ -3,6 +3,8 @@
 namespace Utopia\CLI;
 
 use Exception;
+use Utopia\DI\Container;
+use Utopia\DI\Dependency;
 use Utopia\Http\Hook;
 use Utopia\Http\Validator;
 
@@ -18,14 +20,9 @@ class CLI
     protected string $command = '';
 
     /**
-     * @var array
+     * @var Container
      */
-    protected array $resources = [];
-
-    /**
-     * @var array
-     */
-    protected static array $resourcesCallbacks = [];
+    protected Container $container;
 
     /**
      * Args
@@ -75,7 +72,7 @@ class CLI
     /**
      * CLI constructor.
      *
-     * @param  array  $args
+     * @param array $args
      *
      * @throws Exception
      */
@@ -85,7 +82,7 @@ class CLI
             throw new Exception('CLI tasks can only work from the command line');
         }
 
-        $this->args = $this->parse((! empty($args) || ! isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
+        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         @\cli_set_process_title($this->command);
     }
@@ -140,7 +137,7 @@ class CLI
      *
      * Add a new command task
      *
-     * @param  string  $name
+     * @param string $name
      * @return Task
      */
     public function task(string $name): Task
@@ -155,35 +152,26 @@ class CLI
     /**
      * If a resource has been created return it, otherwise create it and then return it
      *
-     * @param  string  $name
-     * @param  bool  $fresh
+     * @param string $name
      * @return mixed
      *
      * @throws Exception
      */
-    public function getResource(string $name, bool $fresh = false): mixed
+    public function getResource(string $name): mixed
     {
-        if (! \array_key_exists($name, $this->resources) || $fresh || self::$resourcesCallbacks[$name]['reset']) {
-            if (! \array_key_exists($name, self::$resourcesCallbacks)) {
-                throw new Exception('Failed to find resource: "'.$name.'"');
-            }
-
-            $this->resources[$name] = \call_user_func_array(
-                self::$resourcesCallbacks[$name]['callback'],
-                $this->getResources(self::$resourcesCallbacks[$name]['injections'])
-            );
+        if (!$this->container->has($name)) {
+            throw new Exception('Failed to find resource: "' . $name . '"');
         }
 
-        self::$resourcesCallbacks[$name]['reset'] = false;
-
-        return $this->resources[$name];
+        return $this->container->get($name);
     }
 
     /**
      * Get Resources By List
      *
-     * @param  array  $list
+     * @param array $list
      * @return array
+     * @throws Exception
      */
     public function getResources(array $list): array
     {
@@ -199,22 +187,20 @@ class CLI
     /**
      * Set a new resource callback
      *
-     * @param  string  $name
-     * @param  callable  $callback
-     * @param  array  $injections
+     * @param Dependency $dependency
      * @return void
      *
      * @throws Exception
      */
-    public static function setResource(string $name, callable $callback, array $injections = []): void
+    public function setResource(Dependency $dependency): void
     {
-        self::$resourcesCallbacks[$name] = ['callback' => $callback, 'injections' => $injections, 'reset' => true];
+        $this->container->set($dependency);
     }
 
     /**
      * task-name --foo=test
      *
-     * @param  array  $args
+     * @param array $args
      * @return array
      *
      * @throws Exception
@@ -270,15 +256,16 @@ class CLI
      */
     public function match(): ?Task
     {
-        return isset($this->tasks[$this->command]) ? $this->tasks[$this->command] : null;
+        return $this->tasks[$this->command] ?? null;
     }
 
     /**
      * Get Params
      * Get runtime params for the provided Hook
      *
-     * @param  Hook  $hook
+     * @param Hook $hook
      * @return array
+     * @throws Exception
      */
     protected function getParams(Hook $hook): array
     {
@@ -289,14 +276,12 @@ class CLI
 
             $this->validate($key, $param, $value);
 
-            $params[$param['order']] = $value;
+            $params[] = $value;
         }
 
-        foreach ($hook->getInjections() as $key => $injection) {
-            $params[$injection['order']] = $this->getResource($injection['name']);
+        foreach ($hook->getDependencies() as $dependency) {
+            $params[] = $this->getResource($dependency);
         }
-
-        ksort($params);
 
         return $params;
     }
@@ -305,6 +290,7 @@ class CLI
      * Run
      *
      * @return $this
+     * @throws Exception
      */
     public function run(): self
     {
@@ -327,7 +313,10 @@ class CLI
             }
         } catch (Exception $e) {
             foreach ($this->errors as $hook) {
-                self::setResource('error', fn () => $e);
+                $error = new Dependency();
+                $error->setName('error')->setCallback(fn() => $e);
+
+                $this->setResource($error);
                 \call_user_func_array($hook->getAction(), $this->getParams($hook));
             }
         }
@@ -360,9 +349,9 @@ class CLI
      *
      * Creates an validator instance and validate given value with given rules.
      *
-     * @param  string  $key
-     * @param  array  $param
-     * @param  mixed  $value
+     * @param string $key
+     * @param array $param
+     * @param mixed $value
      *
      * @throws Exception
      */
@@ -377,22 +366,22 @@ class CLI
             }
 
             // is the validator object an instance of the Validator class
-            if (! $validator instanceof Validator) {
+            if (!$validator instanceof Validator) {
                 throw new Exception('Validator object is not an instance of the Validator class', 500);
             }
 
-            if (! $validator->isValid($value)) {
-                throw new Exception('Invalid '.$key.': '.$validator->getDescription(), 400);
+            if (!$validator->isValid($value)) {
+                throw new Exception('Invalid ' . $key . ': ' . $validator->getDescription(), 400);
             }
         } else {
-            if (! $param['optional']) {
-                throw new Exception('Param "'.$key.'" is not optional.', 400);
+            if (!$param['optional']) {
+                throw new Exception('Param "' . $key . '" is not optional.', 400);
             }
         }
     }
 
-    public static function reset(): void
+    public function reset(): void
     {
-        self::$resourcesCallbacks = [];
+        $this->container = new Container();
     }
 }
