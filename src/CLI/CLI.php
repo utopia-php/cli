@@ -290,7 +290,10 @@ class CLI
 
             $this->validate($key, $param, $value);
 
-            $params[$key] = $value;
+            $key = str_replace('-','_',$key);
+            $camelCase = \lcfirst(\str_replace('_', '', \ucwords($key, '_')));
+
+            $params[$camelCase] = $value;
         }
 
         foreach ($hook->getDependencies() as $dependency) {
