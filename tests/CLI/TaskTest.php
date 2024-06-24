@@ -61,7 +61,7 @@ class TaskTest extends TestCase
 
     public function testResources()
     {
-        $this->assertEquals([], $this->task->getInjections());
+        $this->assertEquals([], $this->task->getDependencies());
 
         $this->task
             ->inject('user')
@@ -69,8 +69,8 @@ class TaskTest extends TestCase
             ->action(function () {
             });
 
-        $this->assertCount(2, $this->task->getInjections());
-        $this->assertEquals('user', $this->task->getInjections()['user']['name']);
-        $this->assertEquals('time', $this->task->getInjections()['time']['name']);
+        $this->assertCount(2, $this->task->getDependencies());
+        $this->assertEquals('user', $this->task->getDependencies()[0]);
+        $this->assertEquals('time', $this->task->getDependencies()[1]);
     }
 }

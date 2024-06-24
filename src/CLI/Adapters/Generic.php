@@ -2,13 +2,10 @@
 
 namespace Utopia\CLI\Adapters;
 
-use Swoole\Process\Pool;
-use Swoole\Runtime;
 use Utopia\CLI\Adapter;
 
 class Generic extends Adapter
 {
-
     public function __construct(int $workerNum = 0)
     {
         parent::__construct($workerNum);
@@ -39,6 +36,7 @@ class Generic extends Adapter
     public function onJob(callable $callback): self
     {
         call_user_func($callback);
+
         return $this;
     }
 }

@@ -3,7 +3,6 @@
 namespace Utopia\CLI;
 
 use Exception;
-use Utopia\CLI\Adapters\Generic;
 use Utopia\DI\Container;
 use Utopia\DI\Dependency;
 use Utopia\Http\Hook;
@@ -82,8 +81,8 @@ class CLI
     /**
      * CLI constructor.
      *
-     * @param Adapter $adapter
-     * @param array $args
+     * @param  Adapter  $adapter
+     * @param  array  $args
      *
      * @throws Exception
      */
@@ -93,7 +92,7 @@ class CLI
             throw new Exception('CLI tasks can only work from the command line');
         }
 
-        $this->args = $this->parse((!empty($args) || !isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
+        $this->args = $this->parse((! empty($args) || ! isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         @\cli_set_process_title($this->command);
 
@@ -151,7 +150,7 @@ class CLI
      *
      * Add a new command task
      *
-     * @param string $name
+     * @param  string  $name
      * @return Task
      */
     public function task(string $name): Task
@@ -166,15 +165,15 @@ class CLI
     /**
      * If a resource has been created return it, otherwise create it and then return it
      *
-     * @param string $name
+     * @param  string  $name
      * @return mixed
      *
      * @throws Exception
      */
     public function getResource(string $name): mixed
     {
-        if (!$this->container->has($name)) {
-            throw new Exception('Failed to find resource: "' . $name . '"');
+        if (! $this->container->has($name)) {
+            throw new Exception('Failed to find resource: "'.$name.'"');
         }
 
         return $this->container->get($name);
@@ -183,8 +182,9 @@ class CLI
     /**
      * Get Resources By List
      *
-     * @param array $list
+     * @param  array  $list
      * @return array
+     *
      * @throws Exception
      */
     public function getResources(array $list): array
@@ -201,7 +201,7 @@ class CLI
     /**
      * Set a new resource callback
      *
-     * @param Dependency $dependency
+     * @param  Dependency  $dependency
      * @return void
      *
      * @throws Exception
@@ -214,7 +214,7 @@ class CLI
     /**
      * task-name --foo=test
      *
-     * @param array $args
+     * @param  array  $args
      * @return array
      *
      * @throws Exception
@@ -277,8 +277,9 @@ class CLI
      * Get Params
      * Get runtime params for the provided Hook
      *
-     * @param Hook $hook
+     * @param  Hook  $hook
      * @return array
+     *
      * @throws Exception
      */
     protected function getParams(Hook $hook): array
@@ -290,18 +291,15 @@ class CLI
 
             $this->validate($key, $param, $value);
 
-            $key = str_replace('-','_',$key);
-            $camelCase = \lcfirst(\str_replace('_', '', \ucwords($key, '_')));
-
-            $params[$camelCase] = $value;
+            $params[$this->camelCaseIt($key)] = $value;
         }
 
         foreach ($hook->getDependencies() as $dependency) {
-            if(array_key_exists($dependency, $params)){
+            if (array_key_exists($this->camelCaseIt($dependency), $params)) {
                 continue;
             }
 
-            $params[] = $this->getResource($dependency);
+            $params[$this->camelCaseIt($dependency)] = $this->getResource($dependency);
         }
 
         return $params;
@@ -311,6 +309,7 @@ class CLI
      * Run
      *
      * @return $this
+     *
      * @throws Exception
      */
     public function run(): self
@@ -336,7 +335,7 @@ class CLI
             } catch (Exception $e) {
                 foreach ($this->errors as $hook) {
                     $error = new Dependency();
-                    $error->setName('error')->setCallback(fn() => $e);
+                    $error->setName('error')->setCallback(fn () => $e);
 
                     $this->setResource($error);
                     \call_user_func_array($hook->getAction(), $this->getParams($hook));
@@ -372,9 +371,9 @@ class CLI
      *
      * Creates an validator instance and validate given value with given rules.
      *
-     * @param string $key
-     * @param array $param
-     * @param mixed $value
+     * @param  string  $key
+     * @param  array  $param
+     * @param  mixed  $value
      *
      * @throws Exception
      */
@@ -389,16 +388,16 @@ class CLI
             }
 
             // is the validator object an instance of the Validator class
-            if (!$validator instanceof Validator) {
+            if (! $validator instanceof Validator) {
                 throw new Exception('Validator object is not an instance of the Validator class', 500);
             }
 
-            if (!$validator->isValid($value)) {
-                throw new Exception('Invalid ' . $key . ': ' . $validator->getDescription(), 400);
+            if (! $validator->isValid($value)) {
+                throw new Exception('Invalid '.$key.': '.$validator->getDescription(), 400);
             }
         } else {
-            if (!$param['optional']) {
-                throw new Exception('Param "' . $key . '" is not optional.', 400);
+            if (! $param['optional']) {
+                throw new Exception('Param "'.$key.'" is not optional.', 400);
             }
         }
     }
@@ -413,5 +412,13 @@ class CLI
     public function reset(): void
     {
         $this->container = new Container();
+    }
+
+    private function camelCaseIt($key): string
+    {
+        $key = str_replace('-', '_', $key);
+        $camelCase = \lcfirst(\str_replace('_', '', \ucwords($key, '_')));
+
+        return  $camelCase;
     }
 }
