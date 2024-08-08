@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "588df53cb76ff906b437afb502d28b0c",
+    "content-hash": "20dd81616c1026183ef52176c78edc6f",
     "packages": [
         {
             "name": "utopia-php/di",
@@ -69,23 +69,25 @@
         },
         {
             "name": "utopia-php/framework",
-            "version": "1.0.0-RC1",
+            "version": "1.0.0-RC2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/utopia-php/http.git",
-                "reference": "7613c13166b491bf211d69415bc06d5a1ad7dcb5"
+                "reference": "d1e9674dbf33bed03fa53854ec1f2c6e074cf4d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/utopia-php/http/zipball/7613c13166b491bf211d69415bc06d5a1ad7dcb5",
-                "reference": "7613c13166b491bf211d69415bc06d5a1ad7dcb5",
+                "url": "https://api.github.com/repos/utopia-php/http/zipball/d1e9674dbf33bed03fa53854ec1f2c6e074cf4d7",
+                "reference": "d1e9674dbf33bed03fa53854ec1f2c6e074cf4d7",
                 "shasum": ""
             },
             "require": {
                 "ext-swoole": "*",
-                "php": ">=8.0"
+                "php": ">=8.0",
+                "utopia-php/servers": "0.1.* "
             },
             "require-dev": {
+                "ext-xdebug": "*",
                 "laravel/pint": "^1.2",
                 "phpbench/phpbench": "^1.2",
                 "phpstan/phpstan": "^1.10",
@@ -95,7 +97,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Utopia\\Http\\": "src/Http"
+                    "Utopia\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -111,9 +113,80 @@
             ],
             "support": {
                 "issues": "https://github.com/utopia-php/http/issues",
-                "source": "https://github.com/utopia-php/http/tree/1.0.0-RC1"
+                "source": "https://github.com/utopia-php/http/tree/1.0.0-RC2"
             },
-            "time": "2024-01-08T11:07:19+00:00"
+            "time": "2024-08-08T14:46:41+00:00"
+        },
+        {
+            "name": "utopia-php/servers",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/utopia-php/servers.git",
+                "reference": "7d9e4f364fb1ab1889fb89ca96eb9946467cb09c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/utopia-php/servers/zipball/7d9e4f364fb1ab1889fb89ca96eb9946467cb09c",
+                "reference": "7d9e4f364fb1ab1889fb89ca96eb9946467cb09c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0",
+                "utopia-php/di": "0.1.*"
+            },
+            "require-dev": {
+                "laravel/pint": "^0.2.3",
+                "phpstan/phpstan": "^1.8",
+                "phpunit/phpunit": "^9.5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Utopia\\Servers\\": "src/Servers"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\E2E\\": "tests/Servers/Unit"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ],
+                "analyse": [
+                    "vendor/bin/phpstan analyse"
+                ],
+                "format": [
+                    "vendor/bin/pint"
+                ],
+                "lint": [
+                    "vendor/bin/pint --test"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Team Appwrite",
+                    "email": "team@appwrite.io"
+                }
+            ],
+            "description": "A base library for building Utopia style servers.",
+            "keywords": [
+                "framework",
+                "php",
+                "servers",
+                "upf",
+                "utopia"
+            ],
+            "support": {
+                "source": "https://github.com/utopia-php/servers/tree/0.1.0",
+                "issues": "https://github.com/utopia-php/servers/issues"
+            },
+            "time": "2024-08-08T14:31:39+00:00"
         }
     ],
     "packages-dev": [
