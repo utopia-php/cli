@@ -3,6 +3,7 @@
 namespace Utopia\CLI;
 
 use Exception;
+use Utopia\CLI\Adapters\Generic;
 use Utopia\DI\Container;
 use Utopia\DI\Dependency;
 use Utopia\Http\Hook;
@@ -81,12 +82,12 @@ class CLI
     /**
      * CLI constructor.
      *
-     * @param  Adapter  $adapter
+     * @param  Adapter|null  $adapter
      * @param  array  $args
      *
      * @throws Exception
      */
-    public function __construct(Adapter $adapter, array $args = [])
+    public function __construct(Adapter $adapter = null, array $args = [])
     {
         if (\php_sapi_name() !== 'cli') {
             throw new Exception('CLI tasks can only work from the command line');
@@ -96,7 +97,7 @@ class CLI
 
         @\cli_set_process_title($this->command);
 
-        $this->adapter = $adapter;
+        $this->adapter = $adapter ?? new Generic();
         $this->container = new Container();
     }
 
