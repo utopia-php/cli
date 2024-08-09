@@ -25,15 +25,7 @@
         "laravel/pint": "1.2.*",
         "swoole/ide-helper": "4.8.8"
     },
-    "minimum-stability": "dev",
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/utopia-php/di"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/utopia-php/servers"
-        }
-    ]
+    "minimum-stability": "dev"
+
+
 }

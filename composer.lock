@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "20dd81616c1026183ef52176c78edc6f",
+    "content-hash": "d1a7cb9ca663d0c8a80218a3ff5c2d0c",
     "packages": [
         {
             "name": "utopia-php/di",
@@ -37,20 +37,7 @@
                     "Tests\\E2E\\": "tests/e2e"
                 }
             },
-            "scripts": {
-                "lint": [
-                    "vendor/bin/pint --test"
-                ],
-                "format": [
-                    "vendor/bin/pint"
-                ],
-                "check": [
-                    "vendor/bin/phpstan analyse -c phpstan.neon"
-                ],
-                "test": [
-                    "vendor/bin/phpunit --configuration phpunit.xml"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -62,8 +49,8 @@
                 "upf"
             ],
             "support": {
-                "source": "https://github.com/utopia-php/di/tree/0.1.0",
-                "issues": "https://github.com/utopia-php/di/issues"
+                "issues": "https://github.com/utopia-php/di/issues",
+                "source": "https://github.com/utopia-php/di/tree/0.1.0"
             },
             "time": "2024-08-08T14:35:19+00:00"
         },
@@ -146,25 +133,7 @@
                     "Utopia\\Servers\\": "src/Servers"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Tests\\E2E\\": "tests/Servers/Unit"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "phpunit"
-                ],
-                "analyse": [
-                    "vendor/bin/phpstan analyse"
-                ],
-                "format": [
-                    "vendor/bin/pint"
-                ],
-                "lint": [
-                    "vendor/bin/pint --test"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -183,8 +152,8 @@
                 "utopia"
             ],
             "support": {
-                "source": "https://github.com/utopia-php/servers/tree/0.1.0",
-                "issues": "https://github.com/utopia-php/servers/issues"
+                "issues": "https://github.com/utopia-php/servers/issues",
+                "source": "https://github.com/utopia-php/servers/tree/0.1.0"
             },
             "time": "2024-08-08T14:31:39+00:00"
         }
@@ -571,12 +540,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "3232b2f67faebe6b7ea54d68fb62223914ce35da"
+                "reference": "f09d3ef93daba9ecb7ab816a0f5fb7ef1d98ef93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/3232b2f67faebe6b7ea54d68fb62223914ce35da",
-                "reference": "3232b2f67faebe6b7ea54d68fb62223914ce35da",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/f09d3ef93daba9ecb7ab816a0f5fb7ef1d98ef93",
+                "reference": "f09d3ef93daba9ecb7ab816a0f5fb7ef1d98ef93",
                 "shasum": ""
             },
             "require": {
@@ -622,7 +591,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-08-08T11:38:51+00:00"
+            "time": "2024-08-09T11:29:11+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -2016,12 +1985,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "638cfb69ad6819e3d2e479c9523b879f771b2ef7"
+                "reference": "c76678afc7da432360a25f499c4035d1df9cae54"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/638cfb69ad6819e3d2e479c9523b879f771b2ef7",
-                "reference": "638cfb69ad6819e3d2e479c9523b879f771b2ef7",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/c76678afc7da432360a25f499c4035d1df9cae54",
+                "reference": "c76678afc7da432360a25f499c4035d1df9cae54",
                 "shasum": ""
             },
             "require": {
@@ -2089,7 +2058,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-08-05T00:27:27+00:00"
+            "time": "2024-08-09T16:49:33+00:00"
         },
         {
             "name": "swoole/ide-helper",
