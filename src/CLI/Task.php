@@ -19,8 +19,6 @@ class Task extends Hook
     public function __construct(string $name)
     {
         $this->name = $name;
-        $this->action = function (): void {
-        };
     }
 
     /**

@@ -3,7 +3,9 @@
 namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Utopia\CLI\Adapters\Generic;
 use Utopia\CLI\CLI;
+use Utopia\DI\Dependency;
 use Utopia\Http\Validator\ArrayList;
 use Utopia\Http\Validator\Text;
 
@@ -19,16 +21,23 @@ class CLITest extends TestCase
 
     public function testResources()
     {
-        $cli = new CLI(['test.php', 'build']);
-        CLI::setResource('rand', function () {
-            return rand();
-        });
-        CLI::setResource('first', function ($second) {
-            return 'first-'.$second;
-        }, ['second']);
-        CLI::setResource('second', function () {
-            return 'second';
-        });
+        $cli = new CLI(new Generic(), ['test.php', 'build']);
+
+        $rand = new Dependency();
+        $rand->setName('rand')->setCallback(fn () => rand());
+
+        $first = new Dependency();
+        $first->setName('first')
+            ->inject('second')
+            ->setCallback(fn ($second) => 'first-'.$second);
+
+        $second = new Dependency();
+        $second->setName('second')->setCallback(fn () => 'second');
+
+        $cli->setResource($rand);
+        $cli->setResource($first);
+        $cli->setResource($second);
+
         $second = $cli->getResource('second');
         $first = $cli->getResource('first');
         $this->assertEquals('second', $second);
@@ -46,7 +55,7 @@ class CLITest extends TestCase
     {
         ob_start();
 
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com']); // Mock command request
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com']); // Mock command request
 
         $cli
             ->task('build')
@@ -66,7 +75,7 @@ class CLITest extends TestCase
     {
         ob_start();
 
-        $cli = new CLI(['test.php', 'build', '--email=me.example.com']); // Mock command request
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me.example.com']); // Mock command request
 
         $cli
             ->task('build')
@@ -86,7 +95,7 @@ class CLITest extends TestCase
     {
         ob_start();
 
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build')
@@ -105,7 +114,7 @@ class CLITest extends TestCase
 
     public function testGetTasks()
     {
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')
@@ -128,7 +137,7 @@ class CLITest extends TestCase
 
     public function testGetArgs()
     {
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')
@@ -152,9 +161,7 @@ class CLITest extends TestCase
 
     public function testHook()
     {
-        CLI::reset();
-
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']);
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']);
 
         $cli
             ->init()
@@ -188,8 +195,12 @@ class CLITest extends TestCase
     {
         ob_start();
 
-        $cli = new CLI(['test.php', 'build', '--email=me@example.com']);
-        CLI::setResource('test', fn () => 'test-value');
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com']);
+
+        $test = new Dependency();
+        $test->setName('test')->setCallback(fn () => 'test-value');
+
+        $cli->setResource($test);
 
         $cli->task('build')
             ->inject('test')
@@ -207,7 +218,7 @@ class CLITest extends TestCase
 
     public function testMatch()
     {
-        $cli = new CLI(['test.php', 'build2', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
+        $cli = new CLI(new Generic(), ['test.php', 'build2', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')
@@ -227,7 +238,7 @@ class CLITest extends TestCase
 
         $this->assertEquals('build2', $cli->match()->getName());
 
-        $cli = new CLI(['test.php', 'buildx', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
+        $cli = new CLI(new Generic(), ['test.php', 'buildx', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
         $cli
             ->task('build1')

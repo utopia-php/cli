@@ -3,11 +3,23 @@
 namespace Utopia\CLI;
 
 use Exception;
+use Utopia\CLI\Adapters\Generic;
+use Utopia\DI\Container;
+use Utopia\DI\Dependency;
 use Utopia\Http\Hook;
 use Utopia\Http\Validator;
 
 class CLI
 {
+    /**
+     * Adapter
+     *
+     * Type of adapter to pass the callable to
+     *
+     * @var Adapter
+     */
+    protected Adapter $adapter;
+
     /**
      * Command
      *
@@ -18,14 +30,9 @@ class CLI
     protected string $command = '';
 
     /**
-     * @var array
+     * @var Container
      */
-    protected array $resources = [];
-
-    /**
-     * @var array
-     */
-    protected static array $resourcesCallbacks = [];
+    protected Container $container;
 
     /**
      * Args
@@ -75,11 +82,12 @@ class CLI
     /**
      * CLI constructor.
      *
+     * @param  Adapter|null  $adapter
      * @param  array  $args
      *
      * @throws Exception
      */
-    public function __construct(array $args = [])
+    public function __construct(Adapter $adapter = null, array $args = [])
     {
         if (\php_sapi_name() !== 'cli') {
             throw new Exception('CLI tasks can only work from the command line');
@@ -88,6 +96,9 @@ class CLI
         $this->args = $this->parse((! empty($args) || ! isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         @\cli_set_process_title($this->command);
+
+        $this->adapter = $adapter ?? new Generic();
+        $this->container = new Container();
     }
 
     /**
@@ -156,27 +167,17 @@ class CLI
      * If a resource has been created return it, otherwise create it and then return it
      *
      * @param  string  $name
-     * @param  bool  $fresh
      * @return mixed
      *
      * @throws Exception
      */
-    public function getResource(string $name, bool $fresh = false): mixed
+    public function getResource(string $name): mixed
     {
-        if (! \array_key_exists($name, $this->resources) || $fresh || self::$resourcesCallbacks[$name]['reset']) {
-            if (! \array_key_exists($name, self::$resourcesCallbacks)) {
-                throw new Exception('Failed to find resource: "'.$name.'"');
-            }
-
-            $this->resources[$name] = \call_user_func_array(
-                self::$resourcesCallbacks[$name]['callback'],
-                $this->getResources(self::$resourcesCallbacks[$name]['injections'])
-            );
+        if (! $this->container->has($name)) {
+            throw new Exception('Failed to find resource: "'.$name.'"');
         }
 
-        self::$resourcesCallbacks[$name]['reset'] = false;
-
-        return $this->resources[$name];
+        return $this->container->get($name);
     }
 
     /**
@@ -184,6 +185,8 @@ class CLI
      *
      * @param  array  $list
      * @return array
+     *
+     * @throws Exception
      */
     public function getResources(array $list): array
     {
@@ -199,16 +202,14 @@ class CLI
     /**
      * Set a new resource callback
      *
-     * @param  string  $name
-     * @param  callable  $callback
-     * @param  array  $injections
+     * @param  Dependency  $dependency
      * @return void
      *
      * @throws Exception
      */
-    public static function setResource(string $name, callable $callback, array $injections = []): void
+    public function setResource(Dependency $dependency): void
     {
-        self::$resourcesCallbacks[$name] = ['callback' => $callback, 'injections' => $injections, 'reset' => true];
+        $this->container->set($dependency);
     }
 
     /**
@@ -270,7 +271,7 @@ class CLI
      */
     public function match(): ?Task
     {
-        return isset($this->tasks[$this->command]) ? $this->tasks[$this->command] : null;
+        return $this->tasks[$this->command] ?? null;
     }
 
     /**
@@ -279,6 +280,8 @@ class CLI
      *
      * @param  Hook  $hook
      * @return array
+     *
+     * @throws Exception
      */
     protected function getParams(Hook $hook): array
     {
@@ -289,14 +292,16 @@ class CLI
 
             $this->validate($key, $param, $value);
 
-            $params[$param['order']] = $value;
+            $params[$this->camelCaseIt($key)] = $value;
         }
 
-        foreach ($hook->getInjections() as $key => $injection) {
-            $params[$injection['order']] = $this->getResource($injection['name']);
-        }
+        foreach ($hook->getDependencies() as $dependency) {
+            if (array_key_exists($this->camelCaseIt($dependency), $params)) {
+                continue;
+            }
 
-        ksort($params);
+            $params[$this->camelCaseIt($dependency)] = $this->getResource($dependency);
+        }
 
         return $params;
     }
@@ -305,32 +310,39 @@ class CLI
      * Run
      *
      * @return $this
+     *
+     * @throws Exception
      */
     public function run(): self
     {
-        $command = $this->match();
+        $this->adapter->start(function () {
+            $command = $this->match();
 
-        try {
-            if ($command) {
-                foreach ($this->init as $hook) {
+            try {
+                if ($command) {
+                    foreach ($this->init as $hook) {
+                        \call_user_func_array($hook->getAction(), $this->getParams($hook));
+                    }
+
+                    // Call the callback with the matched positions as params
+                    \call_user_func_array($command->getAction(), $this->getParams($command));
+
+                    foreach ($this->shutdown as $hook) {
+                        \call_user_func_array($hook->getAction(), $this->getParams($hook));
+                    }
+                } else {
+                    throw new Exception('No command found');
+                }
+            } catch (Exception $e) {
+                foreach ($this->errors as $hook) {
+                    $error = new Dependency();
+                    $error->setName('error')->setCallback(fn () => $e);
+
+                    $this->setResource($error);
                     \call_user_func_array($hook->getAction(), $this->getParams($hook));
                 }
-
-                // Call the callback with the matched positions as params
-                \call_user_func_array($command->getAction(), $this->getParams($command));
-
-                foreach ($this->shutdown as $hook) {
-                    \call_user_func_array($hook->getAction(), $this->getParams($hook));
-                }
-            } else {
-                throw new Exception('No command found');
             }
-        } catch (Exception $e) {
-            foreach ($this->errors as $hook) {
-                self::setResource('error', fn () => $e);
-                \call_user_func_array($hook->getAction(), $this->getParams($hook));
-            }
-        }
+        });
 
         return $this;
     }
@@ -391,8 +403,23 @@ class CLI
         }
     }
 
-    public static function reset(): void
+    public function setContainer($container): self
     {
-        self::$resourcesCallbacks = [];
+        $this->container = $container;
+
+        return $this;
+    }
+
+    public function reset(): void
+    {
+        $this->container = new Container();
+    }
+
+    private function camelCaseIt($key): string
+    {
+        $key = str_replace('-', '_', $key);
+        $camelCase = \lcfirst(\str_replace('_', '', \ucwords($key, '_')));
+
+        return  $camelCase;
     }
 }

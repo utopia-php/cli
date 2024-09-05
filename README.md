@@ -22,9 +22,10 @@ require_once './vendor/autoload.php';
 
 use Utopia\CLI\CLI;
 use Utopia\CLI\Console;
+use Utopia\CLI\Adapters\Generic;
 use Utopia\Http\Validator\Wildcard;
 
-$cli = new CLI();
+$cli = new CLI(new Generic());
 
 $cli
     ->task('command-name')
