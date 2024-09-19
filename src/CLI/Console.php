@@ -124,15 +124,19 @@ class Console
      *
      * This function was inspired by: https://stackoverflow.com/a/13287902/2299554
      *
-     * @param  string  $cmd
+     * @param  array|string  $cmd
      * @param  string  $input
      * @param  string  $output
      * @param  int  $timeout
      * @return int
      */
-    public static function execute(string $cmd, string $input, string &$output, int $timeout = -1, callable $onProgress = null): int
+    public static function execute(array|string $cmd, string $input, string &$output, int $timeout = -1, callable $onProgress = null): int
     {
-        $cmd = '( '.$cmd.' ) 3>/dev/null ; echo $? >&3';
+        // If the $cmd is passed as string, it will be wrapped into a subshell by \proc_open
+        // Forward stdout and exit codes from the subshell.
+        if (is_string($cmd)) {
+            $cmd = '( '.$cmd.' ) 3>/dev/null ; echo $? >&3';
+        }
 
         $pipes = [];
         $process = \proc_open(
