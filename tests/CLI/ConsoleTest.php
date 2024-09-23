@@ -36,6 +36,44 @@ class ConsoleTest extends TestCase
         $this->assertEquals(0, $code);
     }
 
+    public function testExecuteArray()
+    {
+        $output = '';
+        $input = '';
+        $cmd = ['php', '-r', "echo 'hello world';"];
+        $code = Console::execute($cmd, $input, $output, 10);
+
+        $this->assertEquals('hello world', $output);
+        $this->assertEquals(0, $code);
+    }
+
+    // Validate existing environment variables are passed down to the executed command.
+    public function testExecuteEnvVariables()
+    {
+        $randomData = base64_encode(random_bytes(10));
+        putenv("FOO={$randomData}");
+
+        $output = '';
+        $input = '';
+        $cmd = ['printenv'];
+        $code = Console::execute($cmd, $input, $output, 10);
+
+        $this->assertEquals(0, $code);
+
+        $data = [];
+        foreach (explode("\n", $output) as $row) {
+            if (empty($row)) {
+                continue;
+            }
+            $kv = explode('=', $row, 2);
+            $this->assertEquals(2, count($kv), $row);
+            $data[$kv[0]] = $kv[1];
+        }
+
+        $this->assertArrayHasKey('FOO', $data);
+        $this->assertEquals($randomData, $data['FOO']);
+    }
+
     public function testExecuteStream()
     {
         $output = '';
