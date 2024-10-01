@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f0c507914a1056c40db2132d7b99f816",
+    "content-hash": "9811e6f2f332382c4e8a77eb4f7e6da1",
     "packages": [
         {
             "name": "utopia-php/di",
@@ -56,7 +56,7 @@
         },
         {
             "name": "utopia-php/servers",
-            "version": "dev-main",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/utopia-php/servers.git",
@@ -77,7 +77,6 @@
                 "phpstan/phpstan": "^1.8",
                 "phpunit/phpunit": "^9.5.5"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -116,12 +115,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/instantiator.git",
-                "reference": "0dfb69d79d0964b8a80bfa92c07f50e3e8d73542"
+                "reference": "acc12399c90611e3cb478d0ec72f2c2ebbc429d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/0dfb69d79d0964b8a80bfa92c07f50e3e8d73542",
-                "reference": "0dfb69d79d0964b8a80bfa92c07f50e3e8d73542",
+                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/acc12399c90611e3cb478d0ec72f2c2ebbc429d1",
+                "reference": "acc12399c90611e3cb478d0ec72f2c2ebbc429d1",
                 "shasum": ""
             },
             "require": {
@@ -179,7 +178,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-06-20T19:34:15+00:00"
+            "time": "2024-09-30T20:32:32+00:00"
         },
         {
             "name": "laravel/pint",
@@ -310,16 +309,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.1.0",
+            "version": "v5.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "683130c2ff8c2739f4822ff7ac5c873ec529abd1"
+                "reference": "3abf7425cd284141dc5d8d14a9ee444de3345d1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/683130c2ff8c2739f4822ff7ac5c873ec529abd1",
-                "reference": "683130c2ff8c2739f4822ff7ac5c873ec529abd1",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/3abf7425cd284141dc5d8d14a9ee444de3345d1a",
+                "reference": "3abf7425cd284141dc5d8d14a9ee444de3345d1a",
                 "shasum": ""
             },
             "require": {
@@ -362,9 +361,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.1.0"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.3.0"
             },
-            "time": "2024-07-01T20:03:41+00:00"
+            "time": "2024-09-29T13:56:26+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -491,12 +490,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "99756056e2447c92b9e9e24801d17a97b415ead6"
+                "reference": "0b9ce983aac24557446c76f28920cfef2e8c067f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/99756056e2447c92b9e9e24801d17a97b415ead6",
-                "reference": "99756056e2447c92b9e9e24801d17a97b415ead6",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/0b9ce983aac24557446c76f28920cfef2e8c067f",
+                "reference": "0b9ce983aac24557446c76f28920cfef2e8c067f",
                 "shasum": ""
             },
             "require": {
@@ -541,7 +540,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-09-05T15:27:23+00:00"
+            "time": "2024-09-30T14:53:31+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -868,12 +867,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "e6a204cd0360ecdb88c200384133df8573abcdb5"
+                "reference": "afe194425e5fbbaa2314f6f845f79fbeb8fa8cb7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e6a204cd0360ecdb88c200384133df8573abcdb5",
-                "reference": "e6a204cd0360ecdb88c200384133df8573abcdb5",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/afe194425e5fbbaa2314f6f845f79fbeb8fa8cb7",
+                "reference": "afe194425e5fbbaa2314f6f845f79fbeb8fa8cb7",
                 "shasum": ""
             },
             "require": {
@@ -963,7 +962,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-04T06:06:52+00:00"
+            "time": "2024-09-29T06:20:47+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -1935,12 +1934,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "f9052410eb9898a3f1780278bb080dfb930b7fe9"
+                "reference": "9168f539e25f4fe09153f32621bc385f25311919"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/f9052410eb9898a3f1780278bb080dfb930b7fe9",
-                "reference": "f9052410eb9898a3f1780278bb080dfb930b7fe9",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/9168f539e25f4fe09153f32621bc385f25311919",
+                "reference": "9168f539e25f4fe09153f32621bc385f25311919",
                 "shasum": ""
             },
             "require": {
@@ -2008,7 +2007,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-09-02T13:22:27+00:00"
+            "time": "2024-09-30T14:35:07+00:00"
         },
         {
             "name": "swoole/ide-helper",
