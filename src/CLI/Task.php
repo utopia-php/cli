@@ -2,7 +2,7 @@
 
 namespace Utopia\CLI;
 
-use Utopia\Http\Hook;
+use Utopia\Servers\Hook;
 
 class Task extends Hook
 {
