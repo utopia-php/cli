@@ -6,8 +6,8 @@ use Exception;
 use Utopia\CLI\Adapters\Generic;
 use Utopia\DI\Container;
 use Utopia\DI\Dependency;
-use Utopia\Http\Hook;
-use Utopia\Http\Validator;
+use Utopia\Servers\Hook;
+use Utopia\Servers\Validator;
 
 class CLI
 {
