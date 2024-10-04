@@ -258,4 +258,26 @@ class CLITest extends TestCase
 
         $this->assertEquals(null, $cli->match());
     }
+
+    public function testEscaping()
+    {
+        ob_start();
+
+        $database = 'appwrite://database_db_fra1_self_hosted_0_0?database=appwrite&namespace=_1';
+
+        $cli = new CLI(new Generic(), ['test.php', 'connect', '--database='.$database]);
+
+        $cli
+            ->task('connect')
+            ->param('database', null, new Text(2048), 'Database DSN')
+            ->action(function ($database) {
+                echo $database;
+            });
+
+        $cli->run();
+
+        $result = ob_get_clean();
+
+        $this->assertEquals($database, $result);
+    }
 }
