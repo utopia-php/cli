@@ -245,7 +245,7 @@ class CLI
         unset($arg);
 
         foreach ($args as $arg) {
-            $pair = explode('=', $arg);
+            $pair = explode('=', $arg, 2);
             $key = $pair[0];
             $value = $pair[1];
             $output[$key][] = $value;
