@@ -3,6 +3,7 @@
 namespace Utopia\CLI;
 
 use Exception;
+use Throwable;
 use Utopia\Hook;
 use Utopia\Validator;
 
@@ -325,7 +326,7 @@ class CLI
             } else {
                 throw new Exception('No command found');
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             foreach ($this->errors as $hook) {
                 self::setResource('error', fn () => $e);
                 \call_user_func_array($hook->getAction(), $this->getParams($hook));
