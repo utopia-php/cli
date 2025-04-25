@@ -87,7 +87,7 @@ class CLI
      *
      * @throws Exception
      */
-    public function __construct(Adapter $adapter = null, array $args = [])
+    public function __construct(?Adapter $adapter = null, array $args = [])
     {
         if (\php_sapi_name() !== 'cli') {
             throw new Exception('CLI tasks can only work from the command line');
