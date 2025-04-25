@@ -130,7 +130,7 @@ class Console
      * @param  int  $timeout
      * @return int
      */
-    public static function execute(array|string $cmd, string $input, string &$output, int $timeout = -1, callable $onProgress = null): int
+    public static function execute(array|string $cmd, string $input, string &$output, int $timeout = -1, ?callable $onProgress = null): int
     {
         // If the $cmd is passed as string, it will be wrapped into a subshell by \proc_open
         // Forward stdout and exit codes from the subshell.
@@ -216,7 +216,7 @@ class Console
      *
      * @throws \Exception
      */
-    public static function loop(callable $callback, int $sleep = 1 /* seconds */, int $delay = 0 /* seconds */, callable $onError = null): void
+    public static function loop(callable $callback, int $sleep = 1 /* seconds */, int $delay = 0 /* seconds */, ?callable $onError = null): void
     {
         gc_enable();
 
