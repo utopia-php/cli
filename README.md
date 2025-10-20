@@ -20,8 +20,8 @@ script.php
 <?php
 require_once './vendor/autoload.php';
 
+use Utopia\Console;
 use Utopia\CLI\CLI;
-use Utopia\CLI\Console;
 use Utopia\CLI\Adapters\Generic;
 use Utopia\Http\Validator\Wildcard;
 
@@ -52,7 +52,7 @@ There are three types of hooks, init hooks, shutdown hooks and error hooks. Init
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Utopia\CLI\CLI;
-use Utopia\CLI\Console;
+use Utopia\Console;
 use Utopia\Http\Validator\Wildcard;
 
 CLI::setResource('res1', function() {
@@ -83,77 +83,9 @@ $cli
 $cli->run();
 ```
 
-### Log Messages
-
-```php
-Console::log('Plain Log'); // stdout
-```
-
-```php
-Console::success('Green log message'); // stdout
-```
-
-```php
-Console::info('Blue log message'); // stdout
-```
-
-```php
-Console::warning('Yellow log message'); // stderr
-```
-
-```php
-Console::error('Red log message'); // stderr
-```
-
-### Execute Commands
-
-Function returns exit code (0 - OK, >0 - error) and writes stdout, stderr to reference variables. The timeout variable allows you to limit the number of seconds the command can run.
-
-```php
-$stdout = '';
-$stderr = '';
-$stdin = '';
-$timeout = 3; // seconds
-$code = Console::execute('>&1 echo "success"', $stdin, $stdout, $stderr, $timeout);
-
-echo $code; // 0
-echo $stdout; // 'success'
-echo $stderr; // ''
-```
-
-```php
-$stdout = '';
-$stderr = '';
-$stdin = '';
-$timeout = 3; // seconds
-$code = Console::execute('>&2 echo "error"', $stdin, $stdout, $stderr, $timeout);
-
-echo $code; // 0
-echo $stdout; // ''
-echo $stderr; // 'error'
-```
-
-### Create a Daemon
-
-You can use the `Console::loop` command to create your PHP daemon. The `loop` method already handles CPU consumption using a configurable sleep function and calls the PHP garbage collector every 5 minutes.
-
-```php
-<?php
-
-use Utopia\CLI\Console;
-
-include './vendor/autoload.php';
-
-Console::loop(function() {
-    echo "Hello World\n";
-}, 1 /* 1 second */);
-```
-
 ## System Requirements
 
 Utopia Framework requires PHP 7.4 or later. We recommend using the latest PHP version whenever possible.
-
-
 
 ## Copyright and license
 
