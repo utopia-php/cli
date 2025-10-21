@@ -4,7 +4,7 @@ namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Utopia\CLI\Task;
-use Utopia\Http\Validator\Text;
+use Utopia\Validator\Text;
 
 class TaskTest extends TestCase
 {

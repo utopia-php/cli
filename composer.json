@@ -11,12 +11,13 @@
         "format": "vendor/bin/pint"
     },
     "autoload": {
-        "psr-4": {"Utopia\\CLI\\": "src/CLI"}
+        "psr-4": {
+            "Utopia\\CLI\\": "src/CLI"
+        }
     },
     "require": {
         "php": ">=7.4",
-        "utopia-php/framework": "1.0.*",
-        "utopia-php/di": "0.1.*"
+        "utopia-php/servers": "0.2.*"
     },
     "require-dev": {
         "utopia-php/console": "0.0.*",
@@ -25,12 +26,5 @@
         "phpstan/phpstan": "^1.10",
         "laravel/pint": "1.2.*",
         "swoole/ide-helper": "4.8.8"
-    },
-    "minimum-stability": "dev",
-    "config": {
-        "allow-plugins": {
-            "php-http/discovery": true,
-            "tbachert/spi": true
-        }
     }
 }

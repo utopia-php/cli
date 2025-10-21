@@ -23,7 +23,7 @@ require_once './vendor/autoload.php';
 use Utopia\Console;
 use Utopia\CLI\CLI;
 use Utopia\CLI\Adapters\Generic;
-use Utopia\Http\Validator\Wildcard;
+use Utopia\Validator\Wildcard;
 
 $cli = new CLI(new Generic());
 
@@ -53,7 +53,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Utopia\CLI\CLI;
 use Utopia\Console;
-use Utopia\Http\Validator\Wildcard;
+use Utopia\Validator\Wildcard;
 
 CLI::setResource('res1', function() {
     return 'resource 1';

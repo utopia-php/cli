@@ -6,8 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Utopia\CLI\Adapters\Generic;
 use Utopia\CLI\CLI;
 use Utopia\DI\Dependency;
-use Utopia\Http\Validator\ArrayList;
-use Utopia\Http\Validator\Text;
+use Utopia\Validator\ArrayList;
+use Utopia\Validator\Text;
 
 class CLITest extends TestCase
 {
