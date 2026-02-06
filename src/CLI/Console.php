@@ -201,7 +201,7 @@ class Console
      *
      * @throws \Exception
      */
-    public static function loop(callable $callback, int $sleep = 1 /* seconds */, int $delay = 0 /* seconds */, callable $onError = null): void
+    public static function loop(callable $callback, int $sleep = 1 /* seconds */, int $delay = 0 /* seconds */, ?callable $onError = null): void
     {
         gc_enable();
 
