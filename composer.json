@@ -15,8 +15,9 @@
     },
     "require": {
         "php": ">=7.4",
-        "utopia-php/framework": "1.0.*",
-        "utopia-php/di": "0.1.*"
+        "utopia-php/di": "0.3.*",
+        "utopia-php/servers": "0.3.*",
+        "utopia-php/validators": "0.2.*"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.3",
