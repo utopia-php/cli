@@ -5,7 +5,6 @@ namespace Utopia\Tests;
 use PHPUnit\Framework\TestCase;
 use Utopia\CLI\Adapters\Generic;
 use Utopia\CLI\CLI;
-use Utopia\DI\Dependency;
 use Utopia\Validator\ArrayList;
 use Utopia\Validator\Text;
 
@@ -23,20 +22,9 @@ class CLITest extends TestCase
     {
         $cli = new CLI(new Generic(), ['test.php', 'build']);
 
-        $rand = new Dependency();
-        $rand->setName('rand')->setCallback(fn () => rand());
-
-        $first = new Dependency();
-        $first->setName('first')
-            ->inject('second')
-            ->setCallback(fn ($second) => 'first-'.$second);
-
-        $second = new Dependency();
-        $second->setName('second')->setCallback(fn () => 'second');
-
-        $cli->setResource($rand);
-        $cli->setResource($first);
-        $cli->setResource($second);
+        $cli->setResource('rand', fn () => rand());
+        $cli->setResource('first', fn ($second) => 'first-'.$second, ['second']);
+        $cli->setResource('second', fn () => 'second');
 
         $second = $cli->getResource('second');
         $first = $cli->getResource('first');
@@ -197,10 +185,7 @@ class CLITest extends TestCase
 
         $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com']);
 
-        $test = new Dependency();
-        $test->setName('test')->setCallback(fn () => 'test-value');
-
-        $cli->setResource($test);
+        $cli->setResource('test', fn () => 'test-value');
 
         $cli->task('build')
             ->inject('test')

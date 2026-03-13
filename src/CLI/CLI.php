@@ -5,7 +5,6 @@ namespace Utopia\CLI;
 use Exception;
 use Utopia\CLI\Adapters\Generic;
 use Utopia\DI\Container;
-use Utopia\DI\Dependency;
 use Utopia\Servers\Hook;
 use Utopia\Validator;
 
@@ -202,14 +201,16 @@ class CLI
     /**
      * Set a new resource callback
      *
-     * @param  Dependency  $dependency
+     * @param  string  $name
+     * @param  callable  $callback
+     * @param  array  $dependencies
      * @return void
      *
      * @throws Exception
      */
-    public function setResource(Dependency $dependency): void
+    public function setResource(string $name, callable $callback, array $dependencies = []): void
     {
-        $this->container->set($dependency);
+        $this->container->set($name, $callback, $dependencies);
     }
 
     /**
@@ -335,10 +336,7 @@ class CLI
                 }
             } catch (Exception $e) {
                 foreach ($this->errors as $hook) {
-                    $error = new Dependency();
-                    $error->setName('error')->setCallback(fn () => $e);
-
-                    $this->setResource($error);
+                    $this->setResource('error', fn () => $e);
                     \call_user_func_array($hook->getAction(), $this->getParams($hook));
                 }
             }
