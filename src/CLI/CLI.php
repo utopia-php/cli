@@ -33,6 +33,8 @@ class CLI
      */
     protected Container $container;
 
+    protected ?Container $parentContainer = null;
+
     /**
      * Args
      *
@@ -83,10 +85,11 @@ class CLI
      *
      * @param  Adapter|null  $adapter
      * @param  array  $args
+     * @param  Container|null  $container
      *
      * @throws Exception
      */
-    public function __construct(?Adapter $adapter = null, array $args = [])
+    public function __construct(?Adapter $adapter = null, array $args = [], ?Container $container = null)
     {
         if (\php_sapi_name() !== 'cli') {
             throw new Exception('CLI tasks can only work from the command line');
@@ -97,7 +100,8 @@ class CLI
         @\cli_set_process_title($this->command);
 
         $this->adapter = $adapter ?? new Generic();
-        $this->container = new Container();
+        $this->parentContainer = $container;
+        $this->container = new Container($container);
     }
 
     /**
@@ -211,6 +215,11 @@ class CLI
     public function setResource(string $name, callable $callback, array $dependencies = []): void
     {
         $this->container->set($name, $callback, $dependencies);
+    }
+
+    public function getContainer(): Container
+    {
+        return $this->container;
     }
 
     /**
@@ -401,16 +410,17 @@ class CLI
         }
     }
 
-    public function setContainer($container): self
+    public function setContainer(Container $container): self
     {
-        $this->container = $container;
+        $this->parentContainer = $container;
+        $this->container = new Container($container);
 
         return $this;
     }
 
     public function reset(): void
     {
-        $this->container = new Container();
+        $this->container = new Container($this->parentContainer);
     }
 
     private function camelCaseIt($key): string

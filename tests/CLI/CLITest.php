@@ -5,6 +5,7 @@ namespace Utopia\Tests;
 use PHPUnit\Framework\TestCase;
 use Utopia\CLI\Adapters\Generic;
 use Utopia\CLI\CLI;
+use Utopia\DI\Container;
 use Utopia\Validator\ArrayList;
 use Utopia\Validator\Text;
 
@@ -199,6 +200,50 @@ class CLITest extends TestCase
         $result = ob_get_clean();
 
         $this->assertEquals('test-value-me@example.com', $result);
+    }
+
+    public function testProvidedContainer()
+    {
+        ob_start();
+
+        $container = new Container();
+        $container->set('test', fn () => 'test-value');
+
+        $cli = new CLI(new Generic(), ['test.php', 'build'], $container);
+
+        $this->assertNotSame($container, $cli->getContainer());
+        $this->assertEquals('test-value', $cli->getResource('test'));
+
+        $cli->task('build')
+            ->inject('test')
+            ->action(function ($test) {
+                echo $test;
+            });
+
+        $cli->run();
+
+        $result = ob_get_clean();
+
+        $this->assertEquals('test-value', $result);
+    }
+
+    public function testResetPreservesInjectedContainer()
+    {
+        $container = new Container();
+        $container->set('base', fn () => 'base-value');
+
+        $cli = new CLI(new Generic(), ['test.php', 'build'], $container);
+        $cli->setResource('runtime', fn () => 'runtime-value');
+
+        $this->assertEquals('base-value', $cli->getResource('base'));
+        $this->assertEquals('runtime-value', $cli->getResource('runtime'));
+
+        $cli->reset();
+
+        $this->assertEquals('base-value', $cli->getResource('base'));
+
+        $this->expectException(\Exception::class);
+        $cli->getResource('runtime');
     }
 
     public function testMatch()
