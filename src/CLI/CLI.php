@@ -33,6 +33,8 @@ class CLI
      */
     protected Container $container;
 
+    protected ?Container $parentContainer = null;
+
     /**
      * Args
      *
@@ -98,7 +100,8 @@ class CLI
         @\cli_set_process_title($this->command);
 
         $this->adapter = $adapter ?? new Generic();
-        $this->container = $container ?? new Container();
+        $this->parentContainer = $container;
+        $this->container = new Container($container);
     }
 
     /**
@@ -409,14 +412,15 @@ class CLI
 
     public function setContainer(Container $container): self
     {
-        $this->container = $container;
+        $this->parentContainer = $container;
+        $this->container = new Container($container);
 
         return $this;
     }
 
     public function reset(): void
     {
-        $this->container = new Container();
+        $this->container = new Container($this->parentContainer);
     }
 
     private function camelCaseIt($key): string
