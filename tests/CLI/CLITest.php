@@ -5,6 +5,7 @@ namespace Utopia\Tests;
 use PHPUnit\Framework\TestCase;
 use Utopia\CLI\Adapters\Generic;
 use Utopia\CLI\CLI;
+use Utopia\DI\Container;
 use Utopia\Validator\ArrayList;
 use Utopia\Validator\Text;
 
@@ -199,6 +200,30 @@ class CLITest extends TestCase
         $result = ob_get_clean();
 
         $this->assertEquals('test-value-me@example.com', $result);
+    }
+
+    public function testProvidedContainer()
+    {
+        ob_start();
+
+        $container = new Container();
+        $container->set('test', fn () => 'test-value');
+
+        $cli = new CLI(new Generic(), ['test.php', 'build'], $container);
+
+        $this->assertSame($container, $cli->getContainer());
+
+        $cli->task('build')
+            ->inject('test')
+            ->action(function ($test) {
+                echo $test;
+            });
+
+        $cli->run();
+
+        $result = ob_get_clean();
+
+        $this->assertEquals('test-value', $result);
     }
 
     public function testMatch()
