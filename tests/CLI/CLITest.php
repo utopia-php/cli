@@ -211,8 +211,7 @@ class CLITest extends TestCase
 
         $cli = new CLI(new Generic(), ['test.php', 'build'], $container);
 
-        $this->assertNotSame($container, $cli->getContainer());
-        $this->assertEquals('test-value', $cli->getResource('test'));
+        $this->assertSame($container, $cli->getContainer());
 
         $cli->task('build')
             ->inject('test')
@@ -225,25 +224,6 @@ class CLITest extends TestCase
         $result = ob_get_clean();
 
         $this->assertEquals('test-value', $result);
-    }
-
-    public function testResetPreservesInjectedContainer()
-    {
-        $container = new Container();
-        $container->set('base', fn () => 'base-value');
-
-        $cli = new CLI(new Generic(), ['test.php', 'build'], $container);
-        $cli->setResource('runtime', fn () => 'runtime-value');
-
-        $this->assertEquals('base-value', $cli->getResource('base'));
-        $this->assertEquals('runtime-value', $cli->getResource('runtime'));
-
-        $cli->reset();
-
-        $this->assertEquals('base-value', $cli->getResource('base'));
-
-        $this->expectException(\Exception::class);
-        $cli->getResource('runtime');
     }
 
     public function testMatch()
