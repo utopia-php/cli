@@ -7,6 +7,8 @@ use Utopia\CLI\Adapters\Generic;
 use Utopia\CLI\CLI;
 use Utopia\DI\Container;
 use Utopia\Validator\ArrayList;
+use Utopia\Validator\Boolean;
+use Utopia\Validator\Nullable;
 use Utopia\Validator\Text;
 
 class CLITest extends TestCase
@@ -287,6 +289,97 @@ class CLITest extends TestCase
             });
 
         $this->assertEquals(null, $cli->match());
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: bool}>
+     */
+    public static function looseBooleanValuesProvider(): iterable
+    {
+        yield '"false" string' => ['false', false];
+        yield '"true" string' => ['true', true];
+        yield '"0" string' => ['0', false];
+        yield '"1" string' => ['1', true];
+    }
+
+    /**
+     * Regression: --flag=false used to arrive as the literal string "false",
+     * which PHP's implicit string-to-bool cast turned into `true` at the
+     * `bool $flag` parameter boundary. The CLI dispatcher now coerces string
+     * inputs whose validator is `Boolean` to a real PHP bool.
+     *
+     * @dataProvider looseBooleanValuesProvider
+     */
+    public function testBooleanParamCoercesStringInput(string $input, bool $expected): void
+    {
+        $captured = null;
+
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--commit='.$input]);
+
+        $cli
+            ->task('build')
+            ->param('commit', false, new Boolean(true), 'Commit changes', true)
+            ->action(function (bool $commit) use (&$captured) {
+                $captured = $commit;
+            });
+
+        $cli->run();
+
+        $this->assertSame($expected, $captured);
+    }
+
+    public function testBooleanParamUsesDefaultWhenOmitted(): void
+    {
+        $captured = null;
+
+        $cli = new CLI(new Generic(), ['test.php', 'build']);
+
+        $cli
+            ->task('build')
+            ->param('commit', false, new Boolean(true), 'Commit changes', true)
+            ->action(function (bool $commit) use (&$captured) {
+                $captured = $commit;
+            });
+
+        $cli->run();
+
+        $this->assertFalse($captured);
+    }
+
+    public function testBooleanParamCoercionUnwrapsNullable(): void
+    {
+        $captured = 'untouched';
+
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--commit=false']);
+
+        $cli
+            ->task('build')
+            ->param('commit', null, new Nullable(new Boolean(true)), 'Commit changes', true)
+            ->action(function (bool $commit) use (&$captured) {
+                $captured = $commit;
+            });
+
+        $cli->run();
+
+        $this->assertFalse($captured);
+    }
+
+    public function testNonBooleanValidatorPassesValueThroughUnchanged(): void
+    {
+        $captured = null;
+
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--name=false']);
+
+        $cli
+            ->task('build')
+            ->param('name', '', new Text(64), 'A name')
+            ->action(function (string $name) use (&$captured) {
+                $captured = $name;
+            });
+
+        $cli->run();
+
+        $this->assertSame('false', $captured);
     }
 
     public function testEscaping()

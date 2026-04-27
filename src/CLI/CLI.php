@@ -7,6 +7,8 @@ use Utopia\CLI\Adapters\Generic;
 use Utopia\DI\Container;
 use Utopia\Servers\Hook;
 use Utopia\Validator;
+use Utopia\Validator\Boolean;
+use Utopia\Validator\Nullable;
 
 class CLI
 {
@@ -302,7 +304,7 @@ class CLI
 
             $this->validate($key, $param, $value);
 
-            $params[$this->camelCaseIt($key)] = $value;
+            $params[$this->camelCaseIt($key)] = $this->coerce($param['validator'], $value);
         }
 
         foreach ($hook->getDependencies() as $dependency) {
@@ -408,6 +410,45 @@ class CLI
                 throw new Exception('Param "'.$key.'" is not optional.', 400);
             }
         }
+    }
+
+    /**
+     * Coerce string CLI inputs to native PHP types based on the param's validator.
+     *
+     * CLI args arrive as strings via getopt. When the validator is `Boolean`
+     * (loose mode), strings like "true"/"false"/"1"/"0" pass validation but
+     * remain strings. If the action callback declares a `bool` parameter, PHP's
+     * implicit string-to-bool cast turns any non-empty string except "0" into
+     * `true` -- so `--commit=false` silently becomes `true`. Validators in
+     * utopia-php are pure (validate only, never mutate), so the coercion has
+     * to happen here at the dispatch boundary.
+     *
+     * Only string inputs are coerced; bool defaults are passed through
+     * untouched.
+     *
+     * @param  Validator|callable  $validator
+     * @param  mixed  $value
+     * @return mixed
+     */
+    protected function coerce(Validator|callable $validator, mixed $value): mixed
+    {
+        if (! is_string($value)) {
+            return $value;
+        }
+
+        if (\is_callable($validator)) {
+            $validator = $validator();
+        }
+
+        while ($validator instanceof Nullable) {
+            $validator = $validator->getValidator();
+        }
+
+        if ($validator instanceof Boolean) {
+            return \filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return $value;
     }
 
     public function setContainer(Container $container): self
