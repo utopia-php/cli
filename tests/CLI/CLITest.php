@@ -364,6 +364,30 @@ class CLITest extends TestCase
         $this->assertFalse($captured);
     }
 
+    /**
+     * Empty-string params bypass `validate()` when optional, so they reach
+     * `coerce()` un-validated. We must NOT silently turn them into `false`
+     * (callers like Cloud's `Patch.php` use `''` as a "not set" sentinel and
+     * later resolve it to `null`/three-state).
+     */
+    public function testBooleanParamPreservesEmptyStringSentinel(): void
+    {
+        $captured = 'untouched';
+
+        $cli = new CLI(new Generic(), ['test.php', 'build']);
+
+        $cli
+            ->task('build')
+            ->param('commit', '', new Boolean(true), 'Commit changes', true)
+            ->action(function ($commit) use (&$captured) {
+                $captured = $commit;
+            });
+
+        $cli->run();
+
+        $this->assertSame('', $captured);
+    }
+
     public function testNonBooleanValidatorPassesValueThroughUnchanged(): void
     {
         $captured = null;

@@ -424,7 +424,10 @@ class CLI
      * to happen here at the dispatch boundary.
      *
      * Only string inputs are coerced; bool defaults are passed through
-     * untouched.
+     * untouched. Strings that `filter_var` doesn't recognise (including the
+     * empty string, which bypasses `validate()` for optional params) are
+     * passed through unchanged so callers that use `''` as a sentinel for
+     * "not set" keep working.
      *
      * @param  Validator|callable  $validator
      * @param  mixed  $value
@@ -432,7 +435,7 @@ class CLI
      */
     protected function coerce(Validator|callable $validator, mixed $value): mixed
     {
-        if (! is_string($value)) {
+        if (! is_string($value) || $value === '') {
             return $value;
         }
 
@@ -444,11 +447,13 @@ class CLI
             $validator = $validator->getValidator();
         }
 
-        if ($validator instanceof Boolean) {
-            return \filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        if (! ($validator instanceof Boolean)) {
+            return $value;
         }
 
-        return $value;
+        $coerced = \filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        return $coerced === null ? $value : $coerced;
     }
 
     public function setContainer(Container $container): self
