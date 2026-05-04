@@ -17,7 +17,7 @@
     },
     "require": {
         "php": ">=7.4",
-        "utopia-php/servers": "0.3.*"
+        "utopia-php/servers": "dev-feat-param-aliases"
     },
     "require-dev": {
         "utopia-php/console": "0.0.*",
