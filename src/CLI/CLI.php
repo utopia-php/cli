@@ -300,7 +300,18 @@ class CLI
         $params = [];
 
         foreach ($hook->getParams() as $key => $param) {
-            $value = (isset($this->args[$key])) ? $this->args[$key] : $param['default'];
+            $value = $param['default'];
+
+            if (isset($this->args[$key])) {
+                $value = $this->args[$key];
+            } else {
+                foreach ($param['aliases'] ?? [] as $alias) {
+                    if (isset($this->args[$alias])) {
+                        $value = $this->args[$alias];
+                        break;
+                    }
+                }
+            }
 
             $this->validate($key, $param, $value);
 

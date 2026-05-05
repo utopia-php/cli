@@ -427,4 +427,24 @@ class CLITest extends TestCase
 
         $this->assertEquals($database, $result);
     }
+
+    public function testParamAliases()
+    {
+        ob_start();
+
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--e=me@example.com']); // Mock command request using alias
+
+        $cli
+            ->task('build')
+            ->param('email', null, new Text(0), 'Valid email address', false, [], false, false, '', null, ['e', 'em'])
+            ->action(function ($email) {
+                echo $email;
+            });
+
+        $cli->run();
+
+        $result = ob_get_clean();
+
+        $this->assertEquals('me@example.com', $result);
+    }
 }
