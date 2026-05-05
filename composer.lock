@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "39d973bfe74e36b1f3431af3e4ac21ab",
+    "content-hash": "dda2c5ef62367dc1c727431dbd15d1dd",
     "packages": [
         {
             "name": "psr/container",
@@ -112,16 +112,16 @@
         },
         {
             "name": "utopia-php/servers",
-            "version": "dev-feat-param-aliases",
+            "version": "0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/utopia-php/servers.git",
-                "reference": "24bbd8fbb6550bc72f2816d9b0c3b690e38e17fa"
+                "reference": "7db346ef377503efe0acafe0791085270cd9ed70"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/utopia-php/servers/zipball/24bbd8fbb6550bc72f2816d9b0c3b690e38e17fa",
-                "reference": "24bbd8fbb6550bc72f2816d9b0c3b690e38e17fa",
+                "url": "https://api.github.com/repos/utopia-php/servers/zipball/7db346ef377503efe0acafe0791085270cd9ed70",
+                "reference": "7db346ef377503efe0acafe0791085270cd9ed70",
                 "shasum": ""
             },
             "require": {
@@ -160,9 +160,9 @@
             ],
             "support": {
                 "issues": "https://github.com/utopia-php/servers/issues",
-                "source": "https://github.com/utopia-php/servers/tree/feat-param-aliases"
+                "source": "https://github.com/utopia-php/servers/tree/0.4.0"
             },
-            "time": "2026-05-04T11:57:44+00:00"
+            "time": "2026-05-05T04:08:30+00:00"
         },
         {
             "name": "utopia-php/validators",
@@ -2298,9 +2298,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "utopia-php/servers": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
