@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: ['8.1', '8.2', '8.3', 'nightly']
+        php-versions: ['8.3', '8.4', '8.5']
 
     steps:
     - name: Checkout repository
@@ -17,6 +17,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
+        tools: phpunit
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict

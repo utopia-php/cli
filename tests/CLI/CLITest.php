@@ -2,6 +2,7 @@
 
 namespace Utopia\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Utopia\CLI\Adapters\Generic;
 use Utopia\CLI\CLI;
@@ -303,9 +304,8 @@ class CLITest extends TestCase
      * which PHP's implicit string-to-bool cast turned into `true` at the
      * `bool $flag` parameter boundary. The CLI dispatcher now coerces string
      * inputs whose validator is `Boolean` to a real PHP bool.
-     *
-     * @dataProvider looseBooleanValuesProvider
      */
+    #[DataProvider('looseBooleanValuesProvider')]
     public function testBooleanParamCoercesStringInput(string $input, bool $expected): void
     {
         $captured = null;

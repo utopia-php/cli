@@ -12,7 +12,7 @@
     ],
     "license": "MIT",
     "scripts": {
-        "test": "vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt"
+        "test": "phpunit --configuration phpunit.xml < tests/input.txt"
     },
     "autoload": {
         "psr-4": {
@@ -25,7 +25,6 @@
     },
     "require-dev": {
         "utopia-php/console": "0.0.*",
-        "phpunit/phpunit": "^9.3",
         "swoole/ide-helper": "4.8.8"
     }
 }
