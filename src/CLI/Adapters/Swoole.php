@@ -23,7 +23,7 @@ class Swoole extends Adapter
         $this->pool->set(['enable_coroutine' => true]);
 
         $this->onWorkerStart($callback);
-        $this->onWorkerStop(fn () => $this->pool->shutdown());
+        $this->onWorkerStop(fn() => $this->pool->shutdown());
         $this->pool->start();
 
         return $this;
@@ -39,7 +39,7 @@ class Swoole extends Adapter
     public function onWorkerStart($callback): self
     {
         $this->pool->on('WorkerStart', function (Pool $pool, string $workerId) use ($callback) {
-            call_user_func($callback, $workerId);
+            \call_user_func($callback, $workerId);
         });
 
         return $this;
@@ -48,7 +48,7 @@ class Swoole extends Adapter
     public function onWorkerStop(callable $callback): self
     {
         $this->pool->on('WorkerStop', function (Pool $pool, string $workerId) use ($callback) {
-            call_user_func($callback, $workerId);
+            \call_user_func($callback, $workerId);
         });
 
         return $this;
@@ -56,7 +56,7 @@ class Swoole extends Adapter
 
     public function onJob(callable $callback): self
     {
-        call_user_func($callback);
+        \call_user_func($callback);
 
         return $this;
     }

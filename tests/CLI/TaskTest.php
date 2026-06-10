@@ -66,8 +66,7 @@ class TaskTest extends TestCase
         $this->task
             ->inject('user')
             ->inject('time')
-            ->action(function () {
-            });
+            ->action(function () {});
 
         $this->assertCount(2, $this->task->getDependencies());
         $this->assertEquals('user', $this->task->getDependencies()[0]);

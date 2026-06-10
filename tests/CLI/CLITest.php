@@ -13,21 +13,17 @@ use Utopia\Validator\Text;
 
 class CLITest extends TestCase
 {
-    public function setUp(): void
-    {
-    }
+    public function setUp(): void {}
 
-    public function tearDown(): void
-    {
-    }
+    public function tearDown(): void {}
 
     public function testResources()
     {
         $cli = new CLI(new Generic(), ['test.php', 'build']);
 
-        $cli->setResource('rand', fn () => rand());
-        $cli->setResource('first', fn ($second) => 'first-'.$second, ['second']);
-        $cli->setResource('second', fn () => 'second');
+        $cli->setResource('rand', fn() => rand());
+        $cli->setResource('first', fn($second) => 'first-' . $second, ['second']);
+        $cli->setResource('second', fn() => 'second');
 
         $second = $cli->getResource('second');
         $first = $cli->getResource('first');
@@ -93,7 +89,7 @@ class CLITest extends TestCase
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
-                echo $email.'-'.implode('-', $list);
+                echo $email . '-' . implode('-', $list);
             });
 
         $cli->run();
@@ -112,7 +108,7 @@ class CLITest extends TestCase
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
-                echo $email.'-'.implode('-', $list);
+                echo $email . '-' . implode('-', $list);
             });
 
         $cli
@@ -120,7 +116,7 @@ class CLITest extends TestCase
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
-                echo $email.'-'.implode('-', $list);
+                echo $email . '-' . implode('-', $list);
             });
 
         $this->assertCount(2, $cli->getTasks());
@@ -135,7 +131,7 @@ class CLITest extends TestCase
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
-                echo $email.'-'.implode('-', $list);
+                echo $email . '-' . implode('-', $list);
             });
 
         $cli
@@ -143,7 +139,7 @@ class CLITest extends TestCase
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
-                echo $email.'-'.implode('-', $list);
+                echo $email . '-' . implode('-', $list);
             });
 
         $this->assertCount(2, $cli->getArgs());
@@ -171,13 +167,13 @@ class CLITest extends TestCase
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
-                echo $email.'-'.implode('-', $list);
+                echo $email . '-' . implode('-', $list);
             });
 
-        \ob_start();
+        ob_start();
 
         $cli->run();
-        $result = \ob_get_clean();
+        $result = ob_get_clean();
 
         $this->assertEquals('(init)-me@example.com-item1-item2-(shutdown)', $result);
     }
@@ -188,13 +184,13 @@ class CLITest extends TestCase
 
         $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com']);
 
-        $cli->setResource('test', fn () => 'test-value');
+        $cli->setResource('test', fn() => 'test-value');
 
         $cli->task('build')
             ->inject('test')
             ->param('email', null, new Text(15), 'valid email address')
             ->action(function ($test, $email) {
-                echo $test.'-'.$email;
+                echo $test . '-' . $email;
             });
 
         $cli->run();
@@ -209,7 +205,7 @@ class CLITest extends TestCase
         ob_start();
 
         $container = new Container();
-        $container->set('test', fn () => 'test-value');
+        $container->set('test', fn() => 'test-value');
 
         $cli = new CLI(new Generic(), ['test.php', 'build'], $container);
 
@@ -232,10 +228,10 @@ class CLITest extends TestCase
     public function testResetPreservesInjectedContainer()
     {
         $container = new Container();
-        $container->set('base', fn () => 'base-value');
+        $container->set('base', fn() => 'base-value');
 
         $cli = new CLI(new Generic(), ['test.php', 'build'], $container);
-        $cli->setResource('runtime', fn () => 'runtime-value');
+        $cli->setResource('runtime', fn() => 'runtime-value');
 
         $this->assertEquals('base-value', $cli->getResource('base'));
         $this->assertEquals('runtime-value', $cli->getResource('runtime'));
@@ -257,7 +253,7 @@ class CLITest extends TestCase
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
-                echo $email.'-'.implode('-', $list);
+                echo $email . '-' . implode('-', $list);
             });
 
         $cli
@@ -265,7 +261,7 @@ class CLITest extends TestCase
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
-                echo $email.'-'.implode('-', $list);
+                echo $email . '-' . implode('-', $list);
             });
 
         $this->assertEquals('build2', $cli->match()->getName());
@@ -277,7 +273,7 @@ class CLITest extends TestCase
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
-                echo $email.'-'.implode('-', $list);
+                echo $email . '-' . implode('-', $list);
             });
 
         $cli
@@ -285,7 +281,7 @@ class CLITest extends TestCase
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
             ->action(function ($email, $list) {
-                echo $email.'-'.implode('-', $list);
+                echo $email . '-' . implode('-', $list);
             });
 
         $this->assertEquals(null, $cli->match());
@@ -314,7 +310,7 @@ class CLITest extends TestCase
     {
         $captured = null;
 
-        $cli = new CLI(new Generic(), ['test.php', 'build', '--commit='.$input]);
+        $cli = new CLI(new Generic(), ['test.php', 'build', '--commit=' . $input]);
 
         $cli
             ->task('build')
@@ -412,7 +408,7 @@ class CLITest extends TestCase
 
         $database = 'appwrite://database_db_fra1_self_hosted_0_0?database=appwrite&namespace=_1';
 
-        $cli = new CLI(new Generic(), ['test.php', 'connect', '--database='.$database]);
+        $cli = new CLI(new Generic(), ['test.php', 'connect', '--database=' . $database]);
 
         $cli
             ->task('connect')

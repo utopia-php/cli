@@ -93,13 +93,13 @@ class CLI
      */
     public function __construct(?Adapter $adapter = null, array $args = [], ?Container $container = null)
     {
-        if (\php_sapi_name() !== 'cli') {
+        if (php_sapi_name() !== 'cli') {
             throw new Exception('CLI tasks can only work from the command line');
         }
 
         $this->args = $this->parse((! empty($args) || ! isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
-        @\cli_set_process_title($this->command);
+        @cli_set_process_title($this->command);
 
         $this->adapter = $adapter ?? new Generic();
         $this->parentContainer = $container;
@@ -179,7 +179,7 @@ class CLI
     public function getResource(string $name): mixed
     {
         if (! $this->container->has($name)) {
-            throw new Exception('Failed to find resource: "'.$name.'"');
+            throw new Exception('Failed to find resource: "' . $name . '"');
         }
 
         return $this->container->get($name);
@@ -234,10 +234,10 @@ class CLI
      */
     public function parse(array $args): array
     {
-        \array_shift($args); // Remove script path from args
+        array_shift($args); // Remove script path from args
 
         if (isset($args[0])) {
-            $this->command = \array_shift($args);
+            $this->command = array_shift($args);
         } else {
             throw new Exception('Missing command');
         }
@@ -245,8 +245,8 @@ class CLI
         $output = [];
 
         foreach ($args as &$arg) {
-            if (\substr($arg, 0, 2) === '--') {
-                $arg = \substr($arg, 2);
+            if (substr($arg, 0, 2) === '--') {
+                $arg = substr($arg, 2);
             }
         }
 
@@ -268,7 +268,7 @@ class CLI
              * If there is only one element in a particular key
              * unshift the value out of the array
              */
-            if (count($value) == 1) {
+            if (\count($value) == 1) {
                 $output[$key] = array_shift($output[$key]);
             }
         }
@@ -319,7 +319,7 @@ class CLI
         }
 
         foreach ($hook->getDependencies() as $dependency) {
-            if (array_key_exists($this->camelCaseIt($dependency), $params)) {
+            if (\array_key_exists($this->camelCaseIt($dependency), $params)) {
                 continue;
             }
 
@@ -358,7 +358,7 @@ class CLI
                 }
             } catch (Exception $e) {
                 foreach ($this->errors as $hook) {
-                    $this->setResource('error', fn () => $e);
+                    $this->setResource('error', fn() => $e);
                     \call_user_func_array($hook->getAction(), $this->getParams($hook));
                 }
             }
@@ -414,11 +414,11 @@ class CLI
             }
 
             if (! $validator->isValid($value)) {
-                throw new Exception('Invalid '.$key.': '.$validator->getDescription(), 400);
+                throw new Exception('Invalid ' . $key . ': ' . $validator->getDescription(), 400);
             }
         } else {
             if (! $param['optional']) {
-                throw new Exception('Param "'.$key.'" is not optional.', 400);
+                throw new Exception('Param "' . $key . '" is not optional.', 400);
             }
         }
     }
@@ -446,7 +446,7 @@ class CLI
      */
     protected function coerce(Validator|callable $validator, mixed $value): mixed
     {
-        if (! is_string($value) || $value === '') {
+        if (! \is_string($value) || $value === '') {
             return $value;
         }
 
@@ -462,7 +462,7 @@ class CLI
             return $value;
         }
 
-        $coerced = \filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $coerced = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
         return $coerced === null ? $value : $coerced;
     }
@@ -483,7 +483,7 @@ class CLI
     private function camelCaseIt($key): string
     {
         $key = str_replace('-', '_', $key);
-        $camelCase = \lcfirst(\str_replace('_', '', \ucwords($key, '_')));
+        $camelCase = lcfirst(str_replace('_', '', ucwords($key, '_')));
 
         return  $camelCase;
     }

@@ -35,7 +35,7 @@ class Generic extends Adapter
 
     public function onJob(callable $callback): self
     {
-        call_user_func($callback);
+        \call_user_func($callback);
 
         return $this;
     }
