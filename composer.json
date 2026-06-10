@@ -2,13 +2,17 @@
     "name": "utopia-php/cli",
     "description": "A simple CLI library to manage command line applications",
     "type": "library",
-    "keywords": ["php","framework", "upf", "utopia", "cli", "command line"],
+    "keywords": [
+        "php",
+        "framework",
+        "upf",
+        "utopia",
+        "cli",
+        "command line"
+    ],
     "license": "MIT",
     "scripts": {
-        "test": "vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt",
-        "check": "vendor/bin/phpstan analyse -c phpstan.neon",
-        "lint": "vendor/bin/pint --test",
-        "format": "vendor/bin/pint"
+        "test": "vendor/bin/phpunit --configuration phpunit.xml < tests/input.txt"
     },
     "autoload": {
         "psr-4": {
@@ -22,9 +26,6 @@
     "require-dev": {
         "utopia-php/console": "0.0.*",
         "phpunit/phpunit": "^9.3",
-        "squizlabs/php_codesniffer": "^3.6",
-        "phpstan/phpstan": "^1.10",
-        "laravel/pint": "1.2.*",
         "swoole/ide-helper": "4.8.8"
     }
 }
