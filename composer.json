@@ -21,7 +21,7 @@
     },
     "require": {
         "php": ">=7.4",
-        "utopia-php/servers": "0.4.*"
+        "utopia-php/servers": "^0.4"
     },
     "require-dev": {
         "utopia-php/console": "0.0.*",
