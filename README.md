@@ -1,6 +1,6 @@
 # Utopia CLI
 
-[![Build Status](https://travis-ci.org/utopia-php/cli.svg?branch=master)](https://travis-ci.com/utopia-php/cli)
+[![Tests](https://github.com/utopia-php/monorepo/actions/workflows/tests.yml/badge.svg)](https://github.com/utopia-php/monorepo/actions/workflows/tests.yml)
 ![Total Downloads](https://img.shields.io/packagist/dt/utopia-php/cli.svg)
 [![Discord](https://img.shields.io/discord/564160730845151244)](https://appwrite.io/discord)
 
