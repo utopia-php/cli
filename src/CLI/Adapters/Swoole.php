@@ -38,7 +38,7 @@ class Swoole extends Adapter
 
     public function onWorkerStart($callback): self
     {
-        $this->pool->on('WorkerStart', function (Pool $pool, string $workerId) use ($callback) {
+        $this->pool->on('WorkerStart', function (Pool $pool, string $workerId) use ($callback): void {
             \call_user_func($callback, $workerId);
         });
 
@@ -47,7 +47,7 @@ class Swoole extends Adapter
 
     public function onWorkerStop(callable $callback): self
     {
-        $this->pool->on('WorkerStop', function (Pool $pool, string $workerId) use ($callback) {
+        $this->pool->on('WorkerStop', function (Pool $pool, string $workerId) use ($callback): void {
             \call_user_func($callback, $workerId);
         });
 

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Utopia\CLI\Task;
 use Utopia\Validator\Text;
 
-class TaskTest extends TestCase
+final class TaskTest extends TestCase
 {
     /**
      * @var ?Task
@@ -23,28 +25,26 @@ class TaskTest extends TestCase
         $this->task = null;
     }
 
-    public function testName()
+    public function testName(): void
     {
         $this->assertEquals('test', $this->task->getName());
     }
 
-    public function testDescription()
+    public function testDescription(): void
     {
         $this->task->desc('test task');
 
         $this->assertEquals('test task', $this->task->getDesc());
     }
 
-    public function testAction()
+    public function testAction(): void
     {
-        $this->task->action(function () {
-            return 'result';
-        });
+        $this->task->action(fn(): string => 'result');
 
         $this->assertEquals('result', $this->task->getAction()());
     }
 
-    public function testLabel()
+    public function testLabel(): void
     {
         $this->task->label('key', 'value');
 
@@ -52,21 +52,21 @@ class TaskTest extends TestCase
         $this->assertEquals('default', $this->task->getLabel('unknown', 'default'));
     }
 
-    public function testParam()
+    public function testParam(): void
     {
         $this->task->param('email', 'me@example.com', new Text(0), 'Param with valid email address', false);
 
         $this->assertCount(1, $this->task->getParams());
     }
 
-    public function testResources()
+    public function testResources(): void
     {
         $this->assertEquals([], $this->task->getDependencies());
 
         $this->task
             ->inject('user')
             ->inject('time')
-            ->action(function () {});
+            ->action(function (): void {});
 
         $this->assertCount(2, $this->task->getDependencies());
         $this->assertEquals('user', $this->task->getDependencies()[0]);

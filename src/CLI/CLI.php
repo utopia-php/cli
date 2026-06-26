@@ -16,8 +16,6 @@ class CLI
      * Adapter
      *
      * Type of adapter to pass the callable to
-     *
-     * @var Adapter
      */
     protected Adapter $adapter;
 
@@ -25,14 +23,9 @@ class CLI
      * Command
      *
      * The name of the command requested for this process
-     *
-     * @var string
      */
     protected string $command = '';
 
-    /**
-     * @var Container
-     */
     protected Container $container;
 
     protected ?Container $parentContainer = null;
@@ -41,8 +34,6 @@ class CLI
      * Args
      *
      * List of arguments passed to this process
-     *
-     * @var array
      */
     protected array $args = [];
 
@@ -50,8 +41,6 @@ class CLI
      * Tasks
      *
      * List of commands tasks for this CLI process
-     *
-     * @var array
      */
     protected array $tasks = [];
 
@@ -85,9 +74,6 @@ class CLI
     /**
      * CLI constructor.
      *
-     * @param  Adapter|null  $adapter
-     * @param  array  $args
-     * @param  Container|null  $container
      *
      * @throws Exception
      */
@@ -97,7 +83,7 @@ class CLI
             throw new Exception('CLI tasks can only work from the command line');
         }
 
-        $this->args = $this->parse((! empty($args) || ! isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
+        $this->args = $this->parse(($args !== [] || ! isset($_SERVER['argv'])) ? $args : $_SERVER['argv']);
 
         @cli_set_process_title($this->command);
 
@@ -110,8 +96,6 @@ class CLI
      * Init
      *
      * Set a callback function that will be initialized on application start
-     *
-     * @return Hook
      */
     public function init(): Hook
     {
@@ -125,8 +109,6 @@ class CLI
      * Shutdown
      *
      * Set a callback function that will be initialized on application end
-     *
-     * @return Hook
      */
     public function shutdown(): Hook
     {
@@ -140,8 +122,6 @@ class CLI
      * Error
      *
      * An error callback for failed or no matched requests
-     *
-     * @return Hook
      */
     public function error(): Hook
     {
@@ -155,9 +135,6 @@ class CLI
      * Task
      *
      * Add a new command task
-     *
-     * @param  string  $name
-     * @return Task
      */
     public function task(string $name): Task
     {
@@ -171,8 +148,6 @@ class CLI
     /**
      * If a resource has been created return it, otherwise create it and then return it
      *
-     * @param  string  $name
-     * @return mixed
      *
      * @throws Exception
      */
@@ -188,8 +163,6 @@ class CLI
     /**
      * Get Resources By List
      *
-     * @param  array  $list
-     * @return array
      *
      * @throws Exception
      */
@@ -207,10 +180,6 @@ class CLI
     /**
      * Set a new resource callback
      *
-     * @param  string  $name
-     * @param  callable  $callback
-     * @param  array  $dependencies
-     * @return void
      *
      * @throws Exception
      */
@@ -227,8 +196,6 @@ class CLI
     /**
      * task-name --foo=test
      *
-     * @param  array  $args
-     * @return array
      *
      * @throws Exception
      */
@@ -268,7 +235,7 @@ class CLI
              * If there is only one element in a particular key
              * unshift the value out of the array
              */
-            if (\count($value) == 1) {
+            if (\count($value) === 1) {
                 $output[$key] = array_shift($output[$key]);
             }
         }
@@ -278,8 +245,6 @@ class CLI
 
     /**
      * Find the command that should be triggered
-     *
-     * @return Task|null
      */
     public function match(): ?Task
     {
@@ -290,8 +255,6 @@ class CLI
      * Get Params
      * Get runtime params for the provided Hook
      *
-     * @param  Hook  $hook
-     * @return array
      *
      * @throws Exception
      */
@@ -338,11 +301,11 @@ class CLI
      */
     public function run(): self
     {
-        $this->adapter->start(function () {
+        $this->adapter->start(function (): void {
             $command = $this->match();
 
             try {
-                if ($command) {
+                if ($command instanceof \Utopia\CLI\Task) {
                     foreach ($this->init as $hook) {
                         \call_user_func_array($hook->getAction(), $this->getParams($hook));
                     }
@@ -358,7 +321,7 @@ class CLI
                 }
             } catch (Exception $e) {
                 foreach ($this->errors as $hook) {
-                    $this->setResource('error', fn() => $e);
+                    $this->setResource('error', fn(): \Exception => $e);
                     \call_user_func_array($hook->getAction(), $this->getParams($hook));
                 }
             }
@@ -379,8 +342,6 @@ class CLI
 
     /**
      * Get list of all args
-     *
-     * @return array
      */
     public function getArgs(): array
     {
@@ -392,8 +353,6 @@ class CLI
      *
      * Creates an validator instance and validate given value with given rules.
      *
-     * @param  string  $key
-     * @param  array  $param
      * @param  mixed  $value
      *
      * @throws Exception
@@ -403,23 +362,18 @@ class CLI
         if ('' !== $value) {
             // checking whether the class exists
             $validator = $param['validator'];
-
             if (\is_callable($validator)) {
                 $validator = $validator();
             }
-
             // is the validator object an instance of the Validator class
             if (! $validator instanceof Validator) {
                 throw new Exception('Validator object is not an instance of the Validator class', 500);
             }
-
             if (! $validator->isValid($value)) {
                 throw new Exception('Invalid ' . $key . ': ' . $validator->getDescription(), 400);
             }
-        } else {
-            if (! $param['optional']) {
-                throw new Exception('Param "' . $key . '" is not optional.', 400);
-            }
+        } elseif (! $param['optional']) {
+            throw new Exception('Param "' . $key . '" is not optional.', 400);
         }
     }
 
@@ -439,10 +393,6 @@ class CLI
      * empty string, which bypasses `validate()` for optional params) are
      * passed through unchanged so callers that use `''` as a sentinel for
      * "not set" keep working.
-     *
-     * @param  Validator|callable  $validator
-     * @param  mixed  $value
-     * @return mixed
      */
     protected function coerce(Validator|callable $validator, mixed $value): mixed
     {
@@ -464,7 +414,7 @@ class CLI
 
         $coerced = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
-        return $coerced === null ? $value : $coerced;
+        return $coerced ?? $value;
     }
 
     public function setContainer(Container $container): self
@@ -483,8 +433,7 @@ class CLI
     private function camelCaseIt($key): string
     {
         $key = str_replace('-', '_', $key);
-        $camelCase = lcfirst(str_replace('_', '', ucwords($key, '_')));
 
-        return  $camelCase;
+        return  lcfirst(str_replace('_', '', ucwords($key, '_')));
     }
 }

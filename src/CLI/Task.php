@@ -1,20 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\CLI;
 
 use Utopia\Servers\Hook;
 
 class Task extends Hook
 {
-    /**
-     * @var string
-     */
     protected string $name = '';
 
     /**
      * Task constructor.
-     *
-     * @param  string  $name
      */
     public function __construct(string $name)
     {
@@ -23,8 +20,6 @@ class Task extends Hook
 
     /**
      * Get Name
-     *
-     * @return string
      */
     public function getName(): string
     {

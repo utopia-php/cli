@@ -6,11 +6,6 @@ use Utopia\CLI\Adapter;
 
 class Generic extends Adapter
 {
-    public function __construct(int $workerNum = 0)
-    {
-        parent::__construct($workerNum);
-    }
-
     public function start($callback): self
     {
         $callback();

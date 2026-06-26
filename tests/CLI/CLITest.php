@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -12,19 +14,19 @@ use Utopia\Validator\Boolean;
 use Utopia\Validator\Nullable;
 use Utopia\Validator\Text;
 
-class CLITest extends TestCase
+final class CLITest extends TestCase
 {
     public function setUp(): void {}
 
     public function tearDown(): void {}
 
-    public function testResources()
+    public function testResources(): void
     {
         $cli = new CLI(new Generic(), ['test.php', 'build']);
 
-        $cli->setResource('rand', fn() => rand());
-        $cli->setResource('first', fn($second) => 'first-' . $second, ['second']);
-        $cli->setResource('second', fn() => 'second');
+        $cli->setResource('rand', fn(): int => random_int(0, mt_getrandmax()));
+        $cli->setResource('first', fn($second): string => 'first-' . $second, ['second']);
+        $cli->setResource('second', fn(): string => 'second');
 
         $second = $cli->getResource('second');
         $first = $cli->getResource('first');
@@ -39,7 +41,7 @@ class CLITest extends TestCase
         $this->assertEquals($resource, $cli->getResource('rand'));
     }
 
-    public function testAppSuccess()
+    public function testAppSuccess(): void
     {
         ob_start();
 
@@ -48,7 +50,7 @@ class CLITest extends TestCase
         $cli
             ->task('build')
             ->param('email', null, new Text(0), 'Valid email address')
-            ->action(function ($email) {
+            ->action(function ($email): void {
                 echo $email;
             });
 
@@ -56,10 +58,10 @@ class CLITest extends TestCase
 
         $result = ob_get_clean();
 
-        $this->assertEquals('me@example.com', $result);
+        $this->assertSame('me@example.com', $result);
     }
 
-    public function testAppFailure()
+    public function testAppFailure(): void
     {
         ob_start();
 
@@ -68,7 +70,7 @@ class CLITest extends TestCase
         $cli
             ->task('build')
             ->param('email', null, new Text(10), 'Valid email address')
-            ->action(function ($email) {
+            ->action(function ($email): void {
                 echo $email;
             });
 
@@ -76,10 +78,10 @@ class CLITest extends TestCase
 
         $result = ob_get_clean();
 
-        $this->assertEquals('', $result);
+        $this->assertSame('', $result);
     }
 
-    public function testAppArray()
+    public function testAppArray(): void
     {
         ob_start();
 
@@ -89,7 +91,7 @@ class CLITest extends TestCase
             ->task('build')
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
-            ->action(function ($email, $list) {
+            ->action(function (string $email, $list): void {
                 echo $email . '-' . implode('-', $list);
             });
 
@@ -97,10 +99,10 @@ class CLITest extends TestCase
 
         $result = ob_get_clean();
 
-        $this->assertEquals('me@example.com-item1-item2', $result);
+        $this->assertSame('me@example.com-item1-item2', $result);
     }
 
-    public function testGetTasks()
+    public function testGetTasks(): void
     {
         $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
@@ -108,7 +110,7 @@ class CLITest extends TestCase
             ->task('build1')
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
-            ->action(function ($email, $list) {
+            ->action(function (string $email, $list): void {
                 echo $email . '-' . implode('-', $list);
             });
 
@@ -116,14 +118,14 @@ class CLITest extends TestCase
             ->task('build2')
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
-            ->action(function ($email, $list) {
+            ->action(function (string $email, $list): void {
                 echo $email . '-' . implode('-', $list);
             });
 
         $this->assertCount(2, $cli->getTasks());
     }
 
-    public function testGetArgs()
+    public function testGetArgs(): void
     {
         $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
@@ -131,7 +133,7 @@ class CLITest extends TestCase
             ->task('build1')
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
-            ->action(function ($email, $list) {
+            ->action(function (string $email, $list): void {
                 echo $email . '-' . implode('-', $list);
             });
 
@@ -139,27 +141,27 @@ class CLITest extends TestCase
             ->task('build2')
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
-            ->action(function ($email, $list) {
+            ->action(function (string $email, $list): void {
                 echo $email . '-' . implode('-', $list);
             });
 
         $this->assertCount(2, $cli->getArgs());
-        $this->assertEquals(['email' => 'me@example.com', 'list' => ['item1', 'item2']], $cli->getArgs());
+        $this->assertSame(['email' => 'me@example.com', 'list' => ['item1', 'item2']], $cli->getArgs());
     }
 
-    public function testHook()
+    public function testHook(): void
     {
         $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com', '--list=item1', '--list=item2']);
 
         $cli
             ->init()
-            ->action(function () {
+            ->action(function (): void {
                 echo '(init)-';
             });
 
         $cli
             ->shutdown()
-            ->action(function () {
+            ->action(function (): void {
                 echo '-(shutdown)';
             });
 
@@ -167,7 +169,7 @@ class CLITest extends TestCase
             ->task('build')
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
-            ->action(function ($email, $list) {
+            ->action(function (string $email, $list): void {
                 echo $email . '-' . implode('-', $list);
             });
 
@@ -176,21 +178,21 @@ class CLITest extends TestCase
         $cli->run();
         $result = ob_get_clean();
 
-        $this->assertEquals('(init)-me@example.com-item1-item2-(shutdown)', $result);
+        $this->assertSame('(init)-me@example.com-item1-item2-(shutdown)', $result);
     }
 
-    public function testInjection()
+    public function testInjection(): void
     {
         ob_start();
 
         $cli = new CLI(new Generic(), ['test.php', 'build', '--email=me@example.com']);
 
-        $cli->setResource('test', fn() => 'test-value');
+        $cli->setResource('test', fn(): string => 'test-value');
 
         $cli->task('build')
             ->inject('test')
             ->param('email', null, new Text(15), 'valid email address')
-            ->action(function ($test, $email) {
+            ->action(function (string $test, string $email): void {
                 echo $test . '-' . $email;
             });
 
@@ -198,15 +200,15 @@ class CLITest extends TestCase
 
         $result = ob_get_clean();
 
-        $this->assertEquals('test-value-me@example.com', $result);
+        $this->assertSame('test-value-me@example.com', $result);
     }
 
-    public function testProvidedContainer()
+    public function testProvidedContainer(): void
     {
         ob_start();
 
         $container = new Container();
-        $container->set('test', fn() => 'test-value');
+        $container->set('test', fn(): string => 'test-value');
 
         $cli = new CLI(new Generic(), ['test.php', 'build'], $container);
 
@@ -215,7 +217,7 @@ class CLITest extends TestCase
 
         $cli->task('build')
             ->inject('test')
-            ->action(function ($test) {
+            ->action(function ($test): void {
                 echo $test;
             });
 
@@ -223,16 +225,16 @@ class CLITest extends TestCase
 
         $result = ob_get_clean();
 
-        $this->assertEquals('test-value', $result);
+        $this->assertSame('test-value', $result);
     }
 
-    public function testResetPreservesInjectedContainer()
+    public function testResetPreservesInjectedContainer(): void
     {
         $container = new Container();
-        $container->set('base', fn() => 'base-value');
+        $container->set('base', fn(): string => 'base-value');
 
         $cli = new CLI(new Generic(), ['test.php', 'build'], $container);
-        $cli->setResource('runtime', fn() => 'runtime-value');
+        $cli->setResource('runtime', fn(): string => 'runtime-value');
 
         $this->assertEquals('base-value', $cli->getResource('base'));
         $this->assertEquals('runtime-value', $cli->getResource('runtime'));
@@ -245,7 +247,7 @@ class CLITest extends TestCase
         $cli->getResource('runtime');
     }
 
-    public function testMatch()
+    public function testMatch(): void
     {
         $cli = new CLI(new Generic(), ['test.php', 'build2', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
@@ -253,7 +255,7 @@ class CLITest extends TestCase
             ->task('build1')
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
-            ->action(function ($email, $list) {
+            ->action(function (string $email, $list): void {
                 echo $email . '-' . implode('-', $list);
             });
 
@@ -261,11 +263,11 @@ class CLITest extends TestCase
             ->task('build2')
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
-            ->action(function ($email, $list) {
+            ->action(function (string $email, $list): void {
                 echo $email . '-' . implode('-', $list);
             });
 
-        $this->assertEquals('build2', $cli->match()->getName());
+        $this->assertSame('build2', $cli->match()->getName());
 
         $cli = new CLI(new Generic(), ['test.php', 'buildx', '--email=me@example.com', '--list=item1', '--list=item2']); // Mock command request
 
@@ -273,7 +275,7 @@ class CLITest extends TestCase
             ->task('build1')
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
-            ->action(function ($email, $list) {
+            ->action(function (string $email, $list): void {
                 echo $email . '-' . implode('-', $list);
             });
 
@@ -281,7 +283,7 @@ class CLITest extends TestCase
             ->task('build2')
             ->param('email', null, new Text(0), 'Valid email address')
             ->param('list', null, new ArrayList(new Text(256)), 'List of strings')
-            ->action(function ($email, $list) {
+            ->action(function (string $email, $list): void {
                 echo $email . '-' . implode('-', $list);
             });
 
@@ -315,7 +317,7 @@ class CLITest extends TestCase
         $cli
             ->task('build')
             ->param('commit', false, new Boolean(true), 'Commit changes', true)
-            ->action(function (bool $commit) use (&$captured) {
+            ->action(function (bool $commit) use (&$captured): void {
                 $captured = $commit;
             });
 
@@ -333,7 +335,7 @@ class CLITest extends TestCase
         $cli
             ->task('build')
             ->param('commit', false, new Boolean(true), 'Commit changes', true)
-            ->action(function (bool $commit) use (&$captured) {
+            ->action(function (bool $commit) use (&$captured): void {
                 $captured = $commit;
             });
 
@@ -351,7 +353,7 @@ class CLITest extends TestCase
         $cli
             ->task('build')
             ->param('commit', null, new Nullable(new Boolean(true)), 'Commit changes', true)
-            ->action(function (bool $commit) use (&$captured) {
+            ->action(function (bool $commit) use (&$captured): void {
                 $captured = $commit;
             });
 
@@ -375,7 +377,7 @@ class CLITest extends TestCase
         $cli
             ->task('build')
             ->param('commit', '', new Boolean(true), 'Commit changes', true)
-            ->action(function ($commit) use (&$captured) {
+            ->action(function ($commit) use (&$captured): void {
                 $captured = $commit;
             });
 
@@ -393,7 +395,7 @@ class CLITest extends TestCase
         $cli
             ->task('build')
             ->param('name', '', new Text(64), 'A name')
-            ->action(function (string $name) use (&$captured) {
+            ->action(function (string $name) use (&$captured): void {
                 $captured = $name;
             });
 
@@ -402,7 +404,7 @@ class CLITest extends TestCase
         $this->assertSame('false', $captured);
     }
 
-    public function testEscaping()
+    public function testEscaping(): void
     {
         ob_start();
 
@@ -413,7 +415,7 @@ class CLITest extends TestCase
         $cli
             ->task('connect')
             ->param('database', null, new Text(2048), 'Database DSN')
-            ->action(function ($database) {
+            ->action(function ($database): void {
                 echo $database;
             });
 
@@ -421,10 +423,10 @@ class CLITest extends TestCase
 
         $result = ob_get_clean();
 
-        $this->assertEquals($database, $result);
+        $this->assertSame($database, $result);
     }
 
-    public function testParamAliases()
+    public function testParamAliases(): void
     {
         ob_start();
 
@@ -433,7 +435,7 @@ class CLITest extends TestCase
         $cli
             ->task('build')
             ->param('email', null, new Text(0), 'Valid email address', false, [], false, false, '', null, ['e', 'em'])
-            ->action(function ($email) {
+            ->action(function ($email): void {
                 echo $email;
             });
 
@@ -441,6 +443,6 @@ class CLITest extends TestCase
 
         $result = ob_get_clean();
 
-        $this->assertEquals('me@example.com', $result);
+        $this->assertSame('me@example.com', $result);
     }
 }
